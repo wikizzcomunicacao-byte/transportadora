@@ -60,7 +60,12 @@
                             <input type="number" id="coleta-pacotes" min="1" placeholder="Ex: 120" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                         </div>
 
-                        <button onclick="salvarColeta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Coleta</button>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO / COMPROVANTE DE COLETA (OPCIONAL)</label>
+                            <input type="file" id="coleta-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                        </div>
+
+                        <button onclick="salvarColeta()" id="btn-salvar-coleta" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Coleta</button>
                     </div>
 
                     <!-- ABA 2: VIAGEM E ABASTECIMENTO -->
@@ -81,13 +86,18 @@
                             </div>
                         </div>
 
-                        <button onclick="salvarViagemAbastecimento()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Viagem / Abastecimento</button>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO PAINEL / NOTA ABASTECIMENTO (OPCIONAL)</label>
+                            <input type="file" id="viagem-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                        </div>
+
+                        <button onclick="salvarViagemAbastecimento()" id="btn-salvar-viagem" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Viagem / Abastecimento</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ================= PAINEL DO GESTOR MELLHORADO ================= -->
+        <!-- ================= PAINEL DO GESTOR ================= -->
         <section id="painel-gestor" class="space-y-6 hidden">
             
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -154,16 +164,14 @@
                 </div>
             </div>
 
-            <!-- Secção de Gráficos Analíticos -->
+            <!-- Seção de Gráficos Analíticos -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Gráfico de Pacotes por Motorista -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                     <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
                     <div class="h-64">
                         <canvas id="chartMotoristas"></canvas>
                     </div>
                 </div>
-                <!-- Gráfico de Plataformas (Shopee vs ML) -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
                     <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">🎯 Shopee vs Mercado Livre</h3>
                     <div class="h-64 flex items-center justify-center">
@@ -186,6 +194,7 @@
                                 <th class="p-3">Motorista</th>
                                 <th class="p-3">Tipo</th>
                                 <th class="p-3">Detalhes</th>
+                                <th class="p-3">Comprovante</th>
                                 <th class="p-3 text-right">Ação</th>
                             </tr>
                         </thead>
@@ -211,6 +220,28 @@
         let dadosGlobais = [];
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
+
+        // Função de Upload de Foto para o Supabase Storage
+        async function fazerUploadFoto(inputElement) {
+            if (!inputElement.files || inputElement.files.length === 0) {
+                return null;
+            }
+            const file = inputElement.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const filePath = `fotos/${fileName}`;
+
+            const { data, error } = await supabaseClient.storage.from('comprovantes').upload(filePath, file);
+
+            if (error) {
+                console.error("Erro no upload da foto:", error);
+                alert("Erro ao enviar a imagem. O registro será salvo sem foto.");
+                return null;
+            }
+
+            const { data: publicUrlData } = supabaseClient.storage.from('comprovantes').getPublicUrl(filePath);
+            return publicUrlData.publicUrl;
+        }
 
         // Alternar Perfis (Funcionário / Gestor)
         function mudarPerfil(perfil) {
@@ -256,25 +287,37 @@
         async function salvarColeta() {
             const motorista = document.getElementById('select-motorista').value;
             const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
+            const inputFoto = document.getElementById('coleta-foto');
+            const btnSalvar = document.getElementById('btn-salvar-coleta');
 
             if (!pacotes || pacotes <= 0) {
                 alert('Por favor, informe a quantidade de pacotes.');
                 return;
             }
 
+            btnSalvar.innerText = '⌛ Salvando...';
+            btnSalvar.disabled = true;
+
+            const urlFoto = await fazerUploadFoto(inputFoto);
+
             const { error } = await supabaseClient.from('registros').insert([{
                 motorista,
                 tipo: 'Coleta',
                 plataforma: plataformaSelecionada,
                 pacotes,
+                foto_comprovante: urlFoto,
                 created_at: new Date().toISOString()
             }]);
+
+            btnSalvar.innerText = '+ Salvar Registro de Coleta';
+            btnSalvar.disabled = false;
 
             if (error) {
                 alert('Erro ao salvar: ' + error.message);
             } else {
                 alert('✅ Coleta registrada com sucesso!');
                 document.getElementById('coleta-pacotes').value = '';
+                inputFoto.value = '';
             }
         }
 
@@ -284,16 +327,24 @@
             const km = parseFloat(document.getElementById('viagem-km').value);
             const valor = parseFloat(document.getElementById('viagem-valor').value) || 0;
             const litros = parseFloat(document.getElementById('viagem-litros').value) || 0;
+            const inputFoto = document.getElementById('viagem-foto');
+            const btnSalvar = document.getElementById('btn-salvar-viagem');
 
             if (isNaN(km) || km < 0) {
                 alert('Por favor, informe o KM rodado / atual.');
                 return;
             }
 
+            btnSalvar.innerText = '⌛ Salvando...';
+            btnSalvar.disabled = true;
+
+            const urlFoto = await fazerUploadFoto(inputFoto);
+
             const registrosParaInserir = [{
                 motorista,
                 tipo: 'KM',
                 km,
+                foto_comprovante: urlFoto,
                 created_at: new Date().toISOString()
             }];
 
@@ -303,11 +354,15 @@
                     tipo: 'Abastecimento',
                     valor_abastecimento: valor,
                     litros,
+                    foto_comprovante: urlFoto,
                     created_at: new Date().toISOString()
                 });
             }
 
             const { error } = await supabaseClient.from('registros').insert(registrosParaInserir);
+
+            btnSalvar.innerText = '+ Salvar Viagem / Abastecimento';
+            btnSalvar.disabled = false;
 
             if (error) {
                 alert('Erro ao salvar: ' + error.message);
@@ -316,6 +371,7 @@
                 document.getElementById('viagem-km').value = '';
                 document.getElementById('viagem-valor').value = '';
                 document.getElementById('viagem-litros').value = '';
+                inputFoto.value = '';
             }
         }
 
@@ -341,10 +397,8 @@
             const agora = new Date();
 
             let dadosFiltrados = dadosGlobais.filter(item => {
-                // Filtro de Motorista
                 if (motoristaFiltro !== 'TODOS' && item.motorista !== motoristaFiltro) return false;
 
-                // Filtro de Período
                 const dataItem = new Date(item.created_at);
                 if (periodoFiltro === 'HOJE') {
                     if (dataItem.toDateString() !== agora.toDateString()) return false;
@@ -356,7 +410,6 @@
                     if (dataItem.getMonth() !== agora.getMonth() || dataItem.getFullYear() !== agora.getFullYear()) return false;
                 }
 
-                // Filtro de Busca
                 if (buscaFiltro) {
                     const textoLinha = `${item.motorista} ${item.tipo} ${item.plataforma || ''} ${item.pacotes || ''} ${item.km || ''} ${item.valor_abastecimento || ''}`.toLowerCase();
                     if (!textoLinha.includes(buscaFiltro)) return false;
@@ -405,6 +458,10 @@
                 if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
                 if (item.tipo === 'KM') detalheTexto = `${item.km} KM`;
 
+                const botaoFoto = item.foto_comprovante 
+                    ? `<a href="${item.foto_comprovante}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Ver Foto</a>`
+                    : `<span class="text-gray-400 text-xs">Sem foto</span>`;
+
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
@@ -412,6 +469,7 @@
                     <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.tipo === 'Coleta' ? 'bg-blue-100 text-blue-700' : item.tipo === 'Abastecimento' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.tipo}</span></td>
                     <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
+                    <td class="p-3">${botaoFoto}</td>
                     <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
                 `;
                 tbody.appendChild(tr);
@@ -436,7 +494,6 @@
 
         // Renderizar/Atualizar Gráficos Chart.js
         function atualizarGraficos(motoristasData, shopee, ml) {
-            // Gráfico 1: Motoristas
             const ctx1 = document.getElementById('chartMotoristas').getContext('2d');
             if (chartMotoristasInstance) chartMotoristasInstance.destroy();
 
@@ -459,7 +516,6 @@
                 }
             });
 
-            // Gráfico 2: Plataformas
             const ctx2 = document.getElementById('chartPlataformas').getContext('2d');
             if (chartPlataformasInstance) chartPlataformasInstance.destroy();
 
@@ -487,11 +543,11 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros,FotoURL\n";
 
             dadosGlobais.forEach(item => {
                 const dataFmt = new Date(item.created_at).toLocaleString('pt-BR').replace(',', '');
-                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0}\n`;
+                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_comprovante || ''}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
