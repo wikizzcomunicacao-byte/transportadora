@@ -101,7 +101,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Período</label>
                     <select id="filtro-periodo" onchange="aplicarFiltros()" class="p-2 border rounded-lg bg-gray-50 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="TODOS">Todo o Histórico</option>
+                        <option value="TODOS" selected>Todo o Histórico</option>
                         <option value="HOJE">Hoje</option>
                         <option value="7DIAS">Últimos 7 Dias</option>
                         <option value="MES">Este Mês</option>
@@ -301,7 +301,14 @@
             }
 
             dadosGlobais = data || [];
-            aplicarFiltros();
+            
+            // Garante que os selects começam sem impor filtros restritivos ao carregar
+            document.getElementById('filtro-motorista').value = 'TODOS';
+            document.getElementById('filtro-periodo').value = 'TODOS';
+            document.getElementById('filtro-busca').value = '';
+
+            // Renderiza o dashboard diretamente com todos os dados recolhidos
+            renderizarDashboard(dadosGlobais);
             calcularFechamentoSemanal();
         }
 
