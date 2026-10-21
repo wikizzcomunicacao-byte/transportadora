@@ -23,18 +23,18 @@
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
 
-        <!-- ================= FECHAMENTO SEMANAL DO MOTORISTA ================= -->
+        <!-- ================= FECHAMENTO COM CALENDÁRIO ================= -->
         <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-6">
             <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h3 class="text-xl font-bold text-blue-700 flex items-center gap-2">💰 Fechamento e Pagamento Semanal</h3>
-                    <p class="text-xs text-gray-500 mt-1">Calcule o valor a pagar por diárias e pacotes entregues no período.</p>
+                    <h3 class="text-xl font-bold text-blue-700 flex items-center gap-2">💰 Fechamento e Pagamento por Período</h3>
+                    <p class="text-xs text-gray-500 mt-1">Selecione o intervalo de datas no calendário para apurar diárias e pacotes.</p>
                 </div>
                 <button onclick="gerarPDFComprovante()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovante (PDF)</button>
             </div>
 
-            <!-- Configurações de Valores -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Configurações de Valores e Datas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
                     <select id="pag-motorista" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
@@ -45,13 +45,12 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Período Semanal</label>
-                    <select id="pag-periodo" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="7DIAS">Últimos 7 Dias</option>
-                        <option value="HOJE">Hoje</option>
-                        <option value="MES">Este Mês</option>
-                        <option value="TODOS">Todo o Histórico</option>
-                    </select>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Inicial</label>
+                    <input type="date" id="pag-data-inicio" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Final</label>
+                    <input type="date" id="pag-data-fim" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor da Diária (R$)</label>
@@ -186,7 +185,7 @@
         <div class="border-b-2 border-blue-600 pb-4 mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-bold text-blue-700">🚚 TRANSPORTADORA - COMPROVANTE DE PAGAMENTO</h1>
-                <p class="text-xs text-gray-500">Demonstrativo Semanal de Serviços e Produção</p>
+                <p class="text-xs text-gray-500">Demonstrativo de Serviços e Produção por Período</p>
             </div>
             <div class="text-right text-xs text-gray-500">
                 <p>Data de Emissão: <span id="pdf-data-emissao">--</span></p>
@@ -197,7 +196,7 @@
             <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Dados do Prestador / Motorista</h2>
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <p><strong>Motorista:</strong> <span id="pdf-motorista-nome">--</span></p>
-                <p><strong>Período de Apuração:</strong> <span id="pdf-periodo-texto">--</span></p>
+                <p><strong>Período Selecionado:</strong> <span id="pdf-periodo-texto">--</span></p>
             </div>
         </div>
 
@@ -259,7 +258,17 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
-        // Carregar valores salvos do localStorage
+        // Inicializar datas padrão (Início e Fim da semana atual)
+        function inicializarDatas() {
+            const hoje = new Date();
+            const primeiroDia = new Date(hoje);
+            // Define o início da semana para o domingo anterior (ou ajuste conforme preferência)
+            primeiroDia.setDate(hoje.getDate() - hoje.getDay());
+
+            document.getElementById('pag-data-inicio').value = primeiroDia.toISOString().split('T')[0];
+            document.getElementById('pag-data-fim').value = hoje.toISOString().split('T')[0];
+        }
+
         function carregarValoresSalvos() {
             const diariaSalva = localStorage.getItem('gestor_valor_diaria') || '150.00';
             const pacoteSalvo = localStorage.getItem('gestor_valor_pacote') || '0.50';
@@ -268,7 +277,6 @@
             document.getElementById('pag-valor-pacote').value = pacoteSalvo;
         }
 
-        // Salvar novos valores no localStorage ao alterar
         function salvarECalcularValores() {
             const vDiaria = document.getElementById('pag-valor-diaria').value;
             const vPacote = document.getElementById('pag-valor-pacote').value;
@@ -281,6 +289,8 @@
 
         async function carregarDadosGestor() {
             carregarValoresSalvos();
+            inicializarDatas();
+
             const { data, error } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
 
             if (error) {
@@ -295,52 +305,51 @@
 
         function calcularFechamentoSemanal() {
             const motorista = document.getElementById('pag-motorista').value;
-            const periodo = document.getElementById('pag-periodo').value;
+            const dataInicioStr = document.getElementById('pag-data-inicio').value;
+            const dataFimStr = document.getElementById('pag-data-fim').value;
+
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
             const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
 
-            const agora = new Date();
+            const dataInicio = dataInicioStr ? new Date(dataInicioStr + 'T00:00:00') : null;
+            const dataFim = dataFimStr ? new Date(dataFimStr + 'T23:59:59') : null;
 
             const dadosMotorista = dadosGlobais.filter(item => {
                 if (item.motorista !== motorista) return false;
 
                 const dataItem = new Date(item.created_at);
-                if (periodo === 'HOJE') {
-                    if (dataItem.toDateString() !== agora.toDateString()) return false;
-                } else if (periodo === '7DIAS') {
-                    const seteDiasAtras = new Date();
-                    seteDiasAtras.setDate(agora.getDate() - 7);
-                    if (dataItem < seteDiasAtras) return false;
-                } else if (periodo === 'MES') {
-                    if (dataItem.getMonth() !== agora.getMonth() || dataItem.getFullYear() !== agora.getFullYear()) return false;
-                }
+                if (dataInicio && dataItem < dataInicio) return false;
+                if (dataFim && dataItem > dataFim) return false;
+
                 return true;
             });
 
             const diasUnicos = new Set();
-            let totalPacotesSemana = 0;
+            let totalPacotesPeriodo = 0;
 
             dadosMotorista.forEach(item => {
                 const dataFmt = new Date(item.created_at).toDateString();
                 diasUnicos.add(dataFmt);
-                if (item.tipo === 'Coleta') totalPacotesSemana += (item.pacotes || 0);
+                if (item.tipo === 'Coleta') totalPacotesPeriodo += (item.pacotes || 0);
             });
 
             const qtdDias = diasUnicos.size;
             const subtotalDiarias = qtdDias * valorDiaria;
-            const subtotalPacotes = totalPacotesSemana * valorPacote;
+            const subtotalPacotes = totalPacotesPeriodo * valorPacote;
             const totalGeral = subtotalDiarias + subtotalPacotes;
 
             document.getElementById('resumo-dias-trabalhados').innerText = `${qtdDias} Dias`;
             document.getElementById('resumo-total-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
-            document.getElementById('resumo-total-pacotes').innerText = `${totalPacotesSemana} Pacotes`;
+            document.getElementById('resumo-total-pacotes').innerText = `${totalPacotesPeriodo} Pacotes`;
             document.getElementById('resumo-total-valor-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
             document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
         }
 
         function gerarPDFComprovante() {
             const motorista = document.getElementById('pag-motorista').value;
-            const periodoTexto = document.getElementById('pag-periodo').options[document.getElementById('pag-periodo').selectedIndex].text;
+            const inicio = document.getElementById('pag-data-inicio').value;
+            const fim = document.getElementById('pag-data-fim').value;
+            const periodoTexto = `De ${inicio ? new Date(inicio + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fim ? new Date(fim + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
             
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
             const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
