@@ -55,11 +55,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor da Diária (R$)</label>
-                    <input type="number" id="pag-valor-diaria" value="150.00" step="10" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="pag-valor-diaria" step="10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor por Pacote (R$)</label>
-                    <input type="number" id="pag-valor-pacote" value="0.50" step="0.10" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="number" id="pag-valor-pacote" step="0.10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
 
@@ -259,7 +259,28 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
+        // Carregar valores salvos do localStorage
+        function carregarValoresSalvos() {
+            const diariaSalva = localStorage.getItem('gestor_valor_diaria') || '150.00';
+            const pacoteSalvo = localStorage.getItem('gestor_valor_pacote') || '0.50';
+            
+            document.getElementById('pag-valor-diaria').value = diariaSalva;
+            document.getElementById('pag-valor-pacote').value = pacoteSalvo;
+        }
+
+        // Salvar novos valores no localStorage ao alterar
+        function salvarECalcularValores() {
+            const vDiaria = document.getElementById('pag-valor-diaria').value;
+            const vPacote = document.getElementById('pag-valor-pacote').value;
+
+            if (vDiaria !== '') localStorage.setItem('gestor_valor_diaria', vDiaria);
+            if (vPacote !== '') localStorage.setItem('gestor_valor_pacote', vPacote);
+
+            calcularFechamentoSemanal();
+        }
+
         async function carregarDadosGestor() {
+            carregarValoresSalvos();
             const { data, error } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
 
             if (error) {
@@ -308,13 +329,13 @@
             const qtdDias = diasUnicos.size;
             const subtotalDiarias = qtdDias * valorDiaria;
             const subtotalPacotes = totalPacotesSemana * valorPacote;
-            const totalGagal = subtotalDiarias + subtotalPacotes;
+            const totalGeral = subtotalDiarias + subtotalPacotes;
 
             document.getElementById('resumo-dias-trabalhados').innerText = `${qtdDias} Dias`;
             document.getElementById('resumo-total-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
             document.getElementById('resumo-total-pacotes').innerText = `${totalPacotesSemana} Pacotes`;
             document.getElementById('resumo-total-valor-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
-            document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGagal.toFixed(2)}`;
+            document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
         }
 
         function gerarPDFComprovante() {
@@ -547,7 +568,6 @@
             }
         }
 
-        // Carrega os dados ao abrir a página
         window.onload = carregarDadosGestor;
     </script>
 </body>
