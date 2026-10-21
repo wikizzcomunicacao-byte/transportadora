@@ -141,15 +141,15 @@
             </div>
         </div>
 
-        <!-- Seção de Gráficos -->
+        <!-- Seção de Gráficos Ajustada -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2 flex flex-col">
                 <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
-                <div class="h-64"><canvas id="chartMotoristas"></canvas></div>
+                <div class="relative w-full h-72"><canvas id="chartMotoristas"></canvas></div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex flex-col">
                 <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">🎯 Shopee vs Mercado Livre</h3>
-                <div class="h-64 flex items-center justify-center"><canvas id="chartPlataformas"></canvas></div>
+                <div class="relative w-full h-72 flex items-center justify-center"><canvas id="chartPlataformas"></canvas></div>
             </div>
         </div>
 
@@ -297,8 +297,6 @@
             }
 
             dadosGlobais = data || [];
-            
-            // Renderiza diretamente com todos os dados sem depender de filtros restritos no início
             renderizarDashboard(dadosGlobais);
             calcularFechamentoSemanal();
         }
