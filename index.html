@@ -163,15 +163,15 @@
 
     <!-- Script de Lógica e Supabase -->
     <script>
-        // CONFIGURAÇÃO DO SUPABASE (Insira suas chaves aqui)
-        const SUPABASE_URL = 'SUA_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+        // CONFIGURAÇÃO DO SUPABASE
+        const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let plataformaSelecionada = 'Shopee';
 
-        // Preencher data e hora atual ao carregar
+        // Preencher data e hora atual
         function atualizarDatas() {
             const agora = new Date();
             const formatada = agora.toLocaleString('pt-BR');
@@ -226,7 +226,6 @@
             const motorista = document.getElementById('select-motorista').value;
             const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
             const obs = document.getElementById('coleta-obs').value;
-            const dataHora = document.getElementById('coleta-data').value;
 
             if (!pacotes || pacotes <= 0) {
                 alert('Por favor, informe a quantidade de pacotes.');
