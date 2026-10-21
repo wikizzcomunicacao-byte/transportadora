@@ -3,581 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Gestor - Transportadora</title>
+    <title>Motorista - Gestão de Transportadora</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- html2pdf.js CDN -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen pb-12">
 
     <!-- Cabeçalho Principal -->
-    <header class="bg-slate-800 text-white shadow-md py-4 px-6 flex justify-between items-center">
-        <h1 class="text-xl font-bold flex items-center gap-2">📊 Dashboard do Gestor</h1>
-        <button onclick="carregarDadosGestor()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-1 shadow-sm">🔄 Atualizar Dados</button>
+    <header class="bg-blue-600 text-white shadow-md py-4 px-6 text-center">
+        <h1 class="text-xl font-bold flex items-center justify-center gap-2">🚚 Transportadora - Painel do Motorista</h1>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+    <main class="max-w-xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <!-- ================= FECHAMENTO COM CALENDÁRIO ================= -->
-        <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-6">
-            <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h3 class="text-xl font-bold text-blue-700 flex items-center gap-2">💰 Fechamento e Pagamento por Período</h3>
-                    <p class="text-xs text-gray-500 mt-1">Selecione o intervalo de datas no calendário para apurar diárias e pacotes.</p>
-                </div>
-                <button onclick="gerarPDFComprovante()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovante (PDF)</button>
+        <!-- Seleção do Motorista -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <label for="select-motorista" class="font-semibold text-gray-700">Motorista:</label>
+            <select id="select-motorista" class="w-full sm:w-72 p-2.5 border rounded-lg bg-gray-50 font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                <option value="Motorista 01">Motorista 01</option>
+                <option value="Motorista 02">Motorista 02</option>
+                <option value="Motorista 03">Motorista 03</option>
+                <option value="Motorista 04">Motorista 04</option>
+            </select>
+        </div>
+
+        <!-- Abas Estilo Cartão -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="flex border-b bg-gray-50 overflow-x-auto">
+                <button onclick="mudarAba('coleta')" id="tab-coleta" class="flex-1 py-4 px-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap text-sm">📦 1. Coleta</button>
+                <button onclick="mudarAba('viagem')" id="tab-viagem" class="flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm">⛽ 2. Viagem / Abast.</button>
+                <button onclick="mudarAba('manutencao')" id="tab-manutencao" class="flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm">🔧 3. Manutenção</button>
             </div>
 
-            <!-- Configurações de Valores e Datas -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
-                    <select id="pag-motorista" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Motorista 01">Motorista 01</option>
-                        <option value="Motorista 02">Motorista 02</option>
-                        <option value="Motorista 03">Motorista 03</option>
-                        <option value="Motorista 04">Motorista 04</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Inicial</label>
-                    <input type="date" id="pag-data-inicio" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Final</label>
-                    <input type="date" id="pag-data-fim" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor da Diária (R$)</label>
-                    <input type="number" id="pag-valor-diaria" step="10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor por Pacote (R$)</label>
-                    <input type="number" id="pag-valor-pacote" step="0.10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-
-            <!-- Resumo dos Valores -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">🗓️ Diárias Apuradas</p>
-                    <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-dias-trabalhados" class="text-2xl font-extrabold text-gray-800">0 Dias</span>
-                        <span id="resumo-total-diarias" class="text-lg font-bold text-emerald-600">R$ 0,00</span>
+            <div class="p-6">
+                <!-- ABA 1: COLETA -->
+                <div id="conteudo-coleta" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">PLATAFORMA *</label>
+                        <div class="grid grid-cols-2 gap-4">
+                            <button type="button" onclick="selecionarPlataforma('Shopee')" id="btn-shopee" class="p-3 border-2 border-orange-500 bg-orange-50 text-orange-600 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm">🟠 Shopee</button>
+                            <button type="button" onclick="selecionarPlataforma('Mercado Livre')" id="btn-ml" class="p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-yellow-400">🤝 Mercado Livre</button>
+                        </div>
                     </div>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">📦 Pacotes Entregues</p>
-                    <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-total-pacotes" class="text-2xl font-extrabold text-gray-800">0 Pacotes</span>
-                        <span id="resumo-total-valor-pacotes" class="text-lg font-bold text-blue-600">R$ 0,00</span>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">QTD. DE PACOTES *</label>
+                        <input type="number" id="coleta-pacotes" min="1" placeholder="Ex: 120" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                     </div>
-                </div>
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                    <p class="text-xs font-bold text-blue-700 uppercase">💵 Total Geral a Pagar</p>
-                    <h3 id="resumo-total-pagamento" class="text-3xl font-black text-blue-700 mt-1">R$ 0,00</h3>
-                </div>
-            </div>
-        </div>
 
-        <!-- Barra de Filtros do Histórico -->
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Filtrar Motorista</label>
-                    <select id="filtro-motorista" onchange="aplicarFiltros()" class="p-2 border rounded-lg bg-gray-50 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="TODOS">Todos os Motoristas</option>
-                        <option value="Motorista 01">Motorista 01</option>
-                        <option value="Motorista 02">Motorista 02</option>
-                        <option value="Motorista 03">Motorista 03</option>
-                        <option value="Motorista 04">Motorista 04</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Período</label>
-                    <select id="filtro-periodo" onchange="aplicarFiltros()" class="p-2 border rounded-lg bg-gray-50 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="TODOS">Todo o Histórico</option>
-                        <option value="HOJE">Hoje</option>
-                        <option value="7DIAS">Últimos 7 Dias</option>
-                        <option value="MES">Este Mês</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 w-full md:w-auto">
-                <input type="text" id="filtro-busca" onkeyup="aplicarFiltros()" placeholder="Procurar por texto..." class="p-2 border rounded-lg bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-64">
-                <button onclick="exportarCSV()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition whitespace-nowrap">📥 Excel/CSV</button>
-            </div>
-        </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO / COMPROVANTE DE COLETA (OPCIONAL)</label>
+                        <input type="file" id="coleta-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                    </div>
 
-        <!-- Cards de Métricas Principais -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📦 Total de Pacotes</p>
-                <h3 id="metric-pacotes" class="text-3xl font-extrabold text-blue-600 mt-1">0</h3>
-                <div class="mt-2 text-xs text-gray-500 flex justify-between">
-                    <span>Shopee: <b id="sub-shopee" class="text-orange-600">0</b></span>
-                    <span>ML: <b id="sub-ml" class="text-yellow-600">0</b></span>
+                    <button onclick="salvarColeta()" id="btn-salvar-coleta" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Coleta</button>
                 </div>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Gasto Combustível</p>
-                <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
-                <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0 L (R$ 0.00/L)</p>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">KM Total Registrado</p>
-                <h3 id="metric-km" class="text-3xl font-extrabold text-amber-600 mt-1">0 KM</h3>
-                <p class="mt-2 text-xs text-gray-500">Quilometragem acumulada</p>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📋 Lançamentos</p>
-                <h3 id="metric-total-registros" class="text-3xl font-extrabold text-purple-600 mt-1">0</h3>
-                <p class="mt-2 text-xs text-gray-500">Registos no período</p>
-            </div>
-        </div>
 
-        <!-- Seção de Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
-                <div class="h-64"><canvas id="chartMotoristas"></canvas></div>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">🎯 Shopee vs Mercado Livre</h3>
-                <div class="h-64 flex items-center justify-center"><canvas id="chartPlataformas"></canvas></div>
-            </div>
-        </div>
+                <!-- ABA 2: VIAGEM E ABASTECIMENTO -->
+                <div id="conteudo-viagem" class="space-y-6 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM RODADO / ATUAL *</label>
+                        <input type="number" id="viagem-km" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                    </div>
 
-        <!-- Tabela do Histórico Geral -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-gray-800">📋 Histórico Geral de Lançamentos</h3>
-                <span id="contador-tabela" class="text-xs text-gray-500 font-medium">A mostrar 0 registos</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50 text-xs font-bold text-gray-500 uppercase">
-                            <th class="p-3">Data / Hora</th>
-                            <th class="p-3">Motorista</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Detalhes</th>
-                            <th class="p-3">Fotos / Comprovantes</th>
-                            <th class="p-3 text-right">Ação</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-registros" class="text-sm divide-y">
-                        <!-- Inserido via JavaScript -->
-                    </tbody>
-                </table>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO DO PAINEL DO CAMIÃO (KM) (OPCIONAL)</label>
+                        <input type="file" id="viagem-foto-km" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR ABASTECIMENTO (R$) (OPCIONAL)</label>
+                            <input type="number" id="viagem-valor" step="0.01" min="0" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LITROS (OPCIONAL)</label>
+                            <input type="number" id="viagem-litros" step="0.1" min="0" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🧾 FOTO DO COMPROVATIVO DE ABASTECIMENTO (OPCIONAL)</label>
+                        <input type="file" id="viagem-foto-abast" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                    </div>
+
+                    <button onclick="salvarViagemAbastecimento()" id="btn-salvar-viagem" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Viagem / Abastecimento</button>
+                </div>
+
+                <!-- ABA 3: MANUTENÇÃO DO VEÍCULO -->
+                <div id="conteudo-manutencao" class="space-y-6 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">TIPO DE SERVIÇO / MANUTENÇÃO *</label>
+                        <select id="manutencao-tipo-servico" class="w-full p-3 border rounded-xl bg-gray-50 font-semibold focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                            <option value="Troca de Óleo e Filtro">🛢️ Troca de Óleo e Filtro</option>
+                            <option value="Troca / Reparo de Pneus">🛞 Troca / Reparo de Pneus</option>
+                            <option value="Manutenção de Freios">🛑 Manutenção de Freios</option>
+                            <option value="Manutenção Mecânica Geral">🛠️ Manutenção Mecânica Geral</option>
+                            <option value="Manutenção Elétrica">⚡ Manutenção Elétrica</option>
+                            <option value="Revisão Periódica">📋 Revisão Periódica</option>
+                            <option value="Outros Serviços">⚙️ Outros Serviços</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR DO SERVIÇO (R$) *</label>
+                            <input type="number" id="manutencao-valor" step="0.01" min="0" placeholder="Ex: 350.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM ATUAL DO VEÍCULO *</label>
+                            <input type="number" id="manutencao-km" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🧾 FOTO DA NOTA FISCAL / RECIBO (OPCIONAL)</label>
+                        <input type="file" id="manutencao-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                    </div>
+
+                    <button onclick="salvarManutencao()" id="btn-salvar-manutencao" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Manutenção</button>
+                </div>
             </div>
         </div>
 
     </main>
 
-    <!-- Template Oculto para Geração do PDF -->
-    <div id="pdf-template" class="hidden p-8 bg-white text-gray-800 font-sans">
-        <div class="border-b-2 border-blue-600 pb-4 mb-6 flex justify-between items-center">
-            <div>
-                <h1 class="text-2xl font-bold text-blue-700">🚚 TRANSPORTADORA - COMPROVANTE DE PAGAMENTO</h1>
-                <p class="text-xs text-gray-500">Demonstrativo de Serviços e Produção por Período</p>
-            </div>
-            <div class="text-right text-xs text-gray-500">
-                <p>Data de Emissão: <span id="pdf-data-emissao">--</span></p>
-            </div>
-        </div>
-
-        <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Dados do Prestador / Motorista</h2>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <p><strong>Motorista:</strong> <span id="pdf-motorista-nome">--</span></p>
-                <p><strong>Período Selecionado:</strong> <span id="pdf-periodo-texto">--</span></p>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Discriminação do Fechamento</h2>
-            <table class="w-full text-left border-collapse border border-gray-200 text-sm">
-                <thead>
-                    <tr class="bg-gray-100 border-b border-gray-200">
-                        <th class="p-3">Item / Descrição</th>
-                        <th class="p-3 text-center">Quantidade</th>
-                        <th class="p-3 text-right">Valor Unitário</th>
-                        <th class="p-3 text-right">Subtotal</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Diárias Trabalhadas</td>
-                        <td id="pdf-qtd-diarias" class="p-3 text-center">0</td>
-                        <td id="pdf-val-diaria" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-diarias" class="p-3 text-right font-bold text-emerald-700">R$ 0,00</td>
-                    </tr>
-                    <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Pacotes Entregues (Shopee / ML)</td>
-                        <td id="pdf-qtd-pacotes" class="p-3 text-center">0</td>
-                        <td id="pdf-val-pacote" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-pacotes" class="p-3 text-right font-bold text-blue-700">R$ 0,00</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="flex justify-end mb-12">
-            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-right w-72">
-                <p class="text-xs font-bold text-blue-700 uppercase">VALOR TOTAL LIQUIDO A PAGAR</p>
-                <h2 id="pdf-total-geral" class="text-2xl font-black text-blue-800 mt-1">R$ 0,00</h2>
-            </div>
-        </div>
-
-        <div class="mt-20 pt-8 border-t flex justify-between gap-12 text-center text-xs text-gray-600">
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p id="pdf-ass-motorista" class="font-bold text-gray-800">Motorista</p>
-                <p>Assinatura do Prestador</p>
-            </div>
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p class="font-bold text-gray-800">Gestão de Transportes</p>
-                <p>Assinatura do Responsável</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Script Gestor -->
+    <!-- Script de Lógica, Compressão de Foto e Supabase -->
     <script>
         const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let dadosGlobais = [];
-        let chartMotoristasInstance = null;
-        let chartPlataformasInstance = null;
+        let plataformaSelecionada = 'Shopee';
 
-        // Inicializar datas padrão (Início e Fim da semana atual)
-        function inicializarDatas() {
-            const hoje = new Date();
-            const primeiroDia = new Date(hoje);
-            // Define o início da semana para o domingo anterior (ou ajuste conforme preferência)
-            primeiroDia.setDate(hoje.getDate() - hoje.getDay());
+        // Função para comprimir e redimensionar imagens no navegador
+        function comprimirImagem(file, maxDimension = 1200, quality = 0.7) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        let width = img.width;
+                        let height = img.height;
 
-            document.getElementById('pag-data-inicio').value = primeiroDia.toISOString().split('T')[0];
-            document.getElementById('pag-data-fim').value = hoje.toISOString().split('T')[0];
+                        if (width > height) {
+                            if (width > maxDimension) {
+                                height = Math.round((height * maxDimension) / width);
+                                width = maxDimension;
+                            }
+                        } else {
+                            if (height > maxDimension) {
+                                width = Math.round((width * maxDimension) / height);
+                                height = maxDimension;
+                            }
+                        }
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        canvas.toBlob((blob) => {
+                            resolve(blob);
+                        }, 'image/jpeg', quality);
+                    };
+                };
+            });
         }
 
-        function carregarValoresSalvos() {
-            const diariaSalva = localStorage.getItem('gestor_valor_diaria') || '150.00';
-            const pacoteSalvo = localStorage.getItem('gestor_valor_pacote') || '0.50';
+        // Função de Upload de Foto Comprimida
+        async function fazerUploadFoto(inputElement) {
+            if (!inputElement || !inputElement.files || inputElement.files.length === 0) return null;
             
-            document.getElementById('pag-valor-diaria').value = diariaSalva;
-            document.getElementById('pag-valor-pacote').value = pacoteSalvo;
-        }
+            const fileOriginal = inputElement.files[0];
+            const fileComprimido = await comprimirImagem(fileOriginal);
 
-        function salvarECalcularValores() {
-            const vDiaria = document.getElementById('pag-valor-diaria').value;
-            const vPacote = document.getElementById('pag-valor-pacote').value;
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.jpg`;
+            const filePath = `fotos/${fileName}`;
 
-            if (vDiaria !== '') localStorage.setItem('gestor_valor_diaria', vDiaria);
-            if (vPacote !== '') localStorage.setItem('gestor_valor_pacote', vPacote);
-
-            calcularFechamentoSemanal();
-        }
-
-        async function carregarDadosGestor() {
-            carregarValoresSalvos();
-            inicializarDatas();
-
-            const { data, error } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
+            const { data, error } = await supabaseClient.storage.from('comprovantes').upload(filePath, fileComprimido, {
+                contentType: 'image/jpeg'
+            });
 
             if (error) {
-                console.error('Erro ao buscar dados:', error);
+                console.error("Erro no upload:", error);
+                return null;
+            }
+            const { data: publicUrlData } = supabaseClient.storage.from('comprovantes').getPublicUrl(filePath);
+            return publicUrlData.publicUrl;
+        }
+
+        function mudarAba(aba) {
+            ['coleta', 'viagem', 'manutencao'].forEach(a => {
+                document.getElementById(`conteudo-${a}`).classList.add('hidden');
+                document.getElementById(`tab-${a}`).className = "flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm";
+            });
+            document.getElementById(`conteudo-${aba}`).classList.remove('hidden');
+            document.getElementById(`tab-${aba}`).className = "flex-1 py-4 px-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap text-sm";
+        }
+
+        function selecionarPlataforma(plat) {
+            plataformaSelecionada = plat;
+            const btnShopee = document.getElementById('btn-shopee');
+            const btnMl = document.getElementById('btn-ml');
+            if (plat === 'Shopee') {
+                btnShopee.className = "p-3 border-2 border-orange-500 bg-orange-50 text-orange-600 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm";
+                btnMl.className = "p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-yellow-400";
+            } else {
+                btnMl.className = "p-3 border-2 border-yellow-500 bg-yellow-50 text-yellow-700 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm";
+                btnShopee.className = "p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-orange-400";
+            }
+        }
+
+        async function salvarColeta() {
+            const motorista = document.getElementById('select-motorista').value;
+            const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
+            const inputFoto = document.getElementById('coleta-foto');
+            const btnSalvar = document.getElementById('btn-salvar-coleta');
+
+            if (!pacotes || pacotes <= 0) {
+                alert('Por favor, informe a quantidade de pacotes.');
                 return;
             }
 
-            dadosGlobais = data || [];
-            aplicarFiltros();
-            calcularFechamentoSemanal();
+            btnSalvar.innerText = '⌛ Otimizando foto e salvando...';
+            btnSalvar.disabled = true;
+
+            const urlFoto = await fazerUploadFoto(inputFoto);
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'Coleta',
+                plataforma: plataformaSelecionada,
+                pacotes,
+                foto_comprovante: urlFoto,
+                created_at: new Date().toISOString()
+            }]);
+
+            btnSalvar.innerText = '+ Salvar Registro de Coleta';
+            btnSalvar.disabled = false;
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Coleta registrada com sucesso!');
+                document.getElementById('coleta-pacotes').value = '';
+                inputFoto.value = '';
+            }
         }
 
-        function calcularFechamentoSemanal() {
-            const motorista = document.getElementById('pag-motorista').value;
-            const dataInicioStr = document.getElementById('pag-data-inicio').value;
-            const dataFimStr = document.getElementById('pag-data-fim').value;
-
-            const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
-
-            const dataInicio = dataInicioStr ? new Date(dataInicioStr + 'T00:00:00') : null;
-            const dataFim = dataFimStr ? new Date(dataFimStr + 'T23:59:59') : null;
-
-            const dadosMotorista = dadosGlobais.filter(item => {
-                if (item.motorista !== motorista) return false;
-
-                const dataItem = new Date(item.created_at);
-                if (dataInicio && dataItem < dataInicio) return false;
-                if (dataFim && dataItem > dataFim) return false;
-
-                return true;
-            });
-
-            const diasUnicos = new Set();
-            let totalPacotesPeriodo = 0;
-
-            dadosMotorista.forEach(item => {
-                const dataFmt = new Date(item.created_at).toDateString();
-                diasUnicos.add(dataFmt);
-                if (item.tipo === 'Coleta') totalPacotesPeriodo += (item.pacotes || 0);
-            });
-
-            const qtdDias = diasUnicos.size;
-            const subtotalDiarias = qtdDias * valorDiaria;
-            const subtotalPacotes = totalPacotesPeriodo * valorPacote;
-            const totalGeral = subtotalDiarias + subtotalPacotes;
-
-            document.getElementById('resumo-dias-trabalhados').innerText = `${qtdDias} Dias`;
-            document.getElementById('resumo-total-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
-            document.getElementById('resumo-total-pacotes').innerText = `${totalPacotesPeriodo} Pacotes`;
-            document.getElementById('resumo-total-valor-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
-            document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
-        }
-
-        function gerarPDFComprovante() {
-            const motorista = document.getElementById('pag-motorista').value;
-            const inicio = document.getElementById('pag-data-inicio').value;
-            const fim = document.getElementById('pag-data-fim').value;
-            const periodoTexto = `De ${inicio ? new Date(inicio + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fim ? new Date(fim + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
+        async function salvarViagemAbastecimento() {
+            const motorista = document.getElementById('select-motorista').value;
+            const km = parseFloat(document.getElementById('viagem-km').value);
+            const valor = parseFloat(document.getElementById('viagem-valor').value) || 0;
+            const litros = parseFloat(document.getElementById('viagem-litros').value) || 0;
             
-            const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
+            const inputFotoKm = document.getElementById('viagem-foto-km');
+            const inputFotoAbast = document.getElementById('viagem-foto-abast');
+            const btnSalvar = document.getElementById('btn-salvar-viagem');
 
-            const qtdDias = parseInt(document.getElementById('resumo-dias-trabalhados').innerText) || 0;
-            const subtotalDiarias = qtdDias * valorDiaria;
-
-            const qtdPacotes = parseInt(document.getElementById('resumo-total-pacotes').innerText) || 0;
-            const subtotalPacotes = qtdPacotes * valorPacote;
-            
-            const totalGeral = subtotalDiarias + subtotalPacotes;
-
-            document.getElementById('pdf-data-emissao').innerText = new Date().toLocaleString('pt-BR');
-            document.getElementById('pdf-motorista-nome').innerText = motorista;
-            document.getElementById('pdf-periodo-texto').innerText = periodoTexto;
-
-            document.getElementById('pdf-qtd-diarias').innerText = qtdDias;
-            document.getElementById('pdf-val-diaria').innerText = `R$ ${valorDiaria.toFixed(2)}`;
-            document.getElementById('pdf-subtotal-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
-
-            document.getElementById('pdf-qtd-pacotes').innerText = qtdPacotes;
-            document.getElementById('pdf-val-pacote').innerText = `R$ ${valorPacote.toFixed(2)}`;
-            document.getElementById('pdf-subtotal-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
-
-            document.getElementById('pdf-total-geral').innerText = `R$ ${totalGeral.toFixed(2)}`;
-            document.getElementById('pdf-ass-motorista').innerText = motorista;
-
-            const element = document.getElementById('pdf-template');
-            element.classList.remove('hidden');
-
-            const opt = {
-                margin:       10,
-                filename:     `comprovante_pagamento_${motorista.replace(' ', '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.add('hidden');
-            });
-        }
-
-        function aplicarFiltros() {
-            const motoristaFiltro = document.getElementById('filtro-motorista').value;
-            const periodoFiltro = document.getElementById('filtro-periodo').value;
-            const buscaFiltro = document.getElementById('filtro-busca').value.toLowerCase();
-
-            const agora = new Date();
-
-            let dadosFiltrados = dadosGlobais.filter(item => {
-                if (motoristaFiltro !== 'TODOS' && item.motorista !== motoristaFiltro) return false;
-
-                const dataItem = new Date(item.created_at);
-                if (periodoFiltro === 'HOJE') {
-                    if (dataItem.toDateString() !== agora.toDateString()) return false;
-                } else if (periodoFiltro === '7DIAS') {
-                    const seteDiasAtras = new Date();
-                    seteDiasAtras.setDate(agora.getDate() - 7);
-                    if (dataItem < seteDiasAtras) return false;
-                } else if (periodoFiltro === 'MES') {
-                    if (dataItem.getMonth() !== agora.getMonth() || dataItem.getFullYear() !== agora.getFullYear()) return false;
-                }
-
-                if (buscaFiltro) {
-                    const textoLinha = `${item.motorista} ${item.tipo} ${item.plataforma || ''} ${item.pacotes || ''} ${item.km || ''} ${item.valor_abastecimento || ''}`.toLowerCase();
-                    if (!textoLinha.includes(buscaFiltro)) return false;
-                }
-
-                return true;
-            });
-
-            renderizarDashboard(dadosFiltrados);
-        }
-
-        function renderizarDashboard(dados) {
-            let totalPacotes = 0;
-            let totalShopee = 0;
-            let totalML = 0;
-            let totalGasto = 0;
-            let totalLitros = 0;
-            let totalKm = 0;
-
-            const pacotesPorMotorista = { 'Motorista 01': 0, 'Motorista 02': 0, 'Motorista 03': 0, 'Motorista 04': 0 };
-
-            const tbody = document.getElementById('tabela-registros');
-            tbody.innerHTML = '';
-
-            dados.forEach(item => {
-                if (item.tipo === 'Coleta') {
-                    const pkts = item.pacotes || 0;
-                    totalPacotes += pkts;
-                    if (item.plataforma === 'Shopee') totalShopee += pkts;
-                    if (item.plataforma === 'Mercado Livre') totalML += pkts;
-
-                    if (pacotesPorMotorista[item.motorista] !== undefined) {
-                        pacotesPorMotorista[item.motorista] += pkts;
-                    }
-                }
-                if (item.tipo === 'Abastecimento') {
-                    totalGasto += (item.valor_abastecimento || 0);
-                    totalLitros += (item.litros || 0);
-                }
-                if (item.tipo === 'KM') {
-                    totalKm += (item.km || 0);
-                }
-
-                let detalheTexto = '';
-                if (item.tipo === 'Coleta') detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes`;
-                if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
-                if (item.tipo === 'KM') detalheTexto = `${item.km} KM`;
-
-                let fotosHtml = [];
-                const urlFotoKm = item.foto_km || (item.tipo === 'KM' ? item.foto_comprovante : null);
-                const urlFotoAbast = item.foto_abastecimento || (item.tipo === 'Abastecimento' ? item.foto_comprovante : null);
-                const urlFotoColeta = item.tipo === 'Coleta' ? item.foto_comprovante : null;
-
-                if (urlFotoKm) fotosHtml.push(`<a href="${urlFotoKm}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Painel</a>`);
-                if (urlFotoAbast) fotosHtml.push(`<a href="${urlFotoAbast}" target="_blank" class="text-emerald-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Comprovativo</a>`);
-                if (urlFotoColeta) fotosHtml.push(`<a href="${urlFotoColeta}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Coleta</a>`);
-
-                const colunaFotos = fotosHtml.length > 0 ? fotosHtml.join(' ') : `<span class="text-gray-400 text-xs">Sem fotos</span>`;
-
-                const tr = document.createElement('tr');
-                tr.className = "border-b hover:bg-gray-50";
-                tr.innerHTML = `
-                    <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                    <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.tipo === 'Coleta' ? 'bg-blue-100 text-blue-700' : item.tipo === 'Abastecimento' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.tipo}</span></td>
-                    <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
-                    <td class="p-3 flex flex-wrap gap-2">${colunaFotos}</td>
-                    <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('metric-pacotes').innerText = totalPacotes;
-            document.getElementById('sub-shopee').innerText = totalShopee;
-            document.getElementById('sub-ml').innerText = totalML;
-
-            document.getElementById('metric-gasto').innerText = `R$ ${totalGasto.toFixed(2)}`;
-            const precoMedio = totalLitros > 0 ? (totalGasto / totalLitros).toFixed(2) : '0.00';
-            document.getElementById('sub-litros').innerText = `Total: ${totalLitros.toFixed(1)} L (R$ ${precoMedio}/L)`;
-
-            document.getElementById('metric-km').innerText = `${totalKm.toFixed(1)} KM`;
-            document.getElementById('metric-total-registros').innerText = dados.length;
-            document.getElementById('contador-tabela').innerText = `A mostrar ${dados.length} registos`;
-
-            atualizarGraficos(pacotesPorMotorista, totalShopee, totalML);
-        }
-
-        function atualizarGraficos(motoristasData, shopee, ml) {
-            const ctx1 = document.getElementById('chartMotoristas').getContext('2d');
-            if (chartMotoristasInstance) chartMotoristasInstance.destroy();
-
-            chartMotoristasInstance = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(motoristasData),
-                    datasets: [{
-                        label: 'Pacotes Recolhidos',
-                        data: Object.values(motoristasData),
-                        backgroundColor: '#3b82f6',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-
-            const ctx2 = document.getElementById('chartPlataformas').getContext('2d');
-            if (chartPlataformasInstance) chartPlataformasInstance.destroy();
-
-            chartPlataformasInstance = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Shopee', 'Mercado Livre'],
-                    datasets: [{
-                        data: [shopee, ml],
-                        backgroundColor: ['#f97316', '#eab308']
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom' } }
-                }
-            });
-        }
-
-        function exportarCSV() {
-            if (!dadosGlobais || dadosGlobais.length === 0) {
-                alert('Não há dados para exportar.');
+            if (isNaN(km) || km < 0) {
+                alert('Por favor, informe o KM rodado / atual.');
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros,FotoKM,FotoAbastecimento\n";
+            btnSalvar.innerText = '⌛ Otimizando fotos e salvando...';
+            btnSalvar.disabled = true;
 
-            dadosGlobais.forEach(item => {
-                const dataFmt = new Date(item.created_at).toLocaleString('pt-BR').replace(',', '');
-                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_km || ''},${item.foto_abastecimento || ''}\n`;
-            });
+            const urlFotoKm = await fazerUploadFoto(inputFotoKm);
+            const urlFotoAbast = await fazerUploadFoto(inputFotoAbast);
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `relatorio_transportadora_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+            const registrosParaInserir = [{
+                motorista,
+                tipo: 'KM',
+                km,
+                foto_km: urlFotoKm,
+                foto_comprovante: urlFotoKm,
+                created_at: new Date().toISOString()
+            }];
 
-        async function excluirRegistro(id) {
-            if (confirm('Deseja realmente excluir este registro?')) {
-                const { error } = await supabaseClient.from('registros').delete().eq('id', id);
-                if (error) {
-                    alert('Erro ao excluir: ' + error.message);
-                } else {
-                    carregarDadosGestor();
-                }
+            if (valor > 0) {
+                registrosParaInserir.push({
+                    motorista,
+                    tipo: 'Abastecimento',
+                    valor_abastecimento: valor,
+                    litros,
+                    foto_abastecimento: urlFotoAbast,
+                    foto_comprovante: urlFotoAbast,
+                    created_at: new Date().toISOString()
+                });
+            }
+
+            const { error } = await supabaseClient.from('registros').insert(registrosParaInserir);
+
+            btnSalvar.innerText = '+ Salvar Viagem / Abastecimento';
+            btnSalvar.disabled = false;
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Viagem / Abastecimento registrados com sucesso!');
+                document.getElementById('viagem-km').value = '';
+                document.getElementById('viagem-valor').value = '';
+                document.getElementById('viagem-litros').value = '';
+                inputFotoKm.value = '';
+                inputFotoAbast.value = '';
             }
         }
 
-        window.onload = carregarDadosGestor;
+        async function salvarManutencao() {
+            const motorista = document.getElementById('select-motorista').value;
+            const tipoServico = document.getElementById('manutencao-tipo-servico').value;
+            const valor = parseFloat(document.getElementById('manutencao-valor').value);
+            const km = parseFloat(document.getElementById('manutencao-km').value);
+            const inputFoto = document.getElementById('manutencao-foto');
+            const btnSalvar = document.getElementById('btn-salvar-manutencao');
+
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, informe o valor do serviço de manutenção.');
+                return;
+            }
+
+            if (isNaN(km) || km < 0) {
+                alert('Por favor, informe o KM atual do veículo.');
+                return;
+            }
+
+            btnSalvar.innerText = '⌛ Otimizando foto e salvando...';
+            btnSalvar.disabled = true;
+
+            const urlFoto = await fazerUploadFoto(inputFoto);
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'Manutenção',
+                observacao: tipoServico,
+                valor_abastecimento: valor, // Reutilizado para somatória total de custos
+                km: km,
+                foto_comprovante: urlFoto,
+                created_at: new Date().toISOString()
+            }]);
+
+            btnSalvar.innerText = '+ Salvar Registro de Manutenção';
+            btnSalvar.disabled = false;
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Registro de manutenção salvo com sucesso!');
+                document.getElementById('manutencao-valor').value = '';
+                document.getElementById('manutencao-km').value = '';
+                inputFoto.value = '';
+            }
+        }
     </script>
 </body>
 </html>
