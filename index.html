@@ -54,42 +54,21 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">QTD. DE PACOTES *</label>
-                                <input type="number" id="coleta-pacotes" min="1" placeholder="Ex: 120" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">ROTA / GALPÃO / OBS.</label>
-                                <input type="text" id="coleta-obs" placeholder="Ex: Rota SP-04 / Galpão Jagua" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                        </div>
-
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
-                            <input type="text" id="coleta-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">QTD. DE PACOTES *</label>
+                            <input type="number" id="coleta-pacotes" min="1" placeholder="Ex: 120" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                         </div>
 
-                        <button onclick="salvarColeta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Registro de Coleta</button>
+                        <button onclick="salvarColeta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Coleta</button>
                     </div>
 
                     <!-- ABA 2: KM / VIAGEM -->
                     <div id="conteudo-km" class="space-y-6 hidden">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM RODADO / ATUAL *</label>
-                                <input type="number" id="km-rodado" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DESTINO / ROTA / OBS</label>
-                                <input type="text" id="km-obs" placeholder="Ex: Viagem Entrega Regional" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
-                            </div>
-                        </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
-                            <input type="text" id="km-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM RODADO / ATUAL *</label>
+                            <input type="number" id="km-rodado" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                         </div>
-                        <button onclick="salvarKm()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Quilometragem</button>
+                        <button onclick="salvarKm()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Quilometragem</button>
                     </div>
 
                     <!-- ABA 3: ABASTECIMENTO -->
@@ -97,18 +76,14 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR TOTAL (R$) *</label>
-                                <input type="number" id="abast-valor" step="0.01" min="0" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="number" id="abast-valor" step="0.01" min="0" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LITROS (OPCIONAL)</label>
-                                <input type="number" id="abast-litros" step="0.1" min="0" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                                <input type="number" id="abast-litros" step="0.1" min="0" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                             </div>
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
-                            <input type="text" id="abast-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
-                        </div>
-                        <button onclick="salvarAbastecimento()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Abastecimento</button>
+                        <button onclick="salvarAbastecimento()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Abastecimento</button>
                     </div>
                 </div>
             </div>
@@ -171,16 +146,6 @@
 
         let plataformaSelecionada = 'Shopee';
 
-        // Preencher data e hora atual
-        function atualizarDatas() {
-            const agora = new Date();
-            const formatada = agora.toLocaleString('pt-BR');
-            document.getElementById('coleta-data').value = formatada;
-            document.getElementById('km-data').value = formatada;
-            document.getElementById('abast-data').value = formatada;
-        }
-        atualizarDatas();
-
         // Alternar Perfis (Funcionário / Gestor)
         function mudarPerfil(perfil) {
             if (perfil === 'funcionario') {
@@ -225,7 +190,6 @@
         async function salvarColeta() {
             const motorista = document.getElementById('select-motorista').value;
             const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
-            const obs = document.getElementById('coleta-obs').value;
 
             if (!pacotes || pacotes <= 0) {
                 alert('Por favor, informe a quantidade de pacotes.');
@@ -237,7 +201,6 @@
                 tipo: 'Coleta',
                 plataforma: plataformaSelecionada,
                 pacotes,
-                observacao: obs || `Coleta ${plataformaSelecionada}`,
                 created_at: new Date().toISOString()
             }]);
 
@@ -246,7 +209,6 @@
             } else {
                 alert('✅ Coleta registrada com sucesso!');
                 document.getElementById('coleta-pacotes').value = '';
-                document.getElementById('coleta-obs').value = '';
             }
         }
 
@@ -254,7 +216,6 @@
         async function salvarKm() {
             const motorista = document.getElementById('select-motorista').value;
             const km = parseFloat(document.getElementById('km-rodado').value);
-            const obs = document.getElementById('km-obs').value;
 
             if (isNaN(km) || km < 0) {
                 alert('Por favor, informe o KM rodado.');
@@ -265,7 +226,6 @@
                 motorista,
                 tipo: 'KM',
                 km,
-                observacao: obs || 'Registro de KM',
                 created_at: new Date().toISOString()
             }]);
 
@@ -274,7 +234,6 @@
             } else {
                 alert('✅ Quilometragem registrada com sucesso!');
                 document.getElementById('km-rodado').value = '';
-                document.getElementById('km-obs').value = '';
             }
         }
 
@@ -294,7 +253,6 @@
                 tipo: 'Abastecimento',
                 valor_abastecimento: valor,
                 litros,
-                observacao: `Abastecimento R$ ${valor.toFixed(2)}`,
                 created_at: new Date().toISOString()
             }]);
 
@@ -328,10 +286,10 @@
                 if (item.tipo === 'Abastecimento') totalGasto += (item.valor_abastecimento || 0);
                 if (item.tipo === 'KM') totalKm += (item.km || 0);
 
-                let detalheTexto = item.observacao || '';
-                if (item.tipo === 'Coleta') detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes (${item.observacao})`;
+                let detalheTexto = '';
+                if (item.tipo === 'Coleta') detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes`;
                 if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${item.valor_abastecimento.toFixed(2)} (${item.litros} L)`;
-                if (item.tipo === 'KM') detalheTexto = `${item.km} KM - ${item.observacao}`;
+                if (item.tipo === 'KM') detalheTexto = `${item.km} KM`;
 
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
