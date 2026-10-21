@@ -75,7 +75,12 @@
                             <input type="number" id="viagem-km" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2 border-t">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO DO PAINEL DO CAMIÃO (KM) (OPCIONAL)</label>
+                            <input type="file" id="viagem-foto-km" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t">
                             <div>
                                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR ABASTECIMENTO (R$) (OPCIONAL)</label>
                                 <input type="number" id="viagem-valor" step="0.01" min="0" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
@@ -87,8 +92,8 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">📷 FOTO PAINEL / NOTA ABASTECIMENTO (OPCIONAL)</label>
-                            <input type="file" id="viagem-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🧾 FOTO DO COMPROVATIVO DE ABASTECIMENTO (OPCIONAL)</label>
+                            <input type="file" id="viagem-foto-abast" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
                         </div>
 
                         <button onclick="salvarViagemAbastecimento()" id="btn-salvar-viagem" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Viagem / Abastecimento</button>
@@ -194,7 +199,7 @@
                                 <th class="p-3">Motorista</th>
                                 <th class="p-3">Tipo</th>
                                 <th class="p-3">Detalhes</th>
-                                <th class="p-3">Comprovante</th>
+                                <th class="p-3">Fotos / Comprovantes</th>
                                 <th class="p-3 text-right">Ação</th>
                             </tr>
                         </thead>
@@ -221,9 +226,9 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
-        // Função de Upload de Foto para o Supabase Storage
+        // Função de Upload de Foto
         async function fazerUploadFoto(inputElement) {
-            if (!inputElement.files || inputElement.files.length === 0) {
+            if (!inputElement || !inputElement.files || inputElement.files.length === 0) {
                 return null;
             }
             const file = inputElement.files[0];
@@ -235,7 +240,6 @@
 
             if (error) {
                 console.error("Erro no upload da foto:", error);
-                alert("Erro ao enviar a imagem. O registro será salvo sem foto.");
                 return null;
             }
 
@@ -321,13 +325,15 @@
             }
         }
 
-        // Salvar Viagem / Abastecimento no Supabase
+        // Salvar Viagem / Abastecimento com 2 Fotos Separadas
         async function salvarViagemAbastecimento() {
             const motorista = document.getElementById('select-motorista').value;
             const km = parseFloat(document.getElementById('viagem-km').value);
             const valor = parseFloat(document.getElementById('viagem-valor').value) || 0;
             const litros = parseFloat(document.getElementById('viagem-litros').value) || 0;
-            const inputFoto = document.getElementById('viagem-foto');
+            
+            const inputFotoKm = document.getElementById('viagem-foto-km');
+            const inputFotoAbast = document.getElementById('viagem-foto-abast');
             const btnSalvar = document.getElementById('btn-salvar-viagem');
 
             if (isNaN(km) || km < 0) {
@@ -335,16 +341,19 @@
                 return;
             }
 
-            btnSalvar.innerText = '⌛ Salvando...';
+            btnSalvar.innerText = '⌛ Enviando fotos e salvando...';
             btnSalvar.disabled = true;
 
-            const urlFoto = await fazerUploadFoto(inputFoto);
+            // Fazer upload das duas fotos separadamente
+            const urlFotoKm = await fazerUploadFoto(inputFotoKm);
+            const urlFotoAbast = await fazerUploadFoto(inputFotoAbast);
 
             const registrosParaInserir = [{
                 motorista,
                 tipo: 'KM',
                 km,
-                foto_comprovante: urlFoto,
+                foto_km: urlFotoKm,
+                foto_comprovante: urlFotoKm,
                 created_at: new Date().toISOString()
             }];
 
@@ -354,7 +363,8 @@
                     tipo: 'Abastecimento',
                     valor_abastecimento: valor,
                     litros,
-                    foto_comprovante: urlFoto,
+                    foto_abastecimento: urlFotoAbast,
+                    foto_comprovante: urlFotoAbast,
                     created_at: new Date().toISOString()
                 });
             }
@@ -371,7 +381,8 @@
                 document.getElementById('viagem-km').value = '';
                 document.getElementById('viagem-valor').value = '';
                 document.getElementById('viagem-litros').value = '';
-                inputFoto.value = '';
+                inputFotoKm.value = '';
+                inputFotoAbast.value = '';
             }
         }
 
@@ -458,9 +469,17 @@
                 if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
                 if (item.tipo === 'KM') detalheTexto = `${item.km} KM`;
 
-                const botaoFoto = item.foto_comprovante 
-                    ? `<a href="${item.foto_comprovante}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Ver Foto</a>`
-                    : `<span class="text-gray-400 text-xs">Sem foto</span>`;
+                // Montar botões de visualização das fotos
+                let fotosHtml = [];
+                const urlFotoKm = item.foto_km || (item.tipo === 'KM' ? item.foto_comprovante : null);
+                const urlFotoAbast = item.foto_abastecimento || (item.tipo === 'Abastecimento' ? item.foto_comprovante : null);
+                const urlFotoColeta = item.tipo === 'Coleta' ? item.foto_comprovante : null;
+
+                if (urlFotoKm) fotosHtml.push(`<a href="${urlFotoKm}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Painel</a>`);
+                if (urlFotoAbast) fotosHtml.push(`<a href="${urlFotoAbast}" target="_blank" class="text-emerald-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Comprovativo</a>`);
+                if (urlFotoColeta) fotosHtml.push(`<a href="${urlFotoColeta}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Coleta</a>`);
+
+                const colunaFotos = fotosHtml.length > 0 ? fotosHtml.join(' ') : `<span class="text-gray-400 text-xs">Sem fotos</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
@@ -469,13 +488,13 @@
                     <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.tipo === 'Coleta' ? 'bg-blue-100 text-blue-700' : item.tipo === 'Abastecimento' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.tipo}</span></td>
                     <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
-                    <td class="p-3">${botaoFoto}</td>
+                    <td class="p-3 flex flex-wrap gap-2">${colunaFotos}</td>
                     <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // Atualizar Métrica
+            // Atualizar Métricas
             document.getElementById('metric-pacotes').innerText = totalPacotes;
             document.getElementById('sub-shopee').innerText = totalShopee;
             document.getElementById('sub-ml').innerText = totalML;
@@ -543,11 +562,11 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros,FotoURL\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros,FotoKM,FotoAbastecimento\n";
 
             dadosGlobais.forEach(item => {
                 const dataFmt = new Date(item.created_at).toLocaleString('pt-BR').replace(',', '');
-                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_comprovante || ''}\n`;
+                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_km || ''},${item.foto_abastecimento || ''}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
