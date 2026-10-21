@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Transportadora</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen pb-12">
+
+    <!-- Cabeçalho Principal -->
+    <header class="bg-blue-600 text-white shadow-md py-4 px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <h1 class="text-xl font-bold flex items-center gap-2">🚚 Sistema de Gestão - Transportadora</h1>
+        <!-- Seletor de Perfil -->
+        <div class="bg-blue-700 p-1 rounded-lg flex gap-1">
+            <button onclick="mudarPerfil('funcionario')" id="btn-perfil-func" class="px-4 py-2 rounded-md font-medium text-sm transition bg-white text-blue-600 shadow">Painel Funcionário</button>
+            <button onclick="mudarPerfil('gestor')" id="btn-perfil-gestor" class="px-4 py-2 rounded-md font-medium text-sm transition text-white hover:bg-blue-600">Dashboard Gestor</button>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 sm:p-6">
+
+        <!-- ================= PAINEL DO FUNCIONÁRIO ================= -->
+        <section id="painel-funcionario" class="space-y-6">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <label for="select-motorista" class="font-semibold text-gray-700">Identificação do Motorista:</label>
+                <select id="select-motorista" class="w-full sm:w-72 p-2.5 border rounded-lg bg-gray-50 font-medium focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option value="Motorista 01">Motorista 01</option>
+                    <option value="Motorista 02">Motorista 02</option>
+                    <option value="Motorista 03">Motorista 03</option>
+                    <option value="Motorista 04">Motorista 04</option>
+                </select>
+            </div>
+
+            <!-- Abas Estilo Cartão -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex border-b bg-gray-50 overflow-x-auto">
+                    <button onclick="mudarAba('coleta')" id="tab-coleta" class="flex-1 py-4 px-6 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap">📦 1. Registrar Coleta</button>
+                    <button onclick="mudarAba('km')" id="tab-km" class="flex-1 py-4 px-6 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap">⏱️ 2. Registrar KM / Viagem</button>
+                    <button onclick="mudarAba('abast')" id="tab-abast" class="flex-1 py-4 px-6 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap">⛽ 3. Abastecimento</button>
+                </div>
+
+                <div class="p-6">
+                    <!-- ABA 1: COLETA -->
+                    <div id="conteudo-coleta" class="space-y-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">PLATAFORMA *</label>
+                            <div class="grid grid-cols-2 gap-4">
+                                <button type="button" onclick="selecionarPlataforma('Shopee')" id="btn-shopee" class="p-3 border-2 border-orange-500 bg-orange-50 text-orange-600 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm">🟠 Shopee</button>
+                                <button type="button" onclick="selecionarPlataforma('Mercado Livre')" id="btn-ml" class="p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-yellow-400">🤝 Mercado Livre</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">QTD. DE PACOTES *</label>
+                                <input type="number" id="coleta-pacotes" min="1" placeholder="Ex: 120" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">ROTA / GALPÃO / OBS.</label>
+                                <input type="text" id="coleta-obs" placeholder="Ex: Rota SP-04 / Galpão Jagua" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
+                            <input type="text" id="coleta-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
+                        </div>
+
+                        <button onclick="salvarColeta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Registro de Coleta</button>
+                    </div>
+
+                    <!-- ABA 2: KM / VIAGEM -->
+                    <div id="conteudo-km" class="space-y-6 hidden">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM RODADO / ATUAL *</label>
+                                <input type="number" id="km-rodado" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DESTINO / ROTA / OBS</label>
+                                <input type="text" id="km-obs" placeholder="Ex: Viagem Entrega Regional" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
+                            <input type="text" id="km-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
+                        </div>
+                        <button onclick="salvarKm()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Quilometragem</button>
+                    </div>
+
+                    <!-- ABA 3: ABASTECIMENTO -->
+                    <div id="conteudo-abast" class="space-y-6 hidden">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR TOTAL (R$) *</label>
+                                <input type="number" id="abast-valor" step="0.01" min="0" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">LITROS (OPCIONAL)</label>
+                                <input type="number" id="abast-litros" step="0.1" min="0" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">DATA E HORA *</label>
+                            <input type="text" id="abast-data" class="w-full p-3 border rounded-xl bg-gray-50 text-gray-600" readonly>
+                        </div>
+                        <button onclick="salvarAbastecimento()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">+ Salvar Abastecimento</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAINEL DO GESTOR ================= -->
+        <section id="painel-gestor" class="space-y-6 hidden">
+            <h2 class="text-2xl font-bold text-gray-800">📊 Painel de Controle do Gestor</h2>
+
+            <!-- Cards de Métricas -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">📦 Total de Pacotes</p>
+                    <h3 id="metric-pacotes" class="text-3xl font-bold text-blue-600 mt-1">0</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">⛽ Gasto com Combustível</p>
+                    <h3 id="metric-gasto" class="text-3xl font-bold text-emerald-600 mt-1">R$ 0,00</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <p class="text-sm font-medium text-gray-500">🛣️ KM Total Registrado</p>
+                    <h3 id="metric-km" class="text-3xl font-bold text-amber-600 mt-1">0 KM</h3>
+                </div>
+            </div>
+
+            <!-- Tabela de Histórico -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">📋 Histórico Geral de Lançamentos</h3>
+                    <button onclick="carregarDadosGestor()" class="bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition">🔄 Atualizar Dados</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                                <th class="p-3">Data / Hora</th>
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Tipo</th>
+                                <th class="p-3">Detalhes</th>
+                                <th class="p-3">Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-registros" class="text-sm divide-y">
+                            <!-- Inserido via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Script de Lógica e Supabase -->
+    <script>
+        // CONFIGURAÇÃO DO SUPABASE (Insira suas chaves aqui)
+        const SUPABASE_URL = 'SUA_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'SUA_SUPABASE_ANON_KEY';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let plataformaSelecionada = 'Shopee';
+
+        // Preencher data e hora atual ao carregar
+        function atualizarDatas() {
+            const agora = new Date();
+            const formatada = agora.toLocaleString('pt-BR');
+            document.getElementById('coleta-data').value = formatada;
+            document.getElementById('km-data').value = formatada;
+            document.getElementById('abast-data').value = formatada;
+        }
+        atualizarDatas();
+
+        // Alternar Perfis (Funcionário / Gestor)
+        function mudarPerfil(perfil) {
+            if (perfil === 'funcionario') {
+                document.getElementById('painel-funcionario').classList.remove('hidden');
+                document.getElementById('painel-gestor').classList.add('hidden');
+                document.getElementById('btn-perfil-func').className = "px-4 py-2 rounded-md font-medium text-sm transition bg-white text-blue-600 shadow";
+                document.getElementById('btn-perfil-gestor').className = "px-4 py-2 rounded-md font-medium text-sm transition text-white hover:bg-blue-600";
+            } else {
+                document.getElementById('painel-funcionario').classList.add('hidden');
+                document.getElementById('painel-gestor').classList.remove('hidden');
+                document.getElementById('btn-perfil-gestor').className = "px-4 py-2 rounded-md font-medium text-sm transition bg-white text-blue-600 shadow";
+                document.getElementById('btn-perfil-func').className = "px-4 py-2 rounded-md font-medium text-sm transition text-white hover:bg-blue-600";
+                carregarDadosGestor();
+            }
+        }
+
+        // Alternar Abas do Funcionário
+        function mudarAba(aba) {
+            ['coleta', 'km', 'abast'].forEach(a => {
+                document.getElementById(`conteudo-${a}`).classList.add('hidden');
+                document.getElementById(`tab-${a}`).className = "flex-1 py-4 px-6 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap";
+            });
+            document.getElementById(`conteudo-${aba}`).classList.remove('hidden');
+            document.getElementById(`tab-${aba}`).className = "flex-1 py-4 px-6 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap";
+        }
+
+        // Selecionar Plataforma Shopee / ML
+        function selecionarPlataforma(plat) {
+            plataformaSelecionada = plat;
+            const btnShopee = document.getElementById('btn-shopee');
+            const btnMl = document.getElementById('btn-ml');
+            if (plat === 'Shopee') {
+                btnShopee.className = "p-3 border-2 border-orange-500 bg-orange-50 text-orange-600 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm";
+                btnMl.className = "p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-yellow-400";
+            } else {
+                btnMl.className = "p-3 border-2 border-yellow-500 bg-yellow-50 text-yellow-700 font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm";
+                btnShopee.className = "p-3 border-2 border-gray-200 text-gray-600 font-bold rounded-xl flex items-center justify-center gap-2 transition hover:border-orange-400";
+            }
+        }
+
+        // Salvar Coleta no Supabase
+        async function salvarColeta() {
+            const motorista = document.getElementById('select-motorista').value;
+            const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
+            const obs = document.getElementById('coleta-obs').value;
+            const dataHora = document.getElementById('coleta-data').value;
+
+            if (!pacotes || pacotes <= 0) {
+                alert('Por favor, informe a quantidade de pacotes.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'Coleta',
+                plataforma: plataformaSelecionada,
+                pacotes,
+                observacao: obs || `Coleta ${plataformaSelecionada}`,
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Coleta registrada com sucesso!');
+                document.getElementById('coleta-pacotes').value = '';
+                document.getElementById('coleta-obs').value = '';
+            }
+        }
+
+        // Salvar KM no Supabase
+        async function salvarKm() {
+            const motorista = document.getElementById('select-motorista').value;
+            const km = parseFloat(document.getElementById('km-rodado').value);
+            const obs = document.getElementById('km-obs').value;
+
+            if (isNaN(km) || km < 0) {
+                alert('Por favor, informe o KM rodado.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'KM',
+                km,
+                observacao: obs || 'Registro de KM',
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Quilometragem registrada com sucesso!');
+                document.getElementById('km-rodado').value = '';
+                document.getElementById('km-obs').value = '';
+            }
+        }
+
+        // Salvar Abastecimento no Supabase
+        async function salvarAbastecimento() {
+            const motorista = document.getElementById('select-motorista').value;
+            const valor = parseFloat(document.getElementById('abast-valor').value);
+            const litros = parseFloat(document.getElementById('abast-litros').value) || 0;
+
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, informe o valor total do abastecimento.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'Abastecimento',
+                valor_abastecimento: valor,
+                litros,
+                observacao: `Abastecimento R$ ${valor.toFixed(2)}`,
+                created_at: new Date().toISOString()
+            }]);
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Abastecimento registrado com sucesso!');
+                document.getElementById('abast-valor').value = '';
+                document.getElementById('abast-litros').value = '';
+            }
+        }
+
+        // Carregar dados no Painel do Gestor
+        async function carregarDadosGestor() {
+            const { data, error } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
+
+            if (error) {
+                console.error('Erro ao buscar dados:', error);
+                return;
+            }
+
+            let totalPacotes = 0;
+            let totalGasto = 0;
+            let totalKm = 0;
+
+            const tbody = document.getElementById('tabela-registros');
+            tbody.innerHTML = '';
+
+            data.forEach(item => {
+                if (item.tipo === 'Coleta') totalPacotes += (item.pacotes || 0);
+                if (item.tipo === 'Abastecimento') totalGasto += (item.valor_abastecimento || 0);
+                if (item.tipo === 'KM') totalKm += (item.km || 0);
+
+                let detalheTexto = item.observacao || '';
+                if (item.tipo === 'Coleta') detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes (${item.observacao})`;
+                if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${item.valor_abastecimento.toFixed(2)} (${item.litros} L)`;
+                if (item.tipo === 'KM') detalheTexto = `${item.km} KM - ${item.observacao}`;
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
+                    <td class="p-3 font-medium">${item.motorista}</td>
+                    <td class="p-3"><span class="px-2 py-1 rounded text-xs font-bold ${item.tipo === 'Coleta' ? 'bg-blue-100 text-blue-700' : item.tipo === 'Abastecimento' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.tipo}</span></td>
+                    <td class="p-3 text-gray-600">${detalheTexto}</td>
+                    <td class="p-3"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold">Excluir</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('metric-pacotes').innerText = totalPacotes;
+            document.getElementById('metric-gasto').innerText = `R$ ${totalGasto.toFixed(2)}`;
+            document.getElementById('metric-km').innerText = `${totalKm.toFixed(1)} KM`;
+        }
+
+        // Excluir Registro
+        async function excluirRegistro(id) {
+            if (confirm('Deseja realmente excluir este registro?')) {
+                const { error } = await supabaseClient.from('registros').delete().eq('id', id);
+                if (error) {
+                    alert('Erro ao excluir: ' + error.message);
+                } else {
+                    carregarDadosGestor();
+                }
+            }
+        }
+    </script>
+</body>
+</html>
