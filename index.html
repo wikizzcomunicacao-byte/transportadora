@@ -31,9 +31,10 @@
 
         <!-- Abas Estilo Cartão -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="flex border-b bg-gray-50">
-                <button onclick="mudarAba('coleta')" id="tab-coleta" class="flex-1 py-4 px-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap">📦 1. Coleta</button>
-                <button onclick="mudarAba('viagem')" id="tab-viagem" class="flex-1 py-4 px-4 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap">⛽ 2. Viagem / Abast.</button>
+            <div class="flex border-b bg-gray-50 overflow-x-auto">
+                <button onclick="mudarAba('coleta')" id="tab-coleta" class="flex-1 py-4 px-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap text-sm">📦 1. Coleta</button>
+                <button onclick="mudarAba('viagem')" id="tab-viagem" class="flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm">⛽ 2. Viagem / Abast.</button>
+                <button onclick="mudarAba('manutencao')" id="tab-manutencao" class="flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm">🔧 3. Manutenção</button>
             </div>
 
             <div class="p-6">
@@ -89,6 +90,40 @@
                     </div>
 
                     <button onclick="salvarViagemAbastecimento()" id="btn-salvar-viagem" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Viagem / Abastecimento</button>
+                </div>
+
+                <!-- ABA 3: MANUTENÇÃO DO VEÍCULO -->
+                <div id="conteudo-manutencao" class="space-y-6 hidden">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">TIPO DE SERVIÇO / MANUTENÇÃO *</label>
+                        <select id="manutencao-tipo-servico" class="w-full p-3 border rounded-xl bg-gray-50 font-semibold focus:ring-2 focus:ring-blue-500 outline-none text-base">
+                            <option value="Troca de Óleo e Filtro">🛢️ Troca de Óleo e Filtro</option>
+                            <option value="Troca / Reparo de Pneus">🛞 Troca / Reparo de Pneus</option>
+                            <option value="Manutenção de Freios">🛑 Manutenção de Freios</option>
+                            <option value="Manutenção Mecânica Geral">🛠️ Manutenção Mecânica Geral</option>
+                            <option value="Manutenção Elétrica">⚡ Manutenção Elétrica</option>
+                            <option value="Revisão Periódica">📋 Revisão Periódica</option>
+                            <option value="Outros Serviços">⚙️ Outros Serviços</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">VALOR DO SERVIÇO (R$) *</label>
+                            <input type="number" id="manutencao-valor" step="0.01" min="0" placeholder="Ex: 350.00" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">KM ATUAL DO VEÍCULO *</label>
+                            <input type="number" id="manutencao-km" min="0" placeholder="Ex: 145200" class="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-lg font-semibold">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🧾 FOTO DA NOTA FISCAL / RECIBO (OPCIONAL)</label>
+                        <input type="file" id="manutencao-foto" accept="image/*" capture="environment" class="w-full p-2 border rounded-xl bg-gray-50 text-sm">
+                    </div>
+
+                    <button onclick="salvarManutencao()" id="btn-salvar-manutencao" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 text-lg">+ Salvar Registro de Manutenção</button>
                 </div>
             </div>
         </div>
@@ -165,12 +200,12 @@
         }
 
         function mudarAba(aba) {
-            ['coleta', 'viagem'].forEach(a => {
+            ['coleta', 'viagem', 'manutencao'].forEach(a => {
                 document.getElementById(`conteudo-${a}`).classList.add('hidden');
-                document.getElementById(`tab-${a}`).className = "flex-1 py-4 px-4 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap";
+                document.getElementById(`tab-${a}`).className = "flex-1 py-4 px-3 text-center font-medium text-gray-500 hover:text-gray-700 transition whitespace-nowrap text-sm";
             });
             document.getElementById(`conteudo-${aba}`).classList.remove('hidden');
-            document.getElementById(`tab-${aba}`).className = "flex-1 py-4 px-4 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap";
+            document.getElementById(`tab-${aba}`).className = "flex-1 py-4 px-3 text-center font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition whitespace-nowrap text-sm";
         }
 
         function selecionarPlataforma(plat) {
@@ -279,6 +314,52 @@
                 document.getElementById('viagem-litros').value = '';
                 inputFotoKm.value = '';
                 inputFotoAbast.value = '';
+            }
+        }
+
+        async function salvarManutencao() {
+            const motorista = document.getElementById('select-motorista').value;
+            const tipoServico = document.getElementById('manutencao-tipo-servico').value;
+            const valor = parseFloat(document.getElementById('manutencao-valor').value);
+            const km = parseFloat(document.getElementById('manutencao-km').value);
+            const inputFoto = document.getElementById('manutencao-foto');
+            const btnSalvar = document.getElementById('btn-salvar-manutencao');
+
+            if (isNaN(valor) || valor <= 0) {
+                alert('Por favor, informe o valor do serviço de manutenção.');
+                return;
+            }
+
+            if (isNaN(km) || km < 0) {
+                alert('Por favor, informe o KM atual do veículo.');
+                return;
+            }
+
+            btnSalvar.innerText = '⌛ Otimizando foto e salvando...';
+            btnSalvar.disabled = true;
+
+            const urlFoto = await fazerUploadFoto(inputFoto);
+
+            const { error } = await supabaseClient.from('registros').insert([{
+                motorista,
+                tipo: 'Manutenção',
+                observacao: tipoServico,
+                valor_abastecimento: valor, // Reutilizado para somatória total de custos
+                km: km,
+                foto_comprovante: urlFoto,
+                created_at: new Date().toISOString()
+            }]);
+
+            btnSalvar.innerText = '+ Salvar Registro de Manutenção';
+            btnSalvar.disabled = false;
+
+            if (error) {
+                alert('Erro ao salvar: ' + error.message);
+            } else {
+                alert('✅ Registro de manutenção salvo com sucesso!');
+                document.getElementById('manutencao-valor').value = '';
+                document.getElementById('manutencao-km').value = '';
+                inputFoto.value = '';
             }
         }
     </script>
