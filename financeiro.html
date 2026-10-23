@@ -17,6 +17,10 @@
         .bg-gb-orange { background-color: #f26522; }
         .text-gb-orange { color: #f26522; }
 
+        #print-container {
+            display: none;
+        }
+
         @media print {
             body > *:not(#print-container) { display: none !important; }
             #print-container {
@@ -26,6 +30,9 @@
                 top: 0 !important;
                 width: 100% !important;
                 background: white !important;
+                z-index: 999999 !important;
+                padding: 0 !important;
+                margin: 0 !important;
             }
         }
     </style>
@@ -128,13 +135,11 @@
                 </div>
 
                 <div class="space-y-3 text-sm font-semibold">
-                    <!-- Receitas -->
                     <div class="flex justify-between p-3 bg-blue-50/50 rounded-xl text-blue-900 font-bold border border-blue-100">
                         <span>(+) Receita Operacional Bruta</span>
                         <span id="dre-receita-bruta" class="text-base">R$ 0,00</span>
                     </div>
 
-                    <!-- Deduções e Custos Diretos -->
                     <div class="pl-4 space-y-2 border-l-2 border-gray-200">
                         <div class="flex justify-between text-gray-600">
                             <span>(-) Custos de Diárias dos Motoristas</span>
@@ -154,13 +159,11 @@
                         </div>
                     </div>
 
-                    <!-- Total de Despesas -->
                     <div class="flex justify-between p-3 bg-rose-50/50 rounded-xl text-rose-900 font-bold border border-rose-100">
                         <span>(=) Total de Despesas Operacionais</span>
                         <span id="dre-total-despesas" class="text-base text-rose-700">R$ 0,00</span>
                     </div>
 
-                    <!-- Resultado Líquido Final -->
                     <div class="flex justify-between p-4 bg-gb-navy text-white rounded-xl font-black text-lg shadow-md">
                         <span>(=) RESULTADO OPERACIONAL LÍQUIDO</span>
                         <span id="dre-resultado-liquido" class="text-emerald-400">R$ 0,00</span>
@@ -229,11 +232,9 @@
         }
 
         async function carregarDadosFinanceiros() {
-            // Carregar Motoristas
             const { data: motData } = await supabaseClient.from('motoristas').select('*').order('nome', { ascending: true });
             listaMotoristas = motData || [];
 
-            // Carregar Lançamentos
             const { data: regData } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
             dadosRegistros = regData || [];
 
@@ -303,7 +304,6 @@
                 }
             });
 
-            // Apuramento por motorista
             let custoTotalDiarias = 0;
             let custoTotalPacotes = 0;
 
@@ -360,12 +360,10 @@
             const custoTotalMotoristas = custoTotalDiarias + custoTotalPacotes;
             const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao;
 
-            // Estimativa de Receita Bruta
             const estimativaReceitaBruta = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
             const resultadoLiquido = estimativaReceitaBruta - totalDespesas;
             const margemPorcentagem = estimativaReceitaBruta > 0 ? ((resultadoLiquido / estimativaReceitaBruta) * 100).toFixed(1) : '0.0';
 
-            // Atualização dos Cards
             document.getElementById('card-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
             document.getElementById('sub-receita-pacotes').innerText = `${totalPacotesShopee + totalPacotesML} pacotes (Shopee + ML)`;
 
@@ -379,7 +377,6 @@
 
             document.getElementById('card-margem-porcentagem').innerText = `${margemPorcentagem}%`;
 
-            // Atualização da DRE
             document.getElementById('dre-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
             document.getElementById('dre-custo-diarias').innerText = `- R$ ${custoTotalDiarias.toFixed(2)}`;
             document.getElementById('dre-custo-pacotes').innerText = `- R$ ${custoTotalPacotes.toFixed(2)}`;
@@ -416,7 +413,108 @@
         }
 
         function imprimirDRE() {
-            window.print();
+            const periodoTexto = document.getElementById('fin-periodo').selectedOptions[0].text;
+            const dataEmissao = new Date().toLocaleString('pt-BR');
+            
+            const receitaBruta = document.getElementById('dre-receita-bruta').innerText;
+            const custoDiarias = document.getElementById('dre-custo-diarias').innerText;
+            const custoPacotes = document.getElementById('dre-custo-pacotes').innerText;
+            const custoCombustivel = document.getElementById('dre-custo-combustivel').innerText;
+            const custoOficina = document.getElementById('dre-custo-oficina').innerText;
+            const totalDespesas = document.getElementById('dre-total-despesas').innerText;
+            const resultadoLiquido = document.getElementById('dre-resultado-liquido').innerText;
+            const margem = document.getElementById('card-margem-porcentagem').innerText;
+            const tabelaHtml = document.getElementById('tabela-balanco-motoristas').innerHTML;
+
+            const container = document.getElementById('print-container');
+            container.innerHTML = `
+                <div style="background:#ffffff; padding:20px; font-family:Arial, sans-serif; color:#333333;">
+                    <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+                        <tr>
+                            <td>
+                                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo do Resultado do Exercício (DRE Operacional)</p>
+                            </td>
+                            <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> ${dataEmissao}</p>
+                                <p style="margin:0;"><strong>Período:</strong> ${periodoTexto}</p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div style="margin-bottom:25px;">
+                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo DRE Operacional</h2>
+                        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                            <tr style="background:#eff6ff; border:1px solid #cbd5e1;">
+                                <td style="padding:10px; font-weight:bold; color:#1e3a8a;">(+) Receita Operacional Bruta</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold; color:#1e3a8a;">${receitaBruta}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Custos de Diárias dos Motoristas</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoDiarias}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Pagamentos por Pacote (Shopee / ML)</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPacotes}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Abastecimento de Combustível</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoCombustivel}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Manutenção da Frota & Oficina</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoOficina}</td>
+                            </tr>
+                            <tr style="background:#fff1f2; border:1px solid #cbd5e1;">
+                                <td style="padding:10px; font-weight:bold; color:#9f1239;">(=) Total de Despesas Operacionais</td>
+                                <td style="padding:10px; text-align:right; font-weight:bold; color:#9f1239;">${totalDespesas}</td>
+                            </tr>
+                            <tr style="background:#0d2847; color:#ffffff; border:1px solid #0d2847;">
+                                <td style="padding:12px; font-weight:bold; font-size:14px;">(=) RESULTADO OPERACIONAL LÍQUIDO (Margem: ${margem})</td>
+                                <td style="padding:12px; text-align:right; font-weight:bold; font-size:14px; color:#34d399;">${resultadoLiquido}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom:30px;">
+                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">2. Balanço Detalhado por Motorista / Veículo</h2>
+                        <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
+                            <thead>
+                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                                    <th style="padding:8px; border:1px solid #cbd5e1;">Motorista</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1;">Veículo</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Diárias</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Shopee</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">ML</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Custo Motorista</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Combustível</th>
+                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>${tabelaHtml}</tbody>
+                        </table>
+                    </div>
+
+                    <table style="width:100%; border-collapse:collapse; margin-top:50px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:11px; color:#475569;">
+                        <tr>
+                            <td style="width:45%; text-align:center; vertical-align:top;">
+                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestão Financeira / Administrativa</p>
+                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável</p>
+                            </td>
+                            <td style="width:10%;"></td>
+                            <td style="width:45%; text-align:center; vertical-align:top;">
+                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
+                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação Executiva</p>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+
+            setTimeout(() => {
+                window.print();
+            }, 300);
         }
 
         window.onload = () => {
