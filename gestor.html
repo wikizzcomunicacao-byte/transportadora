@@ -57,7 +57,7 @@
             <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
                 <div>
                     <h3 class="text-lg font-bold text-gb-navy flex items-center gap-2">🚚 Cadastro de Motoristas, Veículos e Taxas Individuais</h3>
-                    <p class="text-xs text-gray-500">Cadastre motoristas com os seus respetivos valores de diária e pacotes.</p>
+                    <p class="text-xs text-gray-500">Cadastre motoristas com os respetivos valores de diária e pacotes.</p>
                 </div>
                 <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
             </div>
@@ -344,8 +344,8 @@
 
     </main>
 
-    <!-- Template Oculto para Comprovante Individual (PDF) -->
-    <div id="pdf-template" class="hidden p-8 bg-white text-gray-800 font-sans">
+    <!-- Template Oculto para Comprovante Individual (PDF) - Posicionado fora do ecrã para evitar PDF em branco -->
+    <div id="pdf-template" style="position: absolute; left: -9999px; top: -9999px; width: 210mm; background: white;" class="p-8 text-gray-800 font-sans">
         <div class="border-b-2 border-gb-navy pb-4 mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black text-gb-navy">GB TRANSPORTES</h1>
@@ -419,8 +419,8 @@
         </div>
     </div>
 
-    <!-- TEMPLATE RELATÓRIO GERAL DA OPERAÇÃO (PDF) -->
-    <div id="pdf-relatorio-geral-template" class="hidden p-8 bg-white text-gray-800 font-sans">
+    <!-- TEMPLATE RELATÓRIO GERAL DA OPERAÇÃO (PDF) - Posicionado fora do ecrã -->
+    <div id="pdf-relatorio-geral-template" style="position: absolute; left: -9999px; top: -9999px; width: 210mm; background: white;" class="p-8 text-gray-800 font-sans">
         <div class="border-b-2 border-gb-navy pb-4 mb-6 flex justify-between items-center">
             <div>
                 <h1 class="text-2xl font-black text-gb-navy">GB TRANSPORTES</h1>
@@ -889,7 +889,6 @@
             document.getElementById('pdf-ass-motorista').innerText = motorista;
 
             const element = document.getElementById('pdf-template');
-            element.classList.remove('hidden');
 
             const opt = {
                 margin:       10,
@@ -899,9 +898,7 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.add('hidden');
-            });
+            html2pdf().set(opt).from(element).save();
         }
 
         function gerarPDFRelatorioGeral() {
@@ -1050,7 +1047,6 @@
             });
 
             const element = document.getElementById('pdf-relatorio-geral-template');
-            element.classList.remove('hidden');
 
             const opt = {
                 margin:       8,
@@ -1060,9 +1056,7 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.classList.add('hidden');
-            });
+            html2pdf().set(opt).from(element).save();
         }
 
         function mudancaSelecaoPeriodo() {
