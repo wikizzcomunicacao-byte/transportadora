@@ -441,9 +441,9 @@
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)}</td>
                     <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
-                    <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 150).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0.50).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0.50).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 0).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0).toFixed(2)}</td>
                     <td class="p-3 text-right space-x-2">
                         <button onclick="editarMotorista(${mot.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
                         <button onclick="excluirMotorista(${mot.id})" class="text-red-600 hover:text-red-800 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button>
@@ -481,9 +481,9 @@
             const mot = listaMotoristas.find(m => m.nome === motNome);
 
             if (mot) {
-                document.getElementById('pag-valor-diaria').value = mot.valor_diaria || 150.00;
-                document.getElementById('pag-valor-shopee').value = mot.valor_shopee || 0.50;
-                document.getElementById('pag-valor-ml').value = mot.valor_ml || 0.50;
+                document.getElementById('pag-valor-diaria').value = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
+                document.getElementById('pag-valor-shopee').value = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? mot.valor_shopee : 0.50;
+                document.getElementById('pag-valor-ml').value = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? mot.valor_ml : 0.50;
             }
 
             calcularFechamentoSemanal();
@@ -555,9 +555,14 @@
             const idEdicao = document.getElementById('mot-id-edicao').value;
             const nome = document.getElementById('mot-nome-input').value.trim();
             const veiculo = document.getElementById('mot-veiculo-input').value.trim();
-            const valor_diaria = parseFloat(document.getElementById('mot-diaria-input').value) || 150.00;
-            const valor_shopee = parseFloat(document.getElementById('mot-shopee-input').value) || 0.50;
-            const valor_ml = parseFloat(document.getElementById('mot-ml-input').value) || 0.50;
+            
+            const valDiariaInput = document.getElementById('mot-diaria-input').value;
+            const valShopeeInput = document.getElementById('mot-shopee-input').value;
+            const valMlInput = document.getElementById('mot-ml-input').value;
+
+            const valor_diaria = valDiariaInput !== '' ? parseFloat(valDiariaInput) : 0.00;
+            const valor_shopee = valShopeeInput !== '' ? parseFloat(valShopeeInput) : 0.00;
+            const valor_ml = valMlInput !== '' ? parseFloat(valMlInput) : 0.00;
 
             if (!nome || !veiculo) {
                 alert('Preencha o nome do motorista e o veículo.');
@@ -584,9 +589,9 @@
                 document.getElementById('mot-id-edicao').value = mot.id;
                 document.getElementById('mot-nome-input').value = mot.nome;
                 document.getElementById('mot-veiculo-input').value = mot.veiculo;
-                document.getElementById('mot-diaria-input').value = mot.valor_diaria || 150.00;
-                document.getElementById('mot-shopee-input').value = mot.valor_shopee || 0.50;
-                document.getElementById('mot-ml-input').value = mot.valor_ml || 0.50;
+                document.getElementById('mot-diaria-input').value = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
+                document.getElementById('mot-shopee-input').value = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? mot.valor_shopee : 0.50;
+                document.getElementById('mot-ml-input').value = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? mot.valor_ml : 0.50;
 
                 document.getElementById('btn-salvar-mot').innerText = '💾 Salvar Alterações';
                 document.getElementById('btn-salvar-mot').className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition';
@@ -655,9 +660,13 @@
             const dataInicioStr = document.getElementById('pag-data-inicio').value;
             const dataFimStr = document.getElementById('pag-data-fim').value;
 
-            const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
-            const valorMl = parseFloat(document.getElementById('pag-valor-ml').value) || 0;
+            const valDiariaPag = document.getElementById('pag-valor-diaria').value;
+            const valShopeePag = document.getElementById('pag-valor-shopee').value;
+            const valMlPag = document.getElementById('pag-valor-ml').value;
+
+            const valorDiaria = valDiariaPag !== '' ? parseFloat(valDiariaPag) : 0;
+            const valorShopee = valShopeePag !== '' ? parseFloat(valShopeePag) : 0;
+            const valorMl = valMlPag !== '' ? parseFloat(valMlPag) : 0;
 
             const dataInicio = dataInicioStr ? new Date(dataInicioStr + 'T00:00:00') : null;
             const dataFim = dataFimStr ? new Date(dataFimStr + 'T23:59:59') : null;
@@ -714,9 +723,13 @@
             const fimStr = document.getElementById('pag-data-fim').value;
             const periodoTexto = `De ${inicioStr ? new Date(inicioStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fimStr ? new Date(fimStr + 'T23:59:59').toLocaleDateString('pt-BR') : '--'}`;
             
-            const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
-            const valorMl = parseFloat(document.getElementById('pag-valor-ml').value) || 0;
+            const valDiariaPag = document.getElementById('pag-valor-diaria').value;
+            const valShopeePag = document.getElementById('pag-valor-shopee').value;
+            const valMlPag = document.getElementById('pag-valor-ml').value;
+
+            const valorDiaria = valDiariaPag !== '' ? parseFloat(valDiariaPag) : 0;
+            const valorShopee = valShopeePag !== '' ? parseFloat(valShopeePag) : 0;
+            const valorMl = valMlPag !== '' ? parseFloat(valMlPag) : 0;
 
             const dataInicio = inicioStr ? new Date(inicioStr + 'T00:00:00') : null;
             const dataFim = fimStr ? new Date(fimStr + 'T23:59:59') : null;
@@ -893,9 +906,9 @@
                     }
                 });
 
-                const vDiariaMot = parseFloat(mot.valor_diaria) || 150.00;
-                const vShopeeMot = parseFloat(mot.valor_shopee) || 0.50;
-                const vMlMot = parseFloat(mot.valor_ml) || 0.50;
+                const vDiariaMot = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vShopeeMot = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
+                const vMlMot = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
 
                 const qtdDias = diasUnicos.size;
                 const totDiarias = qtdDias * vDiariaMot;
