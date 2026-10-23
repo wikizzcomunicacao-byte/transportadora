@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +9,42 @@
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { background-color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
         .bg-gb-navy { background-color: #0d2847; }
         .text-gb-navy { color: #0d2847; }
+        .border-gb-navy { border-color: #0d2847; }
         .bg-gb-orange { background-color: #f26522; }
+        .text-gb-orange { color: #f26522; }
+        .border-gb-orange { border-color: #f26522; }
+        
+        /* Estilos dos Botões de Seleção */
+        .btn-tab-active {
+            background-color: #0d2847 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 6px -1px rgba(13, 40, 71, 0.3);
+        }
+        
+        .btn-shopee-active {
+            background-color: #fff5f0 !important;
+            border-color: #f26522 !important;
+            color: #f26522 !important;
+            box-shadow: 0 0 0 2px rgba(242, 101, 34, 0.2);
+        }
+
+        .btn-ml-active {
+            background-color: #fffde6 !important;
+            border-color: #eab308 !important;
+            color: #854d0e !important;
+            box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.2);
+        }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="bg-gray-100 text-gray-800 min-h-screen pb-12">
 
-    <!-- Cabeçalho GB Transportes -->
-    <header class="bg-gb-navy text-white py-5 px-4 shadow-md text-center border-b-4 border-orange-500">
-        <div class="inline-block bg-white px-4 py-1.5 rounded-2xl shadow-sm mb-2">
+    <!-- Cabeçalho Principal -->
+    <header class="bg-gb-navy text-white shadow-md py-5 px-4 flex flex-col items-center justify-center border-b-4 border-gb-orange">
+        <div class="bg-white p-2.5 rounded-xl shadow-md mb-2">
             <!-- Logótipo GB Transportes -->
-            <svg class="h-9 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg class="h-10 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
                 <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
                 <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
@@ -29,10 +52,7 @@
                 <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
             </svg>
         </div>
-        <p class="text-xs text-orange-400 font-bold uppercase tracking-wider">Painel do Motorista</p>
-        <div id="status-offline" class="hidden mt-2 bg-amber-500 text-slate-900 text-[11px] font-bold py-1 px-3 rounded-full inline-block">
-            ⚠️ Modo Offline Ativo (Registos salvos localmente)
-        </div>
+        <p class="text-xs font-black uppercase tracking-widest text-orange-400">PAINEL DO MOTORISTA</p>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-4">
@@ -40,281 +60,215 @@
         <!-- Seleção do Motorista -->
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Selecione o seu Nome *</label>
-            <select id="select-motorista" class="w-full p-3 border rounded-xl bg-gray-50 text-base font-bold text-slate-800 outline-none focus:ring-2 focus:ring-blue-500">
-                <!-- Carregado via JS -->
+            <select id="select-motorista" class="w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-800 text-base outline-none focus:border-gb-navy transition">
+                <option value="">A carregar motoristas...</option>
             </select>
         </div>
 
-        <!-- Abas de Navegação -->
-        <div class="grid grid-cols-3 gap-2 bg-white p-2 rounded-2xl shadow-sm border border-gray-200">
-            <button onclick="mudarAba('Coleta')" id="tab-Coleta" class="py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 bg-blue-600 text-white shadow">
+        <!-- Abas do Tipo de Lançamento -->
+        <div class="grid grid-cols-3 gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200">
+            <button id="tab-coleta" onclick="mudarAba('Coleta')" class="py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1">
                 📦 Coleta
             </button>
-            <button onclick="mudarAba('Abastecimento')" id="tab-Abastecimento" class="py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 text-gray-600 hover:bg-gray-100">
+            <button id="tab-abastecer" onclick="mudarAba('Abastecimento')" class="py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
                 ⛽ Abastecer
             </button>
-            <button onclick="mudarAba('Manutencao')" id="tab-Manutencao" class="py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 text-gray-600 hover:bg-gray-100">
+            <button id="tab-manutencao" onclick="mudarAba('Manutenção')" class="py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
                 🔧 Manutenção
             </button>
         </div>
 
-        <!-- 1. ABA DE COLETA -->
-        <div id="secao-Coleta" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
-            <h2 class="text-xs font-black text-gray-400 uppercase tracking-wider">Plataforma *</h2>
-            <div class="grid grid-cols-2 gap-2">
-                <button type="button" onclick="selecionarPlataforma('Shopee')" id="btn-plat-Shopee" class="p-3 border-2 rounded-xl font-bold text-sm transition border-blue-600 bg-blue-50 text-blue-700 flex items-center justify-center gap-2">
-                    🛒 Shopee
-                </button>
-                <button type="button" onclick="selecionarPlataforma('Mercado Livre')" id="btn-plat-Mercado Livre" class="p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 bg-gray-50 text-gray-600 flex items-center justify-center gap-2">
-                    📦 Mercado Livre
-                </button>
-            </div>
-            <input type="hidden" id="plataforma-selecionada" value="Shopee">
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd. de Pacotes *</label>
-                <input type="number" id="pacotes" placeholder="Ex: 120" class="w-full p-3 border rounded-xl text-lg font-black text-blue-600 outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto / Comprovativo de Coleta (Opcional)</label>
-                <input type="file" id="foto-coleta" accept="image/*" class="w-full p-2 border rounded-xl text-xs bg-gray-50 outline-none">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
-                <textarea id="obs-coleta" rows="2" placeholder="Ex: Pacotes avariados, observação da coleta..." class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            </div>
-
-            <button onclick="enviarRegistro('Coleta')" id="btn-enviar-coleta" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-4 rounded-xl text-base shadow-lg transition tracking-wide">
-                Salvar Registro de Coleta
-            </button>
-        </div>
-
-        <!-- 2. ABA DE ABASTECIMENTO -->
-        <div id="secao-Abastecimento" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
-            <h2 class="text-xs font-black text-gray-400 uppercase tracking-wider">Dados do Abastecimento</h2>
+        <!-- Formulário Dinâmico -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
             
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Total (R$) *</label>
-                    <input type="number" step="0.01" id="valor-abast" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl text-base font-bold text-emerald-600 outline-none focus:ring-2 focus:ring-emerald-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Litros *</label>
-                    <input type="number" step="0.01" id="litros-abast" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl text-base font-bold text-emerald-600 outline-none focus:ring-2 focus:ring-emerald-500">
+            <!-- Campo de Plataforma (Apenas Coleta) -->
+            <div id="campo-plataforma" class="space-y-1">
+                <label class="block text-xs font-bold text-gray-500 uppercase">Plataforma *</label>
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <button type="button" id="btn-shopee" onclick="selecionarPlataforma('Shopee')" class="p-3 border-2 rounded-xl font-extrabold text-sm transition btn-shopee-active flex items-center justify-center gap-2">
+                        🛒 Shopee
+                    </button>
+                    <button type="button" id="btn-ml" onclick="selecionarPlataforma('Mercado Livre')" class="p-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 text-sm hover:bg-gray-50 transition flex items-center justify-center gap-2">
+                        🤝 Mercado Livre
+                    </button>
                 </div>
             </div>
 
+            <!-- Campo Quantidade de Pacotes (Coleta) -->
+            <div id="campo-pacotes">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd. de Pacotes *</label>
+                <input type="number" id="input-pacotes" placeholder="Ex: 120" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-gray-800 text-lg outline-none focus:border-gb-navy transition">
+            </div>
+
+            <!-- Campo Valor Abastecimento/Manutenção -->
+            <div id="campo-valor" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Total (R$) *</label>
+                <input type="number" step="0.01" id="input-valor" placeholder="Ex: 150.00" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-emerald-700 text-lg outline-none focus:border-emerald-600 transition">
+            </div>
+
+            <!-- Campo Litros (Abastecimento) -->
+            <div id="campo-litros" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Litros *</label>
+                <input type="number" step="0.01" id="input-litros" placeholder="Ex: 25.5" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-gray-800 text-lg outline-none focus:border-gb-navy transition">
+            </div>
+
+            <!-- Campo KM (Abastecimento e Manutenção) -->
+            <div id="campo-km" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">KM Atual do Painel *</label>
+                <input type="number" id="input-km" placeholder="Ex: 145000" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-amber-700 text-lg outline-none focus:border-amber-600 transition">
+            </div>
+
+            <!-- Campo Foto / Comprovante -->
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto / Comprovativo (Opcional)</label>
-                <input type="file" id="foto-abast" accept="image/*" class="w-full p-2 border rounded-xl text-xs bg-gray-50 outline-none">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-foto">Foto / Comprovante de Coleta (Opcional)</label>
+                <input type="file" id="input-foto" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gb-navy hover:file:bg-gray-200 transition cursor-pointer">
             </div>
 
+            <!-- Campo Observação -->
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
-                <textarea id="obs-abast" rows="2" placeholder="Ex: Posto Rodovia..." class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                <textarea id="input-obs" rows="2" placeholder="Ex: Pacotes avariados, observação da coleta..." class="w-full p-3 border-2 border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-gb-navy transition resize-none"></textarea>
             </div>
 
-            <button onclick="enviarRegistro('Abastecimento')" id="btn-enviar-abast" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl text-base shadow-lg transition tracking-wide">
-                Salvar Abastecimento
-            </button>
-        </div>
-
-        <!-- 3. ABA DE MANUTENÇÃO -->
-        <div id="secao-Manutencao" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
-            <h2 class="text-xs font-black text-gray-400 uppercase tracking-wider">Serviço de Oficina / Peça</h2>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição do Serviço / Peça *</label>
-                <input type="text" id="servico-manut" placeholder="Ex: Troca de Óleo e Filtro" class="w-full p-3 border rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-rose-500">
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
-                    <input type="number" step="0.01" id="valor-manut" placeholder="Ex: 180.00" class="w-full p-3 border rounded-xl text-base font-bold text-rose-600 outline-none focus:ring-2 focus:ring-rose-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">KM Atual *</label>
-                    <input type="number" id="km-manut" placeholder="Ex: 145800" class="w-full p-3 border rounded-xl text-base font-bold text-amber-600 outline-none focus:ring-2 focus:ring-rose-500">
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto / Recibo (Opcional)</label>
-                <input type="file" id="foto-manut" accept="image/*" class="w-full p-2 border rounded-xl text-xs bg-gray-50 outline-none">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
-                <textarea id="obs-manut" rows="2" placeholder="Ex: Oficina mecânica central..." class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-rose-500"></textarea>
-            </div>
-
-            <button onclick="enviarRegistro('Manutenção')" id="btn-enviar-manut" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-black py-4 rounded-xl text-base shadow-lg transition tracking-wide">
-                Salvar Manutenção
+            <!-- Botão Enviar principal com Laranja GB -->
+            <button id="btn-salvar" onclick="salvarRegistro()" class="w-full bg-gb-orange hover:bg-orange-600 text-white font-black text-base py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 transform active:scale-95">
+                💾 Salvar Registro de Coleta
             </button>
         </div>
 
     </main>
 
-    <!-- Script Supabase e Fila Offline -->
     <script>
         const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function mudarAba(aba) {
-            ['Coleta', 'Abastecimento', 'Manutencao'].forEach(a => {
-                const btn = document.getElementById(`tab-${a}`);
-                const sec = document.getElementById(`secao-${a}`);
-                if (a === aba) {
-                    sec.classList.remove('hidden');
-                    btn.className = `py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 shadow text-white ${a === 'Coleta' ? 'bg-blue-600' : a === 'Abastecimento' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-                } else {
-                    sec.classList.add('hidden');
-                    btn.className = 'py-2.5 px-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 text-gray-600 hover:bg-gray-100';
-                }
-            });
-        }
-
-        function selecionarPlataforma(plat) {
-            document.getElementById('plataforma-selecionada').value = plat;
-            const btnShopee = document.getElementById('btn-plat-Shopee');
-            const btnMl = document.getElementById('btn-plat-Mercado Livre');
-
-            if (plat === 'Shopee') {
-                btnShopee.className = "p-3 border-2 rounded-xl font-bold text-sm transition border-blue-600 bg-blue-50 text-blue-700 flex items-center justify-center gap-2";
-                btnMl.className = "p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 bg-gray-50 text-gray-600 flex items-center justify-center gap-2";
-            } else {
-                btnMl.className = "p-3 border-2 rounded-xl font-bold text-sm transition border-yellow-500 bg-yellow-50 text-yellow-800 flex items-center justify-center gap-2";
-                btnShopee.className = "p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 bg-gray-50 text-gray-600 flex items-center justify-center gap-2";
-            }
-        }
+        let abaAtual = 'Coleta';
+        let plataformaAtual = 'Shopee';
 
         async function carregarMotoristas() {
-            try {
-                const { data, error } = await supabaseClient.from('motoristas').select('nome').order('nome', { ascending: true });
-                if (!error && data) {
-                    const select = document.getElementById('select-motorista');
-                    select.innerHTML = '';
-                    data.forEach(m => {
-                        select.innerHTML += `<option value="${m.nome}">${m.nome}</option>`;
-                    });
-                    document.getElementById('status-offline').classList.add('hidden');
-                    sincronizarFilaOffline();
-                } else {
-                    throw new Error('Erro');
-                }
-            } catch (err) {
-                document.getElementById('status-offline').classList.remove('hidden');
-                const select = document.getElementById('select-motorista');
-                if (select.options.length === 0) {
-                    select.innerHTML = '<option value="Motorista Padrão">Motorista Padrão (Offline)</option>';
-                }
-            }
-        }
-
-        async function enviarRegistro(tipoOriginal) {
-            const motorista = document.getElementById('select-motorista').value;
-            if (!motorista) {
-                alert('Selecione o motorista.');
+            const { data, error } = await supabaseClient.from('motoristas').select('nome').order('nome', { ascending: true });
+            const select = document.getElementById('select-motorista');
+            
+            if (error || !data || data.length === 0) {
+                select.innerHTML = '<option value="">Nenhum motorista encontrado</option>';
                 return;
             }
 
-            let registro = { motorista, tipo: tipoOriginal, created_at: new Date().toISOString() };
-            let inputFileId = '';
+            select.innerHTML = '<option value="">Escolha seu nome...</option>';
+            data.forEach(m => {
+                select.innerHTML += `<option value="${m.nome}">${m.nome}</option>`;
+            });
+        }
 
-            if (tipoOriginal === 'Coleta') {
-                registro.plataforma = document.getElementById('plataforma-selecionada').value;
-                registro.pacotes = parseInt(document.getElementById('pacotes').value) || 0;
-                registro.observacao = document.getElementById('obs-coleta').value.trim();
-                inputFileId = 'foto-coleta';
-            } else if (tipoOriginal === 'Abastecimento') {
-                registro.valor_abastecimento = parseFloat(document.getElementById('valor-abast').value) || 0;
-                registro.litros = parseFloat(document.getElementById('litros-abast').value) || 0;
-                registro.observacao = document.getElementById('obs-abast').value.trim();
-                inputFileId = 'foto-abast';
-            } else if (tipoOriginal === 'Manutenção') {
-                registro.observacao = document.getElementById('servico-manut').value.trim() || document.getElementById('obs-manut').value.trim();
-                registro.valor_abastecimento = parseFloat(document.getElementById('valor-manut').value) || 0;
-                registro.km = parseInt(document.getElementById('km-manut').value) || null;
-                inputFileId = 'foto-manut';
+        function mudarAba(aba) {
+            abaAtual = aba;
+
+            // Atualiza visual das abas
+            ['coleta', 'abastecer', 'manutencao'].forEach(t => {
+                document.getElementById(`tab-${t}`).className = 'py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1';
+            });
+
+            if (aba === 'Coleta') {
+                document.getElementById('tab-coleta').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+            } else if (aba === 'Abastecimento') {
+                document.getElementById('tab-abastecer').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+            } else if (aba === 'Manutenção') {
+                document.getElementById('tab-manutencao').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
             }
 
-            const fotoFile = document.getElementById(inputFileId).files[0];
+            // Exibição dos Campos
+            document.getElementById('campo-plataforma').style.display = aba === 'Coleta' ? 'block' : 'none';
+            document.getElementById('campo-pacotes').style.display = aba === 'Coleta' ? 'block' : 'none';
+            
+            document.getElementById('campo-valor').style.display = (aba === 'Abastecimento' || aba === 'Manutenção') ? 'block' : 'none';
+            document.getElementById('campo-litros').style.display = aba === 'Abastecimento' ? 'block' : 'none';
+            document.getElementById('campo-km').style.display = (aba === 'Abastecimento' || aba === 'Manutenção') ? 'block' : 'none';
+
+            // Ajusta rótulos e botões
+            const btnSalvar = document.getElementById('btn-salvar');
+            const labelFoto = document.getElementById('label-foto');
+
+            if (aba === 'Coleta') {
+                btnSalvar.innerText = '💾 Salvar Registro de Coleta';
+                labelFoto.innerText = 'Foto / Comprovante de Coleta (Opcional)';
+            } else if (aba === 'Abastecimento') {
+                btnSalvar.innerText = '⛽ Salvar Abastecimento';
+                labelFoto.innerText = 'Foto do Comprovante / Noteira *';
+            } else if (aba === 'Manutenção') {
+                btnSalvar.innerText = '🔧 Salvar Manutenção';
+                labelFoto.innerText = 'Foto da Nota / Recibo de Serviço *';
+            }
+        }
+
+        function selecionarPlataforma(plat) {
+            plataformaAtual = plat;
+            const btnShopee = document.getElementById('btn-shopee');
+            const btnMl = document.getElementById('btn-ml');
+
+            if (plat === 'Shopee') {
+                btnShopee.className = 'p-3 border-2 rounded-xl font-extrabold text-sm transition btn-shopee-active flex items-center justify-center gap-2';
+                btnMl.className = 'p-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 text-sm hover:bg-gray-50 transition flex items-center justify-center gap-2';
+            } else {
+                btnShopee.className = 'p-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 text-sm hover:bg-gray-50 transition flex items-center justify-center gap-2';
+                btnMl.className = 'p-3 border-2 rounded-xl font-extrabold text-sm transition btn-ml-active flex items-center justify-center gap-2';
+            }
+        }
+
+        async function salvarRegistro() {
+            const motorista = document.getElementById('select-motorista').value;
+            if (!motorista) {
+                alert('Selecione o seu nome na lista.');
+                return;
+            }
+
+            const btnSalvar = document.getElementById('btn-salvar');
+            btnSalvar.disabled = true;
+            btnSalvar.innerText = '⏳ A gravar...';
+
             let fotoUrl = null;
+            const fotoInput = document.getElementById('input-foto');
 
-            try {
-                if (fotoFile) {
-                    const fileExt = fotoFile.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-                    const { error: uploadError } = await supabaseClient.storage.from('comprovantes').upload(fileName, fotoFile);
-                    if (!uploadError) {
-                        const { data: urlData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
-                        fotoUrl = urlData.publicUrl;
-                    }
-                }
-                registro.foto_comprovante = fotoUrl;
+            if (fotoInput.files.length > 0) {
+                const file = fotoInput.files[0];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-                const { error } = await supabaseClient.from('registros').insert([registro]);
-                if (error) throw error;
-
-                alert('Registo enviado com sucesso!');
-                limparCampos(tipoOriginal);
-
-            } catch (err) {
-                console.warn('Servidor indisponível. Salvando localmente...', err);
-                registro.foto_comprovante = fotoUrl;
-                let fila = JSON.parse(localStorage.getItem('gb_fila_offline') || '[]');
-                fila.push(registro);
-                localStorage.setItem('gb_fila_offline', JSON.stringify(fila));
-
-                alert('⚠️ Sem ligação ao servidor! O registo foi salvo no telemóvel e será enviado assim que a internet estabilizar.');
-                limparCampos(tipoOriginal);
-                document.getElementById('status-offline').classList.remove('hidden');
-            }
-        }
-
-        async function sincronizarFilaOffline() {
-            let fila = JSON.parse(localStorage.getItem('gb_fila_offline') || '[]');
-            if (fila.length === 0) return;
-
-            try {
-                const item = fila[0];
-                const { error } = await supabaseClient.from('registros').insert([item]);
-
+                const { data, error } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
                 if (!error) {
-                    fila.shift();
-                    localStorage.setItem('gb_fila_offline', JSON.stringify(fila));
-                    if (fila.length > 0) {
-                        sincronizarFilaOffline();
-                    } else {
-                        alert('✅ Todos os registos offline pendentes foram sincronizados com sucesso!');
-                    }
+                    const { data: publicData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
+                    fotoUrl = publicData.publicUrl;
                 }
-            } catch (e) {
-                // Tenta mais tarde
             }
-        }
 
-        function limparCampos(tipo) {
-            if (tipo === 'Coleta') {
-                document.getElementById('pacotes').value = '';
-                document.getElementById('obs-coleta').value = '';
-                document.getElementById('foto-coleta').value = '';
-            } else if (tipo === 'Abastecimento') {
-                document.getElementById('valor-abast').value = '';
-                document.getElementById('litros-abast').value = '';
-                document.getElementById('obs-abast').value = '';
-                document.getElementById('foto-abast').value = '';
-            } else if (tipo === 'Manutenção') {
-                document.getElementById('servico-manut').value = '';
-                document.getElementById('valor-manut').value = '';
-                document.getElementById('km-manut').value = '';
-                document.getElementById('obs-manut').value = '';
-                document.getElementById('foto-manut').value = '';
+            const registro = {
+                motorista,
+                tipo: abaAtual,
+                plataforma: abaAtual === 'Coleta' ? plataformaAtual : null,
+                pacotes: abaAtual === 'Coleta' ? (parseInt(document.getElementById('input-pacotes').value) || 0) : 0,
+                valor_abastecimento: (abaAtual === 'Abastecimento' || abaAtual === 'Manutenção') ? (parseFloat(document.getElementById('input-valor').value) || 0) : 0,
+                litros: abaAtual === 'Abastecimento' ? (parseFloat(document.getElementById('input-litros').value) || 0) : 0,
+                km: (abaAtual === 'Abastecimento' || abaAtual === 'Manutenção') ? (parseInt(document.getElementById('input-km').value) || null) : null,
+                foto_comprovante: fotoUrl,
+                observacao: document.getElementById('input-obs').value
+            };
+
+            const { error } = await supabaseClient.from('registros').insert([registro]);
+
+            if (error) {
+                alert('Erro ao guardar registo: ' + error.message);
+            } else {
+                alert('✅ Registo guardado com sucesso!');
+                document.getElementById('input-pacotes').value = '';
+                document.getElementById('input-valor').value = '';
+                document.getElementById('input-litros').value = '';
+                document.getElementById('input-km').value = '';
+                document.getElementById('input-obs').value = '';
+                document.getElementById('input-foto').value = '';
             }
+
+            btnSalvar.disabled = false;
+            mudarAba(abaAtual);
         }
 
         window.onload = carregarMotoristas;
