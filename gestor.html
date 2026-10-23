@@ -344,20 +344,22 @@
 
     </main>
 
-    <!-- ================= TEMPLATES PDF COM ESTILOS EM LINHA (GARANTE QUE NUNCA SAI EM BRANCO) ================= -->
+    <!-- ================= TEMPLATES PDF COM ESTILOS EM LINHA (SEGUROS) ================= -->
 
     <!-- Template Comprovante Individual -->
     <div id="pdf-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
-        <div style="border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
-                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
-            </div>
-            <div style="text-align:right; font-size:11px; color:#666666;">
-                <p style="margin:0;">Data de Emissão: <span id="pdf-data-emissao">--</span></p>
-            </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+            <tr>
+                <td>
+                    <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                    <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                    <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
+                </td>
+                <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                    <p style="margin:0;">Data de Emissão: <span id="pdf-data-emissao">--</span></p>
+                </td>
+            </tr>
+        </table>
 
         <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
             <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
@@ -406,38 +408,47 @@
             </table>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; margin-bottom:40px;">
-            <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
-                <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
-                <h2 id="pdf-total-geral" style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ 0,00</h2>
-            </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; margin-bottom:40px;">
+            <tr>
+                <td style="text-align:right;">
+                    <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
+                        <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
+                        <h2 id="pdf-total-geral" style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ 0,00</h2>
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-        <div style="margin-top:60px; padding-top:20px; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; text-align:center; font-size:12px; color:#475569;">
-            <div style="width:45%;">
-                <p id="pdf-ass-motorista" style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Motorista</p>
-                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
-            </div>
-            <div style="width:45%;">
-                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
-                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
-            </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
+            <tr>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p id="pdf-ass-motorista" style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Motorista</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
+                </td>
+                <td style="width:10%;"></td>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- Template Relatório Geral da Operação -->
     <div id="pdf-relatorio-geral-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
-        <div style="border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
-            <div>
-                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
-                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
-            </div>
-            <div style="text-align:right; font-size:11px; color:#666666;">
-                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span id="rel-data-emissao">--</span></p>
-                <p style="margin:0;"><strong>Filtro Período:</strong> <span id="rel-periodo-filtro">--</span></p>
-            </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+            <tr>
+                <td>
+                    <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                    <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                    <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
+                </td>
+                <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                    <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span id="rel-data-emissao">--</span></p>
+                    <p style="margin:0;"><strong>Filtro Período:</strong> <span id="rel-periodo-filtro">--</span></p>
+                </td>
+            </tr>
+        </table>
 
         <div style="margin-bottom:20px;">
             <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo Geral de Operação e Custos</h2>
@@ -520,16 +531,19 @@
             </table>
         </div>
 
-        <div style="margin-top:40px; padding-top:20px; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; text-align:center; font-size:11px; color:#475569;">
-            <div style="width:45%;">
-                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestor Financeiro / Operacional</p>
-                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável pelo Relatório</p>
-            </div>
-            <div style="width:45%;">
-                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
-                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
-            </div>
-        </div>
+        <table style="width:100%; border-collapse:collapse; margin-top:40px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:11px; color:#475569;">
+            <tr>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestor Financeiro / Operacional</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável pelo Relatório</p>
+                </td>
+                <td style="width:10%;"></td>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- Script Gestor -->
@@ -857,23 +871,41 @@
             const motObj = listaMotoristas.find(m => m.nome === motorista);
             const veiculoInfo = motObj ? motObj.veiculo : 'Não informado';
 
-            const inicio = document.getElementById('pag-data-inicio').value;
-            const fim = document.getElementById('pag-data-fim').value;
-            const periodoTexto = `De ${inicio ? new Date(inicio + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fim ? new Date(fim + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
+            const inicioStr = document.getElementById('pag-data-inicio').value;
+            const fimStr = document.getElementById('pag-data-fim').value;
+            const periodoTexto = `De ${inicioStr ? new Date(inicioStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fimStr ? new Date(fimStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
             
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
             const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
             const valorMl = parseFloat(document.getElementById('pag-valor-ml').value) || 0;
 
-            const qtdDias = parseInt(document.getElementById('resumo-dias-trabalhados').innerText) || 0;
+            const dataInicio = inicioStr ? new Date(inicioStr + 'T00:00:00') : null;
+            const dataFim = fimStr ? new Date(fimStr + 'T23:59:59') : null;
+
+            const dadosMotorista = dadosGlobais.filter(item => {
+                if (item.motorista !== motorista) return false;
+                const dataItem = new Date(item.created_at);
+                if (dataInicio && dataItem < dataInicio) return false;
+                if (dataFim && dataItem > dataFim) return false;
+                return true;
+            });
+
+            const diasUnicos = new Set();
+            let totalShopee = 0;
+            let totalML = 0;
+
+            dadosMotorista.forEach(item => {
+                diasUnicos.add(new Date(item.created_at).toDateString());
+                if (item.tipo === 'Coleta') {
+                    if (item.plataforma === 'Shopee') totalShopee += (item.pacotes || 0);
+                    if (item.plataforma === 'Mercado Livre') totalML += (item.pacotes || 0);
+                }
+            });
+
+            const qtdDias = diasUnicos.size;
             const subtotalDiarias = qtdDias * valorDiaria;
-
-            const qtdShopee = parseInt(document.getElementById('resumo-pacotes-shopee').innerText) || 0;
-            const subtotalShopee = qtdShopee * valorShopee;
-
-            const qtdMl = parseInt(document.getElementById('resumo-pacotes-ml').innerText) || 0;
-            const subtotalMl = qtdMl * valorMl;
-            
+            const subtotalShopee = totalShopee * valorShopee;
+            const subtotalMl = totalML * valorMl;
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
 
             document.getElementById('pdf-data-emissao').innerText = new Date().toLocaleString('pt-BR');
@@ -885,11 +917,11 @@
             document.getElementById('pdf-val-diaria').innerText = `R$ ${valorDiaria.toFixed(2)}`;
             document.getElementById('pdf-subtotal-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
 
-            document.getElementById('pdf-qtd-shopee').innerText = qtdShopee;
+            document.getElementById('pdf-qtd-shopee').innerText = totalShopee;
             document.getElementById('pdf-val-shopee').innerText = `R$ ${valorShopee.toFixed(2)}`;
             document.getElementById('pdf-subtotal-shopee').innerText = `R$ ${subtotalShopee.toFixed(2)}`;
 
-            document.getElementById('pdf-qtd-ml').innerText = qtdMl;
+            document.getElementById('pdf-qtd-ml').innerText = totalML;
             document.getElementById('pdf-val-ml').innerText = `R$ ${valorMl.toFixed(2)}`;
             document.getElementById('pdf-subtotal-ml').innerText = `R$ ${subtotalMl.toFixed(2)}`;
 
