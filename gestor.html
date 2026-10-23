@@ -344,8 +344,8 @@
 
     </main>
 
-    <!-- ================= TEMPLATE PARA O COMPROVANTE DE PAGAMENTO ================= -->
-    <div id="pdf-comprovante-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
+    <!-- ================= TEMPLATE PARA O COMPROVANTE DE PAGAMENTO (CORRIGIDO PARA POSITION: ABSOLUTE) ================= -->
+    <div id="pdf-comprovante-template" style="position:absolute; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -432,8 +432,8 @@
         </table>
     </div>
 
-    <!-- ================= TEMPLATE PARA O RELATÓRIO GERAL ================= -->
-    <div id="pdf-relatorio-geral-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
+    <!-- ================= TEMPLATE PARA O RELATÓRIO GERAL (CORRIGIDO PARA POSITION: ABSOLUTE) ================= -->
+    <div id="pdf-relatorio-geral-template" style="position:absolute; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -871,7 +871,7 @@
 
             const inicioStr = document.getElementById('pag-data-inicio').value;
             const fimStr = document.getElementById('pag-data-fim').value;
-            const periodoTexto = `De ${inicioStr ? new Date(inicioStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fimStr ? new Date(fimStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
+            const periodoTexto = `De ${inicioStr ? new Date(inicioStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fimStr ? new Date(fimStr + 'T23:59:59').toLocaleDateString('pt-BR') : '--'}`;
             
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
             const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
