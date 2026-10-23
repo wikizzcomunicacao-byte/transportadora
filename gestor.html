@@ -23,6 +23,52 @@
 
     <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
 
+        <!-- ================= GESTÃO DE MOTORISTAS E VEÍCULOS ================= -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">🚚 Cadastro e Gestão de Motoristas e Veículos</h3>
+                    <p class="text-xs text-gray-500">Adicione, edite ou remova motoristas e vincule seus veículos.</p>
+                </div>
+                <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
+            </div>
+
+            <div id="conteudo-gestao-motoristas" class="space-y-4 hidden pt-2">
+                <!-- Formulário para Inclusão / Edição -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <input type="hidden" id="mot-id-edicao" value="">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
+                        <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
+                        <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-end gap-2">
+                        <button onclick="salvarMotorista()" id="btn-salvar-mot" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition">➕ Cadastrar Motorista</button>
+                        <button onclick="cancelarEdicaoMotorista()" id="btn-cancelar-mot" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-3 py-2.5 rounded-lg text-sm hidden transition">Cancelar</button>
+                    </div>
+                </div>
+
+                <!-- Tabela de Motoristas Cadastrados -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Veículo / Placa</th>
+                                <th class="p-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-motoristas" class="text-sm divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= FECHAMENTO COM CALENDÁRIO ================= -->
         <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-6">
             <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -38,10 +84,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
                     <select id="pag-motorista" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Motorista 01">Motorista 01</option>
-                        <option value="Motorista 02">Motorista 02</option>
-                        <option value="Motorista 03">Motorista 03</option>
-                        <option value="Motorista 04">Motorista 04</option>
+                        <!-- Carregado via JS -->
                     </select>
                 </div>
                 <div>
@@ -91,11 +134,7 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Filtrar Motorista</label>
                     <select id="filtro-motorista" onchange="aplicarFiltros()" class="p-2 border rounded-lg bg-gray-50 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="TODOS">Todos os Motoristas</option>
-                        <option value="Motorista 01">Motorista 01</option>
-                        <option value="Motorista 02">Motorista 02</option>
-                        <option value="Motorista 03">Motorista 03</option>
-                        <option value="Motorista 04">Motorista 04</option>
+                        <!-- Carregado via JS -->
                     </select>
                 </div>
                 <div>
@@ -130,7 +169,6 @@
                 <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0 L (R$ 0.00/L)</p>
             </div>
             
-            <!-- CARD DE MANUTENÇÃO SUBISTITUINDO O DE KM TOTAL -->
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
                 <h3 id="metric-manutencao" class="text-3xl font-extrabold text-rose-600 mt-1">R$ 0,00</h3>
@@ -199,6 +237,7 @@
             <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Dados do Prestador / Motorista</h2>
             <div class="grid grid-cols-2 gap-4 text-sm">
                 <p><strong>Motorista:</strong> <span id="pdf-motorista-nome">--</span></p>
+                <p><strong>Veículo / Placa:</strong> <span id="pdf-motorista-veiculo">--</span></p>
                 <p><strong>Período Selecionado:</strong> <span id="pdf-periodo-texto">--</span></p>
             </div>
         </div>
@@ -261,6 +300,125 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
+        // Lista padrão de motoristas
+        let listaMotoristas = JSON.parse(localStorage.getItem('gestor_lista_motoristas')) || [
+            { id: 1, nome: 'Motorista 01', veiculo: 'Veículo 01' },
+            { id: 2, nome: 'Motorista 02', veiculo: 'Veículo 02' },
+            { id: 3, nome: 'Motorista 03', veiculo: 'Veículo 03' },
+            { id: 4, nome: 'Motorista 04', veiculo: 'Veículo 04' }
+        ];
+
+        function toggleGestaoMotoristas() {
+            const el = document.getElementById('conteudo-gestao-motoristas');
+            const icon = document.getElementById('icone-gestao-mot');
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.innerText = '▲';
+            } else {
+                el.classList.add('hidden');
+                icon.innerText = '▼';
+            }
+        }
+
+        function salvarMotoristasLocalStorage() {
+            localStorage.setItem('gestor_lista_motoristas', JSON.stringify(listaMotoristas));
+            atualizarSelectsMotoristas();
+            renderizarTabelaMotoristas();
+        }
+
+        function renderizarTabelaMotoristas() {
+            const tbody = document.getElementById('tabela-motoristas');
+            tbody.innerHTML = '';
+
+            listaMotoristas.forEach(mot => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b";
+                tr.innerHTML = `
+                    <td class="p-3 font-semibold text-gray-800">${mot.nome}</td>
+                    <td class="p-3 text-gray-600">${mot.veiculo}</td>
+                    <td class="p-3 text-right space-x-2">
+                        <button onclick="editarMotorista(${mot.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
+                        <button onclick="excluirMotorista(${mot.id})" class="text-red-600 hover:text-red-800 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function atualizarSelectsMotoristas() {
+            const selectPag = document.getElementById('pag-motorista');
+            const selectFiltro = document.getElementById('filtro-motorista');
+
+            const valorPagAtual = selectPag.value;
+            const valorFiltroAtual = selectFiltro.value;
+
+            selectPag.innerHTML = '';
+            selectFiltro.innerHTML = '<option value="TODOS">Todos os Motoristas</option>';
+
+            listaMotoristas.forEach(mot => {
+                selectPag.innerHTML += `<option value="${mot.nome}">${mot.nome} (${mot.veiculo})</option>`;
+                selectFiltro.innerHTML += `<option value="${mot.nome}">${mot.nome}</option>`;
+            });
+
+            if (valorPagAtual) selectPag.value = valorPagAtual;
+            if (valorFiltroAtual) selectFiltro.value = valorFiltroAtual;
+        }
+
+        function salvarMotorista() {
+            const idEdicao = document.getElementById('mot-id-edicao').value;
+            const nome = document.getElementById('mot-nome-input').value.trim();
+            const veiculo = document.getElementById('mot-veiculo-input').value.trim();
+
+            if (!nome || !veiculo) {
+                alert('Preencha o nome do motorista e o veículo.');
+                return;
+            }
+
+            if (idEdicao) {
+                const item = listaMotoristas.find(m => m.id == idEdicao);
+                if (item) {
+                    item.nome = nome;
+                    item.veiculo = veiculo;
+                }
+            } else {
+                const novoId = Date.now();
+                listaMotoristas.push({ id: novoId, nome: nome, veiculo: veiculo });
+            }
+
+            cancelarEdicaoMotorista();
+            salvarMotoristasLocalStorage();
+        }
+
+        function editarMotorista(id) {
+            const mot = listaMotoristas.find(m => m.id == id);
+            if (mot) {
+                document.getElementById('mot-id-edicao').value = mot.id;
+                document.getElementById('mot-nome-input').value = mot.nome;
+                document.getElementById('mot-veiculo-input').value = mot.veiculo;
+
+                document.getElementById('btn-salvar-mot').innerText = '💾 Salvar Alterações';
+                document.getElementById('btn-salvar-mot').className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition';
+                document.getElementById('btn-cancelar-mot').classList.remove('hidden');
+            }
+        }
+
+        function cancelarEdicaoMotorista() {
+            document.getElementById('mot-id-edicao').value = '';
+            document.getElementById('mot-nome-input').value = '';
+            document.getElementById('mot-veiculo-input').value = '';
+
+            document.getElementById('btn-salvar-mot').innerText = '➕ Cadastrar Motorista';
+            document.getElementById('btn-salvar-mot').className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition';
+            document.getElementById('btn-cancelar-mot').classList.add('hidden');
+        }
+
+        function excluirMotorista(id) {
+            if (confirm('Deseja realmente remover este motorista da lista?')) {
+                listaMotoristas = listaMotoristas.filter(m => m.id != id);
+                salvarMotoristasLocalStorage();
+            }
+        }
+
         function inicializarDatas() {
             const hoje = new Date();
             const primeiroDia = new Date(hoje);
@@ -291,6 +449,8 @@
         async function carregarDadosGestor() {
             carregarValoresSalvos();
             inicializarDatas();
+            atualizarSelectsMotoristas();
+            renderizarTabelaMotoristas();
 
             const { data, error } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
 
@@ -348,6 +508,9 @@
 
         function gerarPDFComprovante() {
             const motorista = document.getElementById('pag-motorista').value;
+            const motObj = listaMotoristas.find(m => m.nome === motorista);
+            const veiculoInfo = motObj ? motObj.veiculo : 'Não informado';
+
             const inicio = document.getElementById('pag-data-inicio').value;
             const fim = document.getElementById('pag-data-fim').value;
             const periodoTexto = `De ${inicio ? new Date(inicio + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fim ? new Date(fim + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
@@ -365,6 +528,7 @@
 
             document.getElementById('pdf-data-emissao').innerText = new Date().toLocaleString('pt-BR');
             document.getElementById('pdf-motorista-nome').innerText = motorista;
+            document.getElementById('pdf-motorista-veiculo').innerText = veiculoInfo;
             document.getElementById('pdf-periodo-texto').innerText = periodoTexto;
 
             document.getElementById('pdf-qtd-diarias').innerText = qtdDias;
@@ -435,7 +599,8 @@
             let totalManutencao = 0;
             let qtdManutencoes = 0;
 
-            const pacotesPorMotorista = { 'Motorista 01': 0, 'Motorista 02': 0, 'Motorista 03': 0, 'Motorista 04': 0 };
+            const pacotesPorMotorista = {};
+            listaMotoristas.forEach(m => pacotesPorMotorista[m.nome] = 0);
 
             const tbody = document.getElementById('tabela-registros');
             tbody.innerHTML = '';
@@ -449,6 +614,8 @@
 
                     if (pacotesPorMotorista[item.motorista] !== undefined) {
                         pacotesPorMotorista[item.motorista] += pkts;
+                    } else {
+                        pacotesPorMotorista[item.motorista] = pkts;
                     }
                 }
                 if (item.tipo === 'Abastecimento') {
