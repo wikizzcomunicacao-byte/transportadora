@@ -10,37 +10,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf.js CDN (Biblioteca html2canvas + jsPDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         .bg-gb-navy { background-color: #0d2847; }
         .text-gb-navy { color: #0d2847; }
         .border-gb-navy { border-color: #0d2847; }
         .bg-gb-orange { background-color: #f26522; }
         .text-gb-orange { color: #f26522; }
-
-        /* Estilos exclusivos para Impressão / PDF Nativo */
-        #print-container {
-            display: none;
-        }
-
-        @media print {
-            body > *:not(#print-container) {
-                display: none !important;
-            }
-            header, main {
-                display: none !important;
-            }
-            #print-container {
-                display: block !important;
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                background: white !important;
-                z-index: 999999 !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 min-h-screen pb-12">
@@ -65,7 +42,7 @@
         </div>
         <div class="flex items-center gap-3">
             <button onclick="gerarPDFRelatorioGeral()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
-                📑 Relatório Geral (Imprimir/PDF)
+                📑 Relatório Geral (PDF)
             </button>
             <button onclick="carregarDadosGestor()" class="bg-gb-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-1 shadow-sm">
                 🔄 Atualizar Dados
@@ -366,9 +343,6 @@
         </div>
 
     </main>
-
-    <!-- Container Universal para Impressão e PDF Nativo -->
-    <div id="print-container"></div>
 
     <!-- Script Gestor -->
     <script>
@@ -690,7 +664,7 @@
             document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
         }
 
-        // ================= GERAÇÃO DE COMPROVANTE VIA WINDOW.PRINT() =================
+        // ================= GERAÇÃO DE COMPROVANTE (HTML2CANVAS / HTML2PDF) =================
         function gerarPDFComprovante() {
             const motorista = document.getElementById('pag-motorista').value;
             const motObj = listaMotoristas.find(m => m.nome === motorista);
@@ -734,102 +708,128 @@
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
             const dataEmissao = new Date().toLocaleString('pt-BR');
 
-            const container = document.getElementById('print-container');
-            container.innerHTML = `
-                <div style="background:#ffffff; padding:20px; font-family:Arial, sans-serif; color:#333333;">
-                    <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+            // Cria o elemento com opacity baixa e renderização real para o html2canvas capturar
+            const element = document.createElement('div');
+            element.style.width = '794px'; // Largura A4 em pixels
+            element.style.background = '#ffffff';
+            element.style.padding = '30px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.color = '#333333';
+            element.style.position = 'absolute';
+            element.style.left = '0';
+            element.style.top = '0';
+            element.style.opacity = '0.01';
+            element.style.zIndex = '999999';
+            element.style.pointerEvents = 'none';
+
+            element.innerHTML = `
+                <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+                    <tr>
+                        <td>
+                            <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                            <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                            <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
+                        </td>
+                        <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                            <p style="margin:0;">Data de Emissão: <span>${dataEmissao}</span></p>
+                        </td>
+                    </tr>
+                </table>
+
+                <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+                    <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
+                    <table style="width:100%; font-size:13px; border-collapse:collapse;">
                         <tr>
-                            <td>
-                                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
-                                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
-                            </td>
-                            <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
-                                <p style="margin:0;">Data de Emissão: <span>${dataEmissao}</span></p>
-                            </td>
+                            <td style="padding:4px 0;"><strong>Motorista:</strong> <span>${motorista}</span></td>
+                            <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span>${veiculoInfo}</span></td>
                         </tr>
-                    </table>
-
-                    <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
-                        <table style="width:100%; font-size:13px; border-collapse:collapse;">
-                            <tr>
-                                <td style="padding:4px 0;"><strong>Motorista:</strong> <span>${motorista}</span></td>
-                                <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span>${veiculoInfo}</span></td>
-                            </tr>
-                            <tr>
-                                <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span>${periodoTexto}</span></td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div style="margin-bottom:25px;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Discriminação do Fechamento</h2>
-                        <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
-                            <thead>
-                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
-                                    <th style="padding:10px; border:1px solid #cbd5e1;">Item / Descrição</th>
-                                    <th style="padding:10px; border:1px solid #cbd5e1; text-align:center;">Quantidade</th>
-                                    <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Valor Unitário</th>
-                                    <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Subtotal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorDiaria.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalDiarias.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalShopee}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorShopee.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ ${subtotalShopee.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalML}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorMl.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ ${subtotalMl.toFixed(2)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <table style="width:100%; border-collapse:collapse; margin-bottom:40px;">
                         <tr>
-                            <td style="text-align:right;">
-                                <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
-                                    <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
-                                    <h2 style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ ${totalGeral.toFixed(2)}</h2>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
-
-                    <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
-                        <tr>
-                            <td style="width:45%; text-align:center; vertical-align:top;">
-                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">${motorista}</p>
-                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
-                            </td>
-                            <td style="width:10%;"></td>
-                            <td style="width:45%; text-align:center; vertical-align:top;">
-                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
-                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
-                            </td>
+                            <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span>${periodoTexto}</span></td>
                         </tr>
                     </table>
                 </div>
+
+                <div style="margin-bottom:25px;">
+                    <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Discriminação do Fechamento</h2>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                        <thead>
+                            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                                <th style="padding:10px; border:1px solid #cbd5e1;">Item / Descrição</th>
+                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:center;">Quantidade</th>
+                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Valor Unitário</th>
+                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorDiaria.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalDiarias.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalShopee}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorShopee.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ ${subtotalShopee.toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalML}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorMl.toFixed(2)}</td>
+                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ ${subtotalMl.toFixed(2)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; margin-bottom:40px;">
+                    <tr>
+                        <td style="text-align:right;">
+                            <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
+                                <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
+                                <h2 style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ ${totalGeral.toFixed(2)}</h2>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+
+                <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
+                    <tr>
+                        <td style="width:45%; text-align:center; vertical-align:top;">
+                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">${motorista}</p>
+                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
+                        </td>
+                        <td style="width:10%;"></td>
+                        <td style="width:45%; text-align:center; vertical-align:top;">
+                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
+                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
+                        </td>
+                    </tr>
+                </table>
             `;
 
+            document.body.appendChild(element);
+
             setTimeout(() => {
-                window.print();
+                const opt = {
+                    margin:       10,
+                    filename:     `comprovante_${motorista.replace(/\s+/g, '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.remove();
+                }).catch(err => {
+                    console.error('Erro ao gerar PDF:', err);
+                    element.remove();
+                });
             }, 300);
         }
 
-        // ================= GERAÇÃO DE RELATÓRIO GERAL VIA WINDOW.PRINT() =================
+        // ================= GERAÇÃO DE RELATÓRIO GERAL (SEM O HISTÓRICO DE LANÇAMENTOS) =================
         function gerarPDFRelatorioGeral() {
             const periodoFiltro = document.getElementById('filtro-periodo').selectedOptions[0].text;
             const dataEmissao = new Date().toLocaleString('pt-BR');
@@ -892,12 +892,12 @@
 
                 linhasMotoristasHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${mot.nome}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1;">${mot.veiculo}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${pacotesShopeeMot}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${pacotesMlMot}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalMot.toFixed(2)}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; font-weight:bold;">${mot.nome}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1;">${mot.veiculo}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${pacotesShopeeMot}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${pacotesMlMot}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalMot.toFixed(2)}</td>
                     </tr>
                 `;
             });
@@ -917,153 +917,133 @@
 
                 linhasVeiculosHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${veic}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${manutencaoVeic.length}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${totGastoVeic.toFixed(2)}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; font-weight:bold;">${veic}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:center;">${manutencaoVeic.length}</td>
+                        <td style="padding:8px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${totGastoVeic.toFixed(2)}</td>
                     </tr>
                 `;
             });
 
-            let linhasHistoricoHTML = '';
-            dadosFiltrados.slice(0, 100).forEach(item => {
-                let detalhe = '';
-                let valorKM = '--';
+            // Elemento dinâmico sem a tabela longa de lançamentos
+            const element = document.createElement('div');
+            element.style.width = '794px';
+            element.style.background = '#ffffff';
+            element.style.padding = '30px';
+            element.style.fontFamily = 'Arial, sans-serif';
+            element.style.color = '#333333';
+            element.style.position = 'absolute';
+            element.style.left = '0';
+            element.style.top = '0';
+            element.style.opacity = '0.01';
+            element.style.zIndex = '999999';
+            element.style.pointerEvents = 'none';
 
-                if (item.tipo === 'Coleta') {
-                    detalhe = `${item.plataforma} (${item.pacotes} pacotes) ${item.observacao ? '- ' + item.observacao : ''}`;
-                    valorKM = `${item.pacotes} pkts`;
-                } else if (item.tipo === 'Abastecimento') {
-                    detalhe = `Abastecimento de Combustível (${item.litros || 0} L)`;
-                    valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
-                } else if (item.tipo === 'Manutenção') {
-                    detalhe = `${item.observacao || 'Manutenção Geral'} ${item.km ? '(' + item.km + ' KM)' : ''}`;
-                    valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
-                } else if (item.tipo === 'KM') {
-                    detalhe = `Registro de Quilometragem`;
-                    valorKM = `${item.km || 0} KM`;
-                }
-
-                linhasHistoricoHTML += `
-                    <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:5px; border:1px solid #cbd5e1;">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.motorista}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.tipo}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1;">${detalhe}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1; text-align:right; font-weight:bold;">${valorKM}</td>
+            element.innerHTML = `
+                <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+                    <tr>
+                        <td>
+                            <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                            <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                            <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
+                        </td>
+                        <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                            <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span>${dataEmissao}</span></p>
+                            <p style="margin:0;"><strong>Filtro Período:</strong> <span>${periodoFiltro}</span></p>
+                        </td>
                     </tr>
-                `;
-            });
+                </table>
 
-            const container = document.getElementById('print-container');
-            container.innerHTML = `
-                <div style="background:#ffffff; padding:20px; font-family:Arial, sans-serif; color:#333333;">
-                    <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+                <div style="margin-bottom:25px;">
+                    <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo Geral de Operação e Custos</h2>
+                    <table style="width:100%; border-collapse:collapse; text-align:center; font-size:11px;">
                         <tr>
-                            <td>
-                                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
-                                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
+                            <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; width:25%;">
+                                <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Pacotes Totais</p>
+                                <p style="font-size:18px; font-weight:900; color:#1d4ed8; margin:0 0 3px 0;">${totalPacotes}</p>
+                                <p style="font-size:10px; color:#64748b; margin:0;">Shopee: ${totalShopee} | ML: ${totalML}</p>
                             </td>
-                            <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
-                                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span>${dataEmissao}</span></p>
-                                <p style="margin:0;"><strong>Filtro Período:</strong> <span>${periodoFiltro}</span></p>
+                            <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; width:25%;">
+                                <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Combustível</p>
+                                <p style="font-size:18px; font-weight:900; color:#047857; margin:0 0 3px 0;">R$ ${totalCombustivel.toFixed(2)}</p>
+                                <p style="font-size:10px; color:#64748b; margin:0;">${totalLitros.toFixed(1)} L (Média R$ ${medioLitro}/L)</p>
                             </td>
-                        </tr>
-                    </table>
-
-                    <div style="margin-bottom:20px;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo Geral de Operação e Custos</h2>
-                        <table style="width:100%; border-collapse:collapse; text-align:center; font-size:11px;">
-                            <tr>
-                                <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
-                                    <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Pacotes Totais</p>
-                                    <p style="font-size:16px; font-weight:900; color:#1d4ed8; margin:0 0 3px 0;">${totalPacotes}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">Shopee: ${totalShopee} | ML: ${totalML}</p>
-                                </td>
-                                <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
-                                    <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Combustível</p>
-                                    <p style="font-size:16px; font-weight:900; color:#047857; margin:0 0 3px 0;">R$ ${totalCombustivel.toFixed(2)}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">${totalLitros.toFixed(1)} L (Média R$ ${medioLitro}/L)</p>
-                                </td>
-                                <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
-                                    <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Manutenção</p>
-                                    <p style="font-size:16px; font-weight:900; color:#be123c; margin:0 0 3px 0;">R$ ${totalManutencao.toFixed(2)}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">${qtdManutencoes} serviço(s)</p>
-                                </td>
-                                <td style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px; width:25%;">
-                                    <p style="font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">Custo Geral Total</p>
-                                    <p style="font-size:16px; font-weight:900; color:#0d2847; margin:0 0 3px 0;">R$ ${custoGeralOp.toFixed(2)}</p>
-                                    <p style="font-size:9px; color:#2563eb; margin:0;">Operação + Frota</p>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">2. Produção e Desempenho por Motorista</h2>
-                        <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
-                            <thead>
-                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
-                                    <th style="padding:8px; border:1px solid #cbd5e1;">Motorista</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Diárias Trab.</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Shopee</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Mercado Livre</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Subtotal a Pagar</th>
-                                </tr>
-                            </thead>
-                            <tbody>${linhasMotoristasHTML}</tbody>
-                        </table>
-                    </div>
-
-                    <div style="margin-bottom:20px;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">3. Resumo de Manutenção por Veículo</h2>
-                        <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
-                            <thead>
-                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
-                                    <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Qtd. Serviços</th>
-                                    <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Total Investido em Oficina (R$)</th>
-                                </tr>
-                            </thead>
-                            <tbody>${linhasVeiculosHTML}</tbody>
-                        </table>
-                    </div>
-
-                    <div style="margin-bottom:30px;">
-                        <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">4. Histórico Detalhado dos Registros</h2>
-                        <table style="width:100%; border-collapse:collapse; font-size:9px; text-align:left;">
-                            <thead>
-                                <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
-                                    <th style="padding:6px; border:1px solid #cbd5e1;">Data / Hora</th>
-                                    <th style="padding:6px; border:1px solid #cbd5e1;">Motorista</th>
-                                    <th style="padding:6px; border:1px solid #cbd5e1;">Tipo</th>
-                                    <th style="padding:6px; border:1px solid #cbd5e1;">Detalhes da Rota / Serviço</th>
-                                    <th style="padding:6px; border:1px solid #cbd5e1; text-align:right;">Valor / Litros / KM</th>
-                                </tr>
-                            </thead>
-                            <tbody>${linhasHistoricoHTML}</tbody>
-                        </table>
-                    </div>
-
-                    <table style="width:100%; border-collapse:collapse; margin-top:40px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:11px; color:#475569;">
-                        <tr>
-                            <td style="width:45%; text-align:center; vertical-align:top;">
-                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestor Financeiro / Operacional</p>
-                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável pelo Relatório</p>
+                            <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; width:25%;">
+                                <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Manutenção</p>
+                                <p style="font-size:18px; font-weight:900; color:#be123c; margin:0 0 3px 0;">R$ ${totalManutencao.toFixed(2)}</p>
+                                <p style="font-size:10px; color:#64748b; margin:0;">${qtdManutencoes} serviço(s)</p>
                             </td>
-                            <td style="width:10%;"></td>
-                            <td style="width:45%; text-align:center; vertical-align:top;">
-                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
-                                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
+                            <td style="background:#eff6ff; border:1px solid #bfdbfe; padding:12px; width:25%;">
+                                <p style="font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">Custo Geral Total</p>
+                                <p style="font-size:18px; font-weight:900; color:#0d2847; margin:0 0 3px 0;">R$ ${custoGeralOp.toFixed(2)}</p>
+                                <p style="font-size:10px; color:#2563eb; margin:0;">Operação + Frota</p>
                             </td>
                         </tr>
                     </table>
                 </div>
+
+                <div style="margin-bottom:25px;">
+                    <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">2. Produção e Desempenho por Motorista</h2>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
+                        <thead>
+                            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                                <th style="padding:8px; border:1px solid #cbd5e1;">Motorista</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Diárias Trab.</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Shopee</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Mercado Livre</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Subtotal a Pagar</th>
+                            </tr>
+                        </thead>
+                        <tbody>${linhasMotoristasHTML}</tbody>
+                    </table>
+                </div>
+
+                <div style="margin-bottom:30px;">
+                    <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">3. Resumo de Manutenção por Veículo</h2>
+                    <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
+                        <thead>
+                            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                                <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Qtd. Serviços</th>
+                                <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Total Investido em Oficina (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody>${linhasVeiculosHTML}</tbody>
+                    </table>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; margin-top:50px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:11px; color:#475569;">
+                    <tr>
+                        <td style="width:45%; text-align:center; vertical-align:top;">
+                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestor Financeiro / Operacional</p>
+                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável pelo Relatório</p>
+                        </td>
+                        <td style="width:10%;"></td>
+                        <td style="width:45%; text-align:center; vertical-align:top;">
+                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
+                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
+                        </td>
+                    </tr>
+                </table>
             `;
 
+            document.body.appendChild(element);
+
             setTimeout(() => {
-                window.print();
+                const opt = {
+                    margin:       10,
+                    filename:     `relatorio_operacao_gb_transportes_${new Date().toISOString().slice(0,10)}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.remove();
+                }).catch(err => {
+                    console.error('Erro ao gerar PDF:', err);
+                    element.remove();
+                });
             }, 300);
         }
 
