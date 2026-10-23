@@ -22,10 +22,7 @@
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-6">
             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista:</label>
             <select id="motorista-nome" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="Motorista 01">Motorista 01</option>
-                <option value="Motorista 02">Motorista 02</option>
-                <option value="Motorista 03">Motorista 03</option>
-                <option value="Motorista 04">Motorista 04</option>
+                <option value="">A carregar motoristas...</option>
             </select>
         </div>
 
@@ -56,7 +53,6 @@
                 <input type="file" id="foto-coleta" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm">
             </div>
 
-            <!-- NOVO CAMPO DE OBSERVAÇÃO APENAS NA COLETA -->
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
                 <textarea id="coleta-observacao" rows="2" placeholder="Ex: Pacotes avariados, observação da coleta..." class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500"></textarea>
@@ -120,6 +116,22 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let plataformaSelecionada = 'Shopee';
+
+        async function carregarMotoristasSupabase() {
+            const select = document.getElementById('motorista-nome');
+            const { data, error } = await supabaseClient.from('motoristas').select('*').order('nome', { ascending: true });
+
+            if (error || !data || data.length === 0) {
+                console.error('Erro ao carregar motoristas:', error);
+                select.innerHTML = '<option value="Motorista 01">Motorista 01</option>';
+                return;
+            }
+
+            select.innerHTML = '';
+            data.forEach(mot => {
+                select.innerHTML += `<option value="${mot.nome}">${mot.nome} (${mot.veiculo})</option>`;
+            });
+        }
 
         function mudarAba(aba) {
             document.getElementById('secao-coleta').classList.add('hidden');
@@ -263,6 +275,8 @@
                 document.getElementById('foto-manut').value = '';
             }
         }
+
+        window.onload = carregarMotoristasSupabase;
     </script>
 </body>
 </html>
