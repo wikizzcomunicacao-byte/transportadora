@@ -129,11 +129,14 @@
                 <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
                 <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0 L (R$ 0.00/L)</p>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">KM Total Registrado</p>
-                <h3 id="metric-km" class="text-3xl font-extrabold text-amber-600 mt-1">0 KM</h3>
-                <p class="mt-2 text-xs text-gray-500">Quilometragem acumulada</p>
+            
+            <!-- CARD DE MANUTENÇÃO SUBISTITUINDO O DE KM TOTAL -->
+            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
+                <h3 id="metric-manutencao" class="text-3xl font-extrabold text-rose-600 mt-1">R$ 0,00</h3>
+                <p id="sub-manutencao-qtd" class="mt-2 text-xs text-gray-500">0 serviço(s) registrado(s)</p>
             </div>
+
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📋 Lançamentos</p>
                 <h3 id="metric-total-registros" class="text-3xl font-extrabold text-purple-600 mt-1">0</h3>
@@ -258,11 +261,9 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
-        // Inicializar datas padrão (Início e Fim da semana atual)
         function inicializarDatas() {
             const hoje = new Date();
             const primeiroDia = new Date(hoje);
-            // Define o início da semana para o domingo anterior (ou ajuste conforme preferência)
             primeiroDia.setDate(hoje.getDate() - hoje.getDay());
 
             document.getElementById('pag-data-inicio').value = primeiroDia.toISOString().split('T')[0];
@@ -415,7 +416,7 @@
                 }
 
                 if (buscaFiltro) {
-                    const textoLinha = `${item.motorista} ${item.tipo} ${item.plataforma || ''} ${item.pacotes || ''} ${item.km || ''} ${item.valor_abastecimento || ''}`.toLowerCase();
+                    const textoLinha = `${item.motorista} ${item.tipo} ${item.plataforma || ''} ${item.observacao || ''} ${item.pacotes || ''} ${item.km || ''} ${item.valor_abastecimento || ''}`.toLowerCase();
                     if (!textoLinha.includes(buscaFiltro)) return false;
                 }
 
@@ -431,7 +432,8 @@
             let totalML = 0;
             let totalGasto = 0;
             let totalLitros = 0;
-            let totalKm = 0;
+            let totalManutencao = 0;
+            let qtdManutencoes = 0;
 
             const pacotesPorMotorista = { 'Motorista 01': 0, 'Motorista 02': 0, 'Motorista 03': 0, 'Motorista 04': 0 };
 
@@ -453,32 +455,49 @@
                     totalGasto += (item.valor_abastecimento || 0);
                     totalLitros += (item.litros || 0);
                 }
-                if (item.tipo === 'KM') {
-                    totalKm += (item.km || 0);
+                if (item.tipo === 'Manutenção') {
+                    totalManutencao += (item.valor_abastecimento || 0);
+                    qtdManutencoes++;
                 }
 
                 let detalheTexto = '';
-                if (item.tipo === 'Coleta') detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes`;
+                if (item.tipo === 'Coleta') {
+                    const obsFmt = item.observacao ? ` (${item.observacao})` : '';
+                    detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes${obsFmt}`;
+                }
                 if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
-                if (item.tipo === 'KM') detalheTexto = `${item.km} KM`;
+                if (item.tipo === 'Manutenção') {
+                    const servico = item.observacao || 'Serviço Geral';
+                    const val = (item.valor_abastecimento || 0).toFixed(2);
+                    const kmFmt = item.km ? ` (${item.km} KM)` : '';
+                    detalheTexto = `${servico} - R$ ${val}${kmFmt}`;
+                }
 
                 let fotosHtml = [];
                 const urlFotoKm = item.foto_km || (item.tipo === 'KM' ? item.foto_comprovante : null);
                 const urlFotoAbast = item.foto_abastecimento || (item.tipo === 'Abastecimento' ? item.foto_comprovante : null);
                 const urlFotoColeta = item.tipo === 'Coleta' ? item.foto_comprovante : null;
+                const urlFotoManutencao = item.tipo === 'Manutenção' ? item.foto_comprovante : null;
 
                 if (urlFotoKm) fotosHtml.push(`<a href="${urlFotoKm}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Painel</a>`);
                 if (urlFotoAbast) fotosHtml.push(`<a href="${urlFotoAbast}" target="_blank" class="text-emerald-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Comprovativo</a>`);
                 if (urlFotoColeta) fotosHtml.push(`<a href="${urlFotoColeta}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Coleta</a>`);
+                if (urlFotoManutencao) fotosHtml.push(`<a href="${urlFotoManutencao}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Recibo/Nota</a>`);
 
                 const colunaFotos = fotosHtml.length > 0 ? fotosHtml.join(' ') : `<span class="text-gray-400 text-xs">Sem fotos</span>`;
+
+                let badgeCor = 'bg-gray-100 text-gray-700';
+                if (item.tipo === 'Coleta') badgeCor = 'bg-blue-100 text-blue-700';
+                if (item.tipo === 'Abastecimento') badgeCor = 'bg-emerald-100 text-emerald-700';
+                if (item.tipo === 'KM') badgeCor = 'bg-amber-100 text-amber-700';
+                if (item.tipo === 'Manutenção') badgeCor = 'bg-rose-100 text-rose-700';
 
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
                     <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
                     <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${item.tipo === 'Coleta' ? 'bg-blue-100 text-blue-700' : item.tipo === 'Abastecimento' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${item.tipo}</span></td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeCor}">${item.tipo}</span></td>
                     <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
                     <td class="p-3 flex flex-wrap gap-2">${colunaFotos}</td>
                     <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
@@ -494,7 +513,9 @@
             const precoMedio = totalLitros > 0 ? (totalGasto / totalLitros).toFixed(2) : '0.00';
             document.getElementById('sub-litros').innerText = `Total: ${totalLitros.toFixed(1)} L (R$ ${precoMedio}/L)`;
 
-            document.getElementById('metric-km').innerText = `${totalKm.toFixed(1)} KM`;
+            document.getElementById('metric-manutencao').innerText = `R$ ${totalManutencao.toFixed(2)}`;
+            document.getElementById('sub-manutencao-qtd').innerText = `${qtdManutencoes} serviço(s) registrado(s)`;
+
             document.getElementById('metric-total-registros').innerText = dados.length;
             document.getElementById('contador-tabela').innerText = `A mostrar ${dados.length} registos`;
 
@@ -550,11 +571,11 @@
                 return;
             }
 
-            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Pacotes,KM,Valor_Abastecimento,Litros,FotoKM,FotoAbastecimento\n";
+            let csvContent = "data:text/csv;charset=utf-8,ID,DataHora,Motorista,Tipo,Plataforma,Observacao,Pacotes,KM,Valor_Abastecimento,Litros,FotoKM,FotoAbastecimento\n";
 
             dadosGlobais.forEach(item => {
                 const dataFmt = new Date(item.created_at).toLocaleString('pt-BR').replace(',', '');
-                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_km || ''},${item.foto_abastecimento || ''}\n`;
+                csvContent += `${item.id},${dataFmt},${item.motorista},${item.tipo},${item.plataforma || ''},${item.observacao || ''},${item.pacotes || 0},${item.km || 0},${item.valor_abastecimento || 0},${item.litros || 0},${item.foto_km || ''},${item.foto_abastecimento || ''}\n`;
             });
 
             const encodedUri = encodeURI(csvContent);
