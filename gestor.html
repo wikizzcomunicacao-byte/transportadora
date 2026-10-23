@@ -27,7 +27,7 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">🚚 Cadastro e Gestão de Motoristas e Veículos</h3>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">🚚 Cadastro de Motoristas e Veículos</h3>
                     <p class="text-xs text-gray-500">Adicione, edite ou remova motoristas e vincule seus veículos.</p>
                 </div>
                 <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
@@ -62,6 +62,56 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-motoristas" class="text-sm divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= NOVO: MANUTENÇÃO POR VEÍCULO ================= -->
+        <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoVeiculos()">
+                <div>
+                    <h3 class="text-lg font-bold text-rose-700 flex items-center gap-2">🔧 Histórico de Manutenção por Veículo</h3>
+                    <p class="text-xs text-gray-500">Selecione o veículo para analisar todos os custos de oficina e serviços realizados.</p>
+                </div>
+                <span id="icone-gestao-veic" class="text-gray-400 font-bold text-xl">▼</span>
+            </div>
+
+            <div id="conteudo-gestao-veiculos" class="space-y-6 hidden pt-2">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
+                    <div class="w-full sm:w-1/2">
+                        <label class="block text-xs font-bold text-rose-800 uppercase mb-1">Selecione o Veículo / Placa:</label>
+                        <select id="select-veiculo-manutencao" onchange="renderizarManutencaoPorVeiculo()" class="w-full p-2.5 border rounded-xl bg-white text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500">
+                            <!-- Carregado via JS -->
+                        </select>
+                    </div>
+                    <div class="flex gap-4 text-right w-full sm:w-auto justify-end">
+                        <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[130px]">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Qtd. Serviços</p>
+                            <p id="veic-qtd-servicos" class="text-xl font-black text-rose-600">0</p>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[150px]">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Total Gasto</p>
+                            <p id="veic-total-gasto" class="text-xl font-black text-rose-600">R$ 0,00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
+                                <th class="p-3">Data / Hora</th>
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Serviço / Peça</th>
+                                <th class="p-3">KM Atual</th>
+                                <th class="p-3">Valor (R$)</th>
+                                <th class="p-3 text-right">Comprovante</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-manutencao-veiculo" class="text-sm divide-y">
                             <!-- Preenchido via JS -->
                         </tbody>
                     </table>
@@ -313,6 +363,18 @@
             }
         }
 
+        function toggleGestaoVeiculos() {
+            const el = document.getElementById('conteudo-gestao-veiculos');
+            const icon = document.getElementById('icone-gestao-veic');
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.innerText = '▲';
+            } else {
+                el.classList.add('hidden');
+                icon.innerText = '▼';
+            }
+        }
+
         async function carregarMotoristasSupabase() {
             const { data, error } = await supabaseClient.from('motoristas').select('*').order('nome', { ascending: true });
             
@@ -324,6 +386,7 @@
             listaMotoristas = data || [];
             renderizarTabelaMotoristas();
             atualizarSelectsMotoristas();
+            atualizarSelectVeiculos();
         }
 
         function renderizarTabelaMotoristas() {
@@ -362,6 +425,68 @@
 
             if (valorPagAtual) selectPag.value = valorPagAtual;
             if (valorFiltroAtual) selectFiltro.value = valorFiltroAtual;
+        }
+
+        function atualizarSelectVeiculos() {
+            const select = document.getElementById('select-veiculo-manutencao');
+            const valorAtual = select.value;
+            select.innerHTML = '<option value="TODOS">Todos os Veículos</option>';
+
+            const veiculosUnicos = new Set();
+            listaMotoristas.forEach(m => {
+                if (m.veiculo) veiculosUnicos.add(m.veiculo);
+            });
+
+            veiculosUnicos.forEach(veic => {
+                select.innerHTML += `<option value="${veic}">${veic}</option>`;
+            });
+
+            if (valorAtual) select.value = valorAtual;
+            renderizarManutencaoPorVeiculo();
+        }
+
+        function renderizarManutencaoPorVeiculo() {
+            const veiculoSelecionado = document.getElementById('select-veiculo-manutencao').value;
+            const tbody = document.getElementById('tabela-manutencao-veiculo');
+            tbody.innerHTML = '';
+
+            let totalGasto = 0;
+            let qtdServicos = 0;
+
+            // Filtra motoristas que usam o veículo selecionado
+            const motoristasDoVeiculo = listaMotoristas
+                .filter(m => veiculoSelecionado === 'TODOS' || m.veiculo === veiculoSelecionado)
+                .map(m => m.nome);
+
+            const registrosManutencao = dadosGlobais.filter(item => {
+                if (item.tipo !== 'Manutenção') return false;
+                if (veiculoSelecionado === 'TODOS') return true;
+                return motoristasDoVeiculo.includes(item.motorista);
+            });
+
+            registrosManutencao.forEach(item => {
+                const val = item.valor_abastecimento || 0;
+                totalGasto += val;
+                qtdServicos++;
+
+                const urlFoto = item.foto_comprovante || item.foto_abastecimento;
+                const linkFoto = urlFoto ? `<a href="${urlFoto}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs">🧾 Ver Recibo</a>` : `<span class="text-gray-400 text-xs">Sem foto</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = "border-b hover:bg-gray-50";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
+                    <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
+                    <td class="p-3 text-gray-800 font-medium">${item.observacao || 'Manutenção Geral'}</td>
+                    <td class="p-3 font-semibold text-amber-700">${item.km ? item.km + ' KM' : '--'}</td>
+                    <td class="p-3 font-extrabold text-rose-600">R$ ${val.toFixed(2)}</td>
+                    <td class="p-3 text-right">${linkFoto}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('veic-qtd-servicos').innerText = qtdServicos;
+            document.getElementById('veic-total-gasto').innerText = `R$ ${totalGasto.toFixed(2)}`;
         }
 
         async function salvarMotorista() {
@@ -462,6 +587,7 @@
             dadosGlobais = data || [];
             aplicarFiltros();
             calcularFechamentoSemanal();
+            renderizarManutencaoPorVeiculo();
         }
 
         function calcularFechamentoSemanal() {
