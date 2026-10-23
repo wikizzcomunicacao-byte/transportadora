@@ -344,10 +344,10 @@
 
     </main>
 
-    <!-- ================= TEMPLATES PDF PERMANENTEMENTE RENDERIZADOS FORA DO ECRÃ (100% SEGUROS) ================= -->
+    <!-- ================= TEMPLATES PDF COM OPACIDADE ZERO (CAPTURA PERFEITA PELO HTML2CANVAS) ================= -->
 
     <!-- Template Comprovante Individual -->
-    <div id="pdf-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
+    <div id="pdf-template" style="position:absolute; opacity:0; pointer-events:none; top:0; left:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-1;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -435,7 +435,7 @@
     </div>
 
     <!-- Template Relatório Geral da Operação -->
-    <div id="pdf-relatorio-geral-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
+    <div id="pdf-relatorio-geral-template" style="position:absolute; opacity:0; pointer-events:none; top:0; left:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-1;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -540,7 +540,7 @@
                 <td style="width:10%;"></td>
                 <td style="width:45%; text-align:center; vertical-align:top;">
                     <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
-                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação do Gestor</p>
                 </td>
             </tr>
         </table>
