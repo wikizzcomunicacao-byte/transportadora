@@ -382,6 +382,17 @@
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
+        // Função de Sanitização contra XSS
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function toggleGestaoMotoristas() {
             const el = document.getElementById('conteudo-gestao-motoristas');
             const icon = document.getElementById('icone-gestao-mot');
@@ -428,8 +439,8 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 border-b";
                 tr.innerHTML = `
-                    <td class="p-3 font-semibold text-gray-800">${mot.nome}</td>
-                    <td class="p-3 text-gray-600">${mot.veiculo}</td>
+                    <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)}</td>
+                    <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
                     <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 150).toFixed(2)}</td>
                     <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0.50).toFixed(2)}</td>
                     <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0.50).toFixed(2)}</td>
@@ -453,8 +464,10 @@
             selectFiltro.innerHTML = '<option value="TODOS">Todos os Motoristas</option>';
 
             listaMotoristas.forEach(mot => {
-                selectPag.innerHTML += `<option value="${mot.nome}">${mot.nome} (${mot.veiculo})</option>`;
-                selectFiltro.innerHTML += `<option value="${mot.nome}">${mot.nome}</option>`;
+                const nomeEscapado = escapeHtml(mot.nome);
+                const veiculoEscapado = escapeHtml(mot.veiculo);
+                selectPag.innerHTML += `<option value="${nomeEscapado}">${nomeEscapado} (${veiculoEscapado})</option>`;
+                selectFiltro.innerHTML += `<option value="${nomeEscapado}">${nomeEscapado}</option>`;
             });
 
             if (valorPagAtual) selectPag.value = valorPagAtual;
@@ -487,7 +500,8 @@
             });
 
             veiculosUnicos.forEach(veic => {
-                select.innerHTML += `<option value="${veic}">${veic}</option>`;
+                const veicEscapado = escapeHtml(veic);
+                select.innerHTML += `<option value="${veicEscapado}">${veicEscapado}</option>`;
             });
 
             if (valorAtual) select.value = valorAtual;
@@ -518,15 +532,15 @@
                 qtdServicos++;
 
                 const urlFoto = item.foto_comprovante || item.foto_abastecimento;
-                const linkFoto = urlFoto ? `<a href="${urlFoto}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs">🧾 Ver Recibo</a>` : `<span class="text-gray-400 text-xs">Sem foto</span>`;
+                const linkFoto = urlFoto ? `<a href="${escapeHtml(urlFoto)}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs">🧾 Ver Recibo</a>` : `<span class="text-gray-400 text-xs">Sem foto</span>`;
 
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
-                    <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                    <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
-                    <td class="p-3 text-gray-800 font-medium">${item.observacao || 'Manutenção Geral'}</td>
-                    <td class="p-3 font-semibold text-amber-700">${item.km ? item.km + ' KM' : '--'}</td>
+                    <td class="p-3 text-gray-500 text-xs">${escapeHtml(new Date(item.created_at).toLocaleString('pt-BR'))}</td>
+                    <td class="p-3 font-semibold text-gray-700">${escapeHtml(item.motorista)}</td>
+                    <td class="p-3 text-gray-800 font-medium">${escapeHtml(item.observacao || 'Manutenção Geral')}</td>
+                    <td class="p-3 font-semibold text-amber-700">${item.km ? escapeHtml(item.km) + ' KM' : '--'}</td>
                     <td class="p-3 font-extrabold text-rose-600">R$ ${val.toFixed(2)}</td>
                     <td class="p-3 text-right">${linkFoto}</td>
                 `;
@@ -745,7 +759,7 @@
                                 <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
                             </td>
                             <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
-                                <p style="margin:0;">Data de Emissão: <span>${dataEmissao}</span></p>
+                                <p style="margin:0;">Data de Emissão: <span>${escapeHtml(dataEmissao)}</span></p>
                             </td>
                         </tr>
                     </table>
@@ -754,11 +768,11 @@
                         <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
                         <table style="width:100%; font-size:13px; border-collapse:collapse;">
                             <tr>
-                                <td style="padding:4px 0;"><strong>Motorista:</strong> <span>${motorista}</span></td>
-                                <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span>${veiculoInfo}</span></td>
+                                <td style="padding:4px 0;"><strong>Motorista:</strong> <span>${escapeHtml(motorista)}</span></td>
+                                <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span>${escapeHtml(veiculoInfo)}</span></td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span>${periodoTexto}</span></td>
+                                <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span>${escapeHtml(periodoTexto)}</span></td>
                             </tr>
                         </table>
                     </div>
@@ -811,7 +825,7 @@
                     <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
                         <tr>
                             <td style="width:45%; text-align:center; vertical-align:top;">
-                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">${motorista}</p>
+                                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">${escapeHtml(motorista)}</p>
                                 <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
                             </td>
                             <td style="width:10%;"></td>
@@ -892,8 +906,8 @@
 
                 linhasMotoristasHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${mot.nome}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1;">${mot.veiculo}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(mot.nome)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1;">${escapeHtml(mot.veiculo)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${pacotesShopeeMot}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${pacotesMlMot}</td>
@@ -917,7 +931,7 @@
 
                 linhasVeiculosHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${veic}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(veic)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${manutencaoVeic.length}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${totGastoVeic.toFixed(2)}</td>
                     </tr>
@@ -930,24 +944,24 @@
                 let valorKM = '--';
 
                 if (item.tipo === 'Coleta') {
-                    detalhe = `${item.plataforma} (${item.pacotes} pacotes) ${item.observacao ? '- ' + item.observacao : ''}`;
+                    detalhe = `${escapeHtml(item.plataforma)} (${item.pacotes} pacotes) ${item.observacao ? '- ' + escapeHtml(item.observacao) : ''}`;
                     valorKM = `${item.pacotes} pkts`;
                 } else if (item.tipo === 'Abastecimento') {
                     detalhe = `Abastecimento de Combustível (${item.litros || 0} L)`;
                     valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
                 } else if (item.tipo === 'Manutenção') {
-                    detalhe = `${item.observacao || 'Manutenção Geral'} ${item.km ? '(' + item.km + ' KM)' : ''}`;
+                    detalhe = `${escapeHtml(item.observacao || 'Manutenção Geral')} ${item.km ? '(' + escapeHtml(item.km) + ' KM)' : ''}`;
                     valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
                 } else if (item.tipo === 'KM') {
                     detalhe = `Registro de Quilometragem`;
-                    valorKM = `${item.km || 0} KM`;
+                    valorKM = `${escapeHtml(item.km || 0)} KM`;
                 }
 
                 linhasHistoricoHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
-                        <td style="padding:5px; border:1px solid #cbd5e1;">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.motorista}</td>
-                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.tipo}</td>
+                        <td style="padding:5px; border:1px solid #cbd5e1;">${escapeHtml(new Date(item.created_at).toLocaleString('pt-BR'))}</td>
+                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(item.motorista)}</td>
+                        <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(item.tipo)}</td>
                         <td style="padding:5px; border:1px solid #cbd5e1;">${detalhe}</td>
                         <td style="padding:5px; border:1px solid #cbd5e1; text-align:right; font-weight:bold;">${valorKM}</td>
                     </tr>
@@ -965,8 +979,8 @@
                                 <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
                             </td>
                             <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
-                                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span>${dataEmissao}</span></p>
-                                <p style="margin:0;"><strong>Filtro Período:</strong> <span>${periodoFiltro}</span></p>
+                                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span>${escapeHtml(dataEmissao)}</span></p>
+                                <p style="margin:0;"><strong>Filtro Período:</strong> <span>${escapeHtml(periodoFiltro)}</span></p>
                             </td>
                         </tr>
                     </table>
@@ -1163,14 +1177,14 @@
 
                 let detalheTexto = '';
                 if (item.tipo === 'Coleta') {
-                    const obsFmt = item.observacao ? ` (${item.observacao})` : '';
-                    detalheTexto = `${item.plataforma} - ${item.pacotes} pacotes${obsFmt}`;
+                    const obsFmt = item.observacao ? ` (${escapeHtml(item.observacao)})` : '';
+                    detalheTexto = `${escapeHtml(item.plataforma)} - ${item.pacotes} pacotes${obsFmt}`;
                 }
                 if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
                 if (item.tipo === 'Manutenção') {
-                    const servico = item.observacao || 'Serviço Geral';
+                    const servico = escapeHtml(item.observacao || 'Serviço Geral');
                     const val = (item.valor_abastecimento || 0).toFixed(2);
-                    const kmFmt = item.km ? ` (${item.km} KM)` : '';
+                    const kmFmt = item.km ? ` (${escapeHtml(item.km)} KM)` : '';
                     detalheTexto = `${servico} - R$ ${val}${kmFmt}`;
                 }
 
@@ -1180,10 +1194,10 @@
                 const urlFotoColeta = item.tipo === 'Coleta' ? item.foto_comprovante : null;
                 const urlFotoManutencao = item.tipo === 'Manutenção' ? item.foto_comprovante : null;
 
-                if (urlFotoKm) fotosHtml.push(`<a href="${urlFotoKm}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Painel</a>`);
-                if (urlFotoAbast) fotosHtml.push(`<a href="${urlFotoAbast}" target="_blank" class="text-emerald-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Comprovativo</a>`);
-                if (urlFotoColeta) fotosHtml.push(`<a href="${urlFotoColeta}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Coleta</a>`);
-                if (urlFotoManutencao) fotosHtml.push(`<a href="${urlFotoManutencao}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Recibo/Nota</a>`);
+                if (urlFotoKm) fotosHtml.push(`<a href="${escapeHtml(urlFotoKm)}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Painel</a>`);
+                if (urlFotoAbast) fotosHtml.push(`<a href="${escapeHtml(urlFotoAbast)}" target="_blank" class="text-emerald-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Comprovativo</a>`);
+                if (urlFotoColeta) fotosHtml.push(`<a href="${escapeHtml(urlFotoColeta)}" target="_blank" class="text-blue-600 hover:underline font-semibold text-xs flex items-center gap-1">🖼️ Foto Coleta</a>`);
+                if (urlFotoManutencao) fotosHtml.push(`<a href="${escapeHtml(urlFotoManutencao)}" target="_blank" class="text-rose-600 hover:underline font-semibold text-xs flex items-center gap-1">🧾 Recibo/Nota</a>`);
 
                 const colunaFotos = fotosHtml.length > 0 ? fotosHtml.join(' ') : `<span class="text-gray-400 text-xs">Sem fotos</span>`;
 
@@ -1196,9 +1210,9 @@
                 const tr = document.createElement('tr');
                 tr.className = "border-b hover:bg-gray-50";
                 tr.innerHTML = `
-                    <td class="p-3 text-gray-500 text-xs">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                    <td class="p-3 font-semibold text-gray-700">${item.motorista}</td>
-                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeCor}">${item.tipo}</span></td>
+                    <td class="p-3 text-gray-500 text-xs">${escapeHtml(new Date(item.created_at).toLocaleString('pt-BR'))}</td>
+                    <td class="p-3 font-semibold text-gray-700">${escapeHtml(item.motorista)}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeCor}">${escapeHtml(item.tipo)}</span></td>
                     <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
                     <td class="p-3 flex flex-wrap gap-2">${colunaFotos}</td>
                     <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
