@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GB Transportes - Painel Financeiro Executivo</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .bg-gb-navy { background-color: #0d2847; }
+        .text-gb-navy { color: #0d2847; }
+        .border-gb-navy { border-color: #0d2847; }
+        .bg-gb-orange { background-color: #f26522; }
+        .text-gb-orange { color: #f26522; }
+
+        @media print {
+            body > *:not(#print-container) { display: none !important; }
+            #print-container {
+                display: block !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                background: white !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen pb-12">
+
+    <!-- Cabeçalho Principal -->
+    <header class="bg-gb-navy text-white shadow-lg py-4 px-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-b-4 border-orange-500">
+        <div class="flex items-center gap-3">
+            <div class="bg-white p-2 rounded-xl shadow-sm">
+                <!-- Logótipo da GB Transportes -->
+                <svg class="h-10 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
+                    <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
+                    <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
+                    <text x="162" y="102" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#0d2847" letter-spacing="3">EFICIÊNCIA E AGILIDADE</text>
+                    <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-xl font-black tracking-wide text-white">GB TRANSPORTES</h1>
+                <p class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Painel Financeiro & DRE Executivo</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <button onclick="imprimirDRE()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
+                🖨️ Imprimir DRE
+            </button>
+            <button onclick="carregarDadosFinanceiros()" class="bg-gb-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-1 shadow-sm">
+                🔄 Atualizar Dados
+            </button>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+
+        <!-- Barra de Filtro de Período -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Período de Análise</label>
+                    <select id="fin-periodo" onchange="mudancaPeriodoFinanceiro()" class="p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="MES">Este Mês</option>
+                        <option value="HOJE">Hoje</option>
+                        <option value="7DIAS">Últimos 7 Dias</option>
+                        <option value="TODOS">Todo o Histórico</option>
+                        <option value="CUSTOM">Personalizado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Data Inicial</label>
+                    <input type="date" id="fin-data-inicio" onchange="aplicarFiltroDataManual()" class="p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Data Final</label>
+                    <input type="date" id="fin-data-fim" onchange="aplicarFiltroDataManual()" class="p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="text-right w-full md:w-auto bg-gray-50 p-3 rounded-xl border">
+                <span class="text-xs text-gray-500 font-bold uppercase block">Margem Operacional Líquida</span>
+                <span id="card-margem-porcentagem" class="text-xl font-black text-emerald-600">0.0%</span>
+            </div>
+        </div>
+
+        <!-- Cards de Métricas Financeiras -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">💰 Receita Bruta Estimada</p>
+                <h3 id="card-receita-bruta" class="text-2xl font-black text-blue-600 mt-1">R$ 0,00</h3>
+                <p id="sub-receita-pacotes" class="mt-2 text-xs text-gray-500">0 pacotes recolhidos</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🚚 Custos com Motoristas</p>
+                <h3 id="card-custo-motoristas" class="text-2xl font-black text-orange-600 mt-1">R$ 0,00</h3>
+                <p id="sub-diarias-pagas" class="mt-2 text-xs text-gray-500">Diárias + Taxas de Pacotes</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Custos com Combustível</p>
+                <h3 id="card-custo-combustivel" class="text-2xl font-black text-emerald-600 mt-1">R$ 0,00</h3>
+                <p id="sub-combustivel-litros" class="mt-2 text-xs text-gray-500">0 Litros (R$ 0.00/L)</p>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Custos de Manutenção</p>
+                <h3 id="card-custo-manutencao" class="text-2xl font-black text-rose-600 mt-1">R$ 0,00</h3>
+                <p id="sub-qtd-manutencoes" class="mt-2 text-xs text-gray-500">0 serviços de oficina</p>
+            </div>
+        </div>
+
+        <!-- Seção Principal DRE e Gráfico de Composição -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Tabela DRE (Demonstrativo do Resultado) -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 space-y-4">
+                <div class="border-b pb-3 flex justify-between items-center">
+                    <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📊 Demonstrativo do Resultado (DRE Operacional)</h3>
+                    <span class="text-xs font-bold text-gray-400 uppercase">Valores em R$</span>
+                </div>
+
+                <div class="space-y-3 text-sm font-semibold">
+                    <!-- Receitas -->
+                    <div class="flex justify-between p-3 bg-blue-50/50 rounded-xl text-blue-900 font-bold border border-blue-100">
+                        <span>(+) Receita Operacional Bruta</span>
+                        <span id="dre-receita-bruta" class="text-base">R$ 0,00</span>
+                    </div>
+
+                    <!-- Deduções e Custos Diretos -->
+                    <div class="pl-4 space-y-2 border-l-2 border-gray-200">
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Custos de Diárias dos Motoristas</span>
+                            <span id="dre-custo-diarias" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Pagamentos por Pacote (Shopee / ML)</span>
+                            <span id="dre-custo-pacotes" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Abastecimento de Combustível</span>
+                            <span id="dre-custo-combustivel" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Manutenção da Frota & Oficina</span>
+                            <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
+                        </div>
+                    </div>
+
+                    <!-- Total de Despesas -->
+                    <div class="flex justify-between p-3 bg-rose-50/50 rounded-xl text-rose-900 font-bold border border-rose-100">
+                        <span>(=) Total de Despesas Operacionais</span>
+                        <span id="dre-total-despesas" class="text-base text-rose-700">R$ 0,00</span>
+                    </div>
+
+                    <!-- Resultado Líquido Final -->
+                    <div class="flex justify-between p-4 bg-gb-navy text-white rounded-xl font-black text-lg shadow-md">
+                        <span>(=) RESULTADO OPERACIONAL LÍQUIDO</span>
+                        <span id="dre-resultado-liquido" class="text-emerald-400">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráfico de Composição de Despesas -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                <h3 class="font-bold text-gray-700 mb-2">🍰 Distribuição dos Custos</h3>
+                <div class="h-64 flex items-center justify-center">
+                    <canvas id="chartComposicaoCustos"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Detalhada por Motorista -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+            <h3 class="font-bold text-lg text-gb-navy">🚚 Balanço de Custos por Motorista / Veículo</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                            <th class="p-3">Motorista</th>
+                            <th class="p-3">Veículo</th>
+                            <th class="p-3 text-center">Diárias</th>
+                            <th class="p-3 text-center">Shopee (Pkts)</th>
+                            <th class="p-3 text-center">ML (Pkts)</th>
+                            <th class="p-3 text-right">Custo Motorista</th>
+                            <th class="p-3 text-right">Combustível</th>
+                            <th class="p-3 text-right">Custo Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-balanco-motoristas" class="text-sm divide-y">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Container para Impressão -->
+    <div id="print-container"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let dadosRegistros = [];
+        let listaMotoristas = [];
+        let chartCustosInstance = null;
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function inicializarDatas() {
+            const hoje = new Date();
+            const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+
+            document.getElementById('fin-data-inicio').value = primeiroDia.toISOString().split('T')[0];
+            document.getElementById('fin-data-fim').value = hoje.toISOString().split('T')[0];
+        }
+
+        async function carregarDadosFinanceiros() {
+            // Carregar Motoristas
+            const { data: motData } = await supabaseClient.from('motoristas').select('*').order('nome', { ascending: true });
+            listaMotoristas = motData || [];
+
+            // Carregar Lançamentos
+            const { data: regData } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
+            dadosRegistros = regData || [];
+
+            calcularFinanceiro();
+        }
+
+        function mudancaPeriodoFinanceiro() {
+            const p = document.getElementById('fin-periodo').value;
+            if (p !== 'CUSTOM') calcularFinanceiro();
+        }
+
+        function aplicarFiltroDataManual() {
+            document.getElementById('fin-periodo').value = 'CUSTOM';
+            calcularFinanceiro();
+        }
+
+        function obterDadosFiltrados() {
+            const periodo = document.getElementById('fin-periodo').value;
+            const dInicioStr = document.getElementById('fin-data-inicio').value;
+            const dFimStr = document.getElementById('fin-data-fim').value;
+
+            const dataInicio = dInicioStr ? new Date(dInicioStr + 'T00:00:00') : null;
+            const dataFim = dFimStr ? new Date(dFimStr + 'T23:59:59') : null;
+            const agora = new Date();
+
+            return dadosRegistros.filter(item => {
+                const dataItem = new Date(item.created_at);
+
+                if (periodo === 'HOJE') {
+                    if (dataItem.toDateString() !== agora.toDateString()) return false;
+                } else if (periodo === '7DIAS') {
+                    const seteDiasAtras = new Date();
+                    seteDiasAtras.setDate(agora.getDate() - 7);
+                    if (dataItem < seteDiasAtras) return false;
+                } else if (periodo === 'MES') {
+                    if (dataItem.getMonth() !== agora.getMonth() || dataItem.getFullYear() !== agora.getFullYear()) return false;
+                } else if (periodo === 'CUSTOM') {
+                    if (dataInicio && dataItem < dataInicio) return false;
+                    if (dataFim && dataItem > dataFim) return false;
+                }
+                return true;
+            });
+        }
+
+        function calcularFinanceiro() {
+            const dados = obterDadosFiltrados();
+
+            let totalPacotesShopee = 0;
+            let totalPacotesML = 0;
+            let totalCombustivel = 0;
+            let totalLitros = 0;
+            let totalManutencao = 0;
+            let qtdManutencoes = 0;
+
+            dados.forEach(item => {
+                if (item.tipo === 'Coleta') {
+                    if (item.plataforma === 'Shopee') totalPacotesShopee += (item.pacotes || 0);
+                    if (item.plataforma === 'Mercado Livre') totalPacotesML += (item.pacotes || 0);
+                }
+                if (item.tipo === 'Abastecimento') {
+                    totalCombustivel += (item.valor_abastecimento || 0);
+                    totalLitros += (item.litros || 0);
+                }
+                if (item.tipo === 'Manutenção') {
+                    totalManutencao += (item.valor_abastecimento || 0);
+                    qtdManutencoes++;
+                }
+            });
+
+            // Apuramento por motorista
+            let custoTotalDiarias = 0;
+            let custoTotalPacotes = 0;
+
+            const tabelaBody = document.getElementById('tabela-balanco-motoristas');
+            tabelaBody.innerHTML = '';
+
+            listaMotoristas.forEach(mot => {
+                const registrosMot = dados.filter(i => i.motorista === mot.nome);
+                const diasUnicos = new Set();
+                let shopeeMot = 0;
+                let mlMot = 0;
+                let combustivelMot = 0;
+
+                registrosMot.forEach(i => {
+                    diasUnicos.add(new Date(i.created_at).toDateString());
+                    if (i.tipo === 'Coleta') {
+                        if (i.plataforma === 'Shopee') shopeeMot += (i.pacotes || 0);
+                        if (i.plataforma === 'Mercado Livre') mlMot += (i.pacotes || 0);
+                    }
+                    if (i.tipo === 'Abastecimento') {
+                        combustivelMot += (i.valor_abastecimento || 0);
+                    }
+                });
+
+                const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vShopee = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
+                const vMl = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
+
+                const qtdDias = diasUnicos.size;
+                const totDiariaMot = qtdDias * vDiaria;
+                const totPacotesMot = (shopeeMot * vShopee) + (mlMot * vMl);
+                const custoMotTotal = totDiariaMot + totPacotesMot;
+
+                custoTotalDiarias += totDiariaMot;
+                custoTotalPacotes += totPacotesMot;
+
+                const custoGeralMot = custoMotTotal + combustivelMot;
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b";
+                tr.innerHTML = `
+                    <td class="p-3 font-bold text-gray-800">${escapeHtml(mot.nome)}</td>
+                    <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
+                    <td class="p-3 text-center font-semibold">${qtdDias} dias</td>
+                    <td class="p-3 text-center text-orange-600 font-bold">${shopeeMot}</td>
+                    <td class="p-3 text-center text-yellow-600 font-bold">${mlMot}</td>
+                    <td class="p-3 text-right font-bold text-orange-600">R$ ${custoMotTotal.toFixed(2)}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">R$ ${combustivelMot.toFixed(2)}</td>
+                    <td class="p-3 text-right font-black text-gb-navy">R$ ${custoGeralMot.toFixed(2)}</td>
+                `;
+                tabelaBody.appendChild(tr);
+            });
+
+            const custoTotalMotoristas = custoTotalDiarias + custoTotalPacotes;
+            const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao;
+
+            // Estimativa de Receita Bruta
+            const estimativaReceitaBruta = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
+            const resultadoLiquido = estimativaReceitaBruta - totalDespesas;
+            const margemPorcentagem = estimativaReceitaBruta > 0 ? ((resultadoLiquido / estimativaReceitaBruta) * 100).toFixed(1) : '0.0';
+
+            // Atualização dos Cards
+            document.getElementById('card-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
+            document.getElementById('sub-receita-pacotes').innerText = `${totalPacotesShopee + totalPacotesML} pacotes (Shopee + ML)`;
+
+            document.getElementById('card-custo-motoristas').innerText = `R$ ${custoTotalMotoristas.toFixed(2)}`;
+            document.getElementById('card-custo-combustivel').innerText = `R$ ${totalCombustivel.toFixed(2)}`;
+            const mediaPrecoL = totalLitros > 0 ? (totalCombustivel / totalLitros).toFixed(2) : '0.00';
+            document.getElementById('sub-combustivel-litros').innerText = `${totalLitros.toFixed(1)} L (Média R$ ${mediaPrecoL}/L)`;
+
+            document.getElementById('card-custo-manutencao').innerText = `R$ ${totalManutencao.toFixed(2)}`;
+            document.getElementById('sub-qtd-manutencoes').innerText = `${qtdManutencoes} serviço(s) registrado(s)`;
+
+            document.getElementById('card-margem-porcentagem').innerText = `${margemPorcentagem}%`;
+
+            // Atualização da DRE
+            document.getElementById('dre-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
+            document.getElementById('dre-custo-diarias').innerText = `- R$ ${custoTotalDiarias.toFixed(2)}`;
+            document.getElementById('dre-custo-pacotes').innerText = `- R$ ${custoTotalPacotes.toFixed(2)}`;
+            document.getElementById('dre-custo-combustivel').innerText = `- R$ ${totalCombustivel.toFixed(2)}`;
+            document.getElementById('dre-custo-oficina').innerText = `- R$ ${totalManutencao.toFixed(2)}`;
+            document.getElementById('dre-total-despesas').innerText = `- R$ ${totalDespesas.toFixed(2)}`;
+
+            const elResultado = document.getElementById('dre-resultado-liquido');
+            elResultado.innerText = `R$ ${resultadoLiquido.toFixed(2)}`;
+            elResultado.className = resultadoLiquido >= 0 ? 'text-emerald-400 font-black' : 'text-red-400 font-black';
+
+            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao);
+        }
+
+        function atualizarGraficoCustos(motoristas, combustivel, oficina) {
+            const ctx = document.getElementById('chartComposicaoCustos').getContext('2d');
+            if (chartCustosInstance) chartCustosInstance.destroy();
+
+            chartCustosInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Motoristas', 'Combustível', 'Oficina / Peças'],
+                    datasets: [{
+                        data: [motoristas, combustivel, oficina],
+                        backgroundColor: ['#f26522', '#10b981', '#f43f5e']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+        }
+
+        function imprimirDRE() {
+            window.print();
+        }
+
+        window.onload = () => {
+            inicializarDatas();
+            carregarDadosFinanceiros();
+        };
+    </script>
+</body>
+</html>
