@@ -819,17 +819,17 @@
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
             const dataEmissao = new Date().toLocaleString('pt-BR');
 
-            // Criação dinâmica do elemento PDF para evitar qualquer falha com elementos ocultos
+            // Criação dinâmica do elemento PDF com z-index positivo e posicionado corretamente
             const element = document.createElement('div');
             element.style.width = '210mm';
             element.style.background = '#ffffff';
             element.style.padding = '30px';
             element.style.fontFamily = 'Arial, sans-serif';
             element.style.color = '#333333';
-            element.style.position = 'absolute';
+            element.style.position = 'fixed';
             element.style.left = '0';
             element.style.top = '0';
-            element.style.zIndex = '-9999';
+            element.style.zIndex = '99999';
 
             element.innerHTML = `
                 <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
@@ -920,17 +920,20 @@
 
             document.body.appendChild(element);
 
-            const opt = {
-                margin:       10,
-                filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            // Atraso de segurança para garantir a renderização completa pelo html2canvas
+            setTimeout(() => {
+                const opt = {
+                    margin:       10,
+                    filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
 
-            html2pdf().set(opt).from(element).save().then(() => {
-                element.remove();
-            });
+                html2pdf().set(opt).from(element).save().then(() => {
+                    element.remove();
+                });
+            }, 300);
         }
 
         function gerarPDFRelatorioGeral() {
