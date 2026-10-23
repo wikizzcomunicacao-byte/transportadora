@@ -34,27 +34,46 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
                 <div>
-                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">🚚 Cadastro de Motoristas e Veículos</h3>
-                    <p class="text-xs text-gray-500">Adicione, edite ou remova motoristas e vincule seus veículos.</p>
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">🚚 Cadastro de Motoristas, Veículos e Taxas Indivíduais</h3>
+                    <p class="text-xs text-gray-500">Cadastre motoristas com seus respectivos valores de diária, pacote Shopee e pacote Mercado Livre.</p>
                 </div>
                 <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
             </div>
 
-            <div id="conteudo-gestao-motoristas" class="space-y-4 hidden pt-2">
+            <div id="conteudo-gestao-motoristas" class="space-y-4 pt-2">
                 <!-- Formulário para Inclusão / Edição -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
                     <input type="hidden" id="mot-id-edicao" value="">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
-                        <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
+                            <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
+                            <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
-                        <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Valor Diária (R$) *</label>
+                            <input type="number" step="0.01" id="mot-diaria-input" placeholder="Ex: 150.00" value="150.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-orange-600 uppercase mb-1">Pacote Shopee (R$) *</label>
+                            <input type="number" step="0.01" id="mot-shopee-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-orange-600 outline-none focus:ring-2 focus:ring-orange-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-yellow-600 uppercase mb-1">Pacote Mercado Livre (R$) *</label>
+                            <input type="number" step="0.01" id="mot-ml-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-yellow-500">
+                        </div>
                     </div>
-                    <div class="flex items-end gap-2">
-                        <button onclick="salvarMotorista()" id="btn-salvar-mot" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition">➕ Cadastrar Motorista</button>
-                        <button onclick="cancelarEdicaoMotorista()" id="btn-cancelar-mot" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-3 py-2.5 rounded-lg text-sm hidden transition">Cancelar</button>
+
+                    <div class="flex justify-end gap-2 pt-2">
+                        <button onclick="cancelarEdicaoMotorista()" id="btn-cancelar-mot" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2.5 rounded-lg text-sm hidden transition">Cancelar</button>
+                        <button onclick="salvarMotorista()" id="btn-salvar-mot" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition">➕ Cadastrar Motorista</button>
                     </div>
                 </div>
 
@@ -65,6 +84,9 @@
                             <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
                                 <th class="p-3">Motorista</th>
                                 <th class="p-3">Veículo / Placa</th>
+                                <th class="p-3">Valor Diária</th>
+                                <th class="p-3">Pkt Shopee</th>
+                                <th class="p-3">Pkt Mercado Livre</th>
                                 <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
@@ -131,7 +153,7 @@
             <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h3 class="text-xl font-bold text-blue-700 flex items-center gap-2">💰 Fechamento e Pagamento por Período</h3>
-                    <p class="text-xs text-gray-500 mt-1">Selecione o intervalo de datas no calendário para apurar diárias e pacotes.</p>
+                    <p class="text-xs text-gray-500 mt-1">Valores calculados automaticamente com base nas taxas cadastradas do motorista.</p>
                 </div>
                 <button onclick="gerarPDFComprovante()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovante Individual (PDF)</button>
             </div>
@@ -140,7 +162,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
-                    <select id="pag-motorista" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="pag-motorista" onchange="aoSelecionarMotoristaFechamento()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                         <!-- Carregado via JS -->
                     </select>
                 </div>
@@ -153,34 +175,47 @@
                     <input type="date" id="pag-data-fim" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor da Diária (R$)</label>
-                    <input type="number" id="pag-valor-diaria" step="10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Diária (R$)</label>
+                    <input type="number" id="pag-valor-diaria" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor por Pacote (R$)</label>
-                    <input type="number" id="pag-valor-pacote" step="0.10" oninput="salvarECalcularValores()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-blue-700 outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt Shopee</label>
+                        <input type="number" id="pag-valor-shopee" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-orange-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt ML</label>
+                        <input type="number" id="pag-valor-ml" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
                 </div>
             </div>
 
             <!-- Resumo dos Valores -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <p class="text-xs font-bold text-gray-500 uppercase">🗓️ Diárias Apuradas</p>
                     <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-dias-trabalhados" class="text-2xl font-extrabold text-gray-800">0 Dias</span>
-                        <span id="resumo-total-diarias" class="text-lg font-bold text-emerald-600">R$ 0,00</span>
+                        <span id="resumo-dias-trabalhados" class="text-xl font-extrabold text-gray-800">0 Dias</span>
+                        <span id="resumo-total-diarias" class="text-base font-bold text-emerald-600">R$ 0,00</span>
                     </div>
                 </div>
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">📦 Pacotes Entregues</p>
+                    <p class="text-xs font-bold text-gray-500 uppercase">🟠 Shopee</p>
                     <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-total-pacotes" class="text-2xl font-extrabold text-gray-800">0 Pacotes</span>
-                        <span id="resumo-total-valor-pacotes" class="text-lg font-bold text-blue-600">R$ 0,00</span>
+                        <span id="resumo-pacotes-shopee" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
+                        <span id="resumo-total-shopee" class="text-base font-bold text-orange-600">R$ 0,00</span>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p class="text-xs font-bold text-gray-500 uppercase">🤝 Mercado Livre</p>
+                    <div class="flex justify-between items-end mt-2">
+                        <span id="resumo-pacotes-ml" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
+                        <span id="resumo-total-ml" class="text-base font-bold text-yellow-600">R$ 0,00</span>
                     </div>
                 </div>
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
                     <p class="text-xs font-bold text-blue-700 uppercase">💵 Total Geral a Pagar</p>
-                    <h3 id="resumo-total-pagamento" class="text-3xl font-black text-blue-700 mt-1">R$ 0,00</h3>
+                    <h3 id="resumo-total-pagamento" class="text-2xl font-black text-blue-700 mt-1">R$ 0,00</h3>
                 </div>
             </div>
         </div>
@@ -327,10 +362,16 @@
                         <td id="pdf-subtotal-diarias" class="p-3 text-right font-bold text-emerald-700">R$ 0,00</td>
                     </tr>
                     <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Pacotes Entregues (Shopee / ML)</td>
-                        <td id="pdf-qtd-pacotes" class="p-3 text-center">0</td>
-                        <td id="pdf-val-pacote" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-pacotes" class="p-3 text-right font-bold text-blue-700">R$ 0,00</td>
+                        <td class="p-3 font-medium">Pacotes Shopee</td>
+                        <td id="pdf-qtd-shopee" class="p-3 text-center">0</td>
+                        <td id="pdf-val-shopee" class="p-3 text-right">R$ 0,00</td>
+                        <td id="pdf-subtotal-shopee" class="p-3 text-right font-bold text-orange-600">R$ 0,00</td>
+                    </tr>
+                    <tr class="border-b border-gray-200">
+                        <td class="p-3 font-medium">Pacotes Mercado Livre</td>
+                        <td id="pdf-qtd-ml" class="p-3 text-center">0</td>
+                        <td id="pdf-val-ml" class="p-3 text-right">R$ 0,00</td>
+                        <td id="pdf-subtotal-ml" class="p-3 text-right font-bold text-yellow-600">R$ 0,00</td>
                     </tr>
                 </tbody>
             </table>
@@ -402,9 +443,8 @@
                         <th class="p-2 border">Motorista</th>
                         <th class="p-2 border">Veículo / Placa</th>
                         <th class="p-2 text-center border">Diárias Trab.</th>
-                        <th class="p-2 text-center border">Pacotes Coletados</th>
-                        <th class="p-2 text-right border">Total Diárias (R$)</th>
-                        <th class="p-2 text-right border">Total Produção (R$)</th>
+                        <th class="p-2 text-center border">Shopee</th>
+                        <th class="p-2 text-center border">Mercado Livre</th>
                         <th class="p-2 text-right border">Subtotal a Pagar</th>
                     </tr>
                 </thead>
@@ -520,6 +560,9 @@
                 tr.innerHTML = `
                     <td class="p-3 font-semibold text-gray-800">${mot.nome}</td>
                     <td class="p-3 text-gray-600">${mot.veiculo}</td>
+                    <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 150).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0.50).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0.50).toFixed(2)}</td>
                     <td class="p-3 text-right space-x-2">
                         <button onclick="editarMotorista(${mot.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
                         <button onclick="excluirMotorista(${mot.id})" class="text-red-600 hover:text-red-800 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button>
@@ -546,6 +589,21 @@
 
             if (valorPagAtual) selectPag.value = valorPagAtual;
             if (valorFiltroAtual) selectFiltro.value = valorFiltroAtual;
+
+            aoSelecionarMotoristaFechamento();
+        }
+
+        function aoSelecionarMotoristaFechamento() {
+            const motNome = document.getElementById('pag-motorista').value;
+            const mot = listaMotoristas.find(m => m.nome === motNome);
+
+            if (mot) {
+                document.getElementById('pag-valor-diaria').value = mot.valor_diaria || 150.00;
+                document.getElementById('pag-valor-shopee').value = mot.valor_shopee || 0.50;
+                document.getElementById('pag-valor-ml').value = mot.valor_ml || 0.50;
+            }
+
+            calcularFechamentoSemanal();
         }
 
         function atualizarSelectVeiculos() {
@@ -613,17 +671,22 @@
             const idEdicao = document.getElementById('mot-id-edicao').value;
             const nome = document.getElementById('mot-nome-input').value.trim();
             const veiculo = document.getElementById('mot-veiculo-input').value.trim();
+            const valor_diaria = parseFloat(document.getElementById('mot-diaria-input').value) || 150.00;
+            const valor_shopee = parseFloat(document.getElementById('mot-shopee-input').value) || 0.50;
+            const valor_ml = parseFloat(document.getElementById('mot-ml-input').value) || 0.50;
 
             if (!nome || !veiculo) {
                 alert('Preencha o nome do motorista e o veículo.');
                 return;
             }
 
+            const dadosSalvar = { nome, veiculo, valor_diaria, valor_shopee, valor_ml };
+
             if (idEdicao) {
-                const { error } = await supabaseClient.from('motoristas').update({ nome, veiculo }).eq('id', idEdicao);
+                const { error } = await supabaseClient.from('motoristas').update(dadosSalvar).eq('id', idEdicao);
                 if (error) alert('Erro ao atualizar: ' + error.message);
             } else {
-                const { error } = await supabaseClient.from('motoristas').insert([{ nome, veiculo }]);
+                const { error } = await supabaseClient.from('motoristas').insert([dadosSalvar]);
                 if (error) alert('Erro ao cadastrar: ' + error.message);
             }
 
@@ -637,9 +700,12 @@
                 document.getElementById('mot-id-edicao').value = mot.id;
                 document.getElementById('mot-nome-input').value = mot.nome;
                 document.getElementById('mot-veiculo-input').value = mot.veiculo;
+                document.getElementById('mot-diaria-input').value = mot.valor_diaria || 150.00;
+                document.getElementById('mot-shopee-input').value = mot.valor_shopee || 0.50;
+                document.getElementById('mot-ml-input').value = mot.valor_ml || 0.50;
 
                 document.getElementById('btn-salvar-mot').innerText = '💾 Salvar Alterações';
-                document.getElementById('btn-salvar-mot').className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition';
+                document.getElementById('btn-salvar-mot').className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition';
                 document.getElementById('btn-cancelar-mot').classList.remove('hidden');
             }
         }
@@ -648,9 +714,12 @@
             document.getElementById('mot-id-edicao').value = '';
             document.getElementById('mot-nome-input').value = '';
             document.getElementById('mot-veiculo-input').value = '';
+            document.getElementById('mot-diaria-input').value = '150.00';
+            document.getElementById('mot-shopee-input').value = '0.50';
+            document.getElementById('mot-ml-input').value = '0.50';
 
             document.getElementById('btn-salvar-mot').innerText = '➕ Cadastrar Motorista';
-            document.getElementById('btn-salvar-mot').className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2.5 rounded-lg text-sm w-full transition';
+            document.getElementById('btn-salvar-mot').className = 'bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition';
             document.getElementById('btn-cancelar-mot').classList.add('hidden');
         }
 
@@ -680,26 +749,7 @@
             document.getElementById('filtro-data-fim').value = hojeStr;
         }
 
-        function carregarValoresSalvos() {
-            const diariaSalva = localStorage.getItem('gestor_valor_diaria') || '150.00';
-            const pacoteSalvo = localStorage.getItem('gestor_valor_pacote') || '0.50';
-            
-            document.getElementById('pag-valor-diaria').value = diariaSalva;
-            document.getElementById('pag-valor-pacote').value = pacoteSalvo;
-        }
-
-        function salvarECalcularValores() {
-            const vDiaria = document.getElementById('pag-valor-diaria').value;
-            const vPacote = document.getElementById('pag-valor-pacote').value;
-
-            if (vDiaria !== '') localStorage.setItem('gestor_valor_diaria', vDiaria);
-            if (vPacote !== '') localStorage.setItem('gestor_valor_pacote', vPacote);
-
-            calcularFechamentoSemanal();
-        }
-
         async function carregarDadosGestor() {
-            carregarValoresSalvos();
             inicializarDatas();
             await carregarMotoristasSupabase();
 
@@ -722,7 +772,8 @@
             const dataFimStr = document.getElementById('pag-data-fim').value;
 
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
+            const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
+            const valorMl = parseFloat(document.getElementById('pag-valor-ml').value) || 0;
 
             const dataInicio = dataInicioStr ? new Date(dataInicioStr + 'T00:00:00') : null;
             const dataFim = dataFimStr ? new Date(dataFimStr + 'T23:59:59') : null;
@@ -738,23 +789,34 @@
             });
 
             const diasUnicos = new Set();
-            let totalPacotesPeriodo = 0;
+            let totalShopee = 0;
+            let totalML = 0;
 
             dadosMotorista.forEach(item => {
                 const dataFmt = new Date(item.created_at).toDateString();
                 diasUnicos.add(dataFmt);
-                if (item.tipo === 'Coleta') totalPacotesPeriodo += (item.pacotes || 0);
+
+                if (item.tipo === 'Coleta') {
+                    if (item.plataforma === 'Shopee') totalShopee += (item.pacotes || 0);
+                    if (item.plataforma === 'Mercado Livre') totalML += (item.pacotes || 0);
+                }
             });
 
             const qtdDias = diasUnicos.size;
             const subtotalDiarias = qtdDias * valorDiaria;
-            const subtotalPacotes = totalPacotesPeriodo * valorPacote;
-            const totalGeral = subtotalDiarias + subtotalPacotes;
+            const subtotalShopee = totalShopee * valorShopee;
+            const subtotalML = totalML * valorMl;
+            const totalGeral = subtotalDiarias + subtotalShopee + subtotalML;
 
             document.getElementById('resumo-dias-trabalhados').innerText = `${qtdDias} Dias`;
             document.getElementById('resumo-total-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
-            document.getElementById('resumo-total-pacotes').innerText = `${totalPacotesPeriodo} Pacotes`;
-            document.getElementById('resumo-total-valor-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
+
+            document.getElementById('resumo-pacotes-shopee').innerText = `${totalShopee} Pkts`;
+            document.getElementById('resumo-total-shopee').innerText = `R$ ${subtotalShopee.toFixed(2)}`;
+
+            document.getElementById('resumo-pacotes-ml').innerText = `${totalML} Pkts`;
+            document.getElementById('resumo-total-ml').innerText = `R$ ${subtotalML.toFixed(2)}`;
+
             document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
         }
 
@@ -768,15 +830,19 @@
             const periodoTexto = `De ${inicio ? new Date(inicio + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fim ? new Date(fim + 'T00:00:00').toLocaleDateString('pt-BR') : '--'}`;
             
             const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
+            const valorShopee = parseFloat(document.getElementById('pag-valor-shopee').value) || 0;
+            const valorMl = parseFloat(document.getElementById('pag-valor-ml').value) || 0;
 
             const qtdDias = parseInt(document.getElementById('resumo-dias-trabalhados').innerText) || 0;
             const subtotalDiarias = qtdDias * valorDiaria;
 
-            const qtdPacotes = parseInt(document.getElementById('resumo-total-pacotes').innerText) || 0;
-            const subtotalPacotes = qtdPacotes * valorPacote;
+            const qtdShopee = parseInt(document.getElementById('resumo-pacotes-shopee').innerText) || 0;
+            const subtotalShopee = qtdShopee * valorShopee;
+
+            const qtdMl = parseInt(document.getElementById('resumo-pacotes-ml').innerText) || 0;
+            const subtotalMl = qtdMl * valorMl;
             
-            const totalGeral = subtotalDiarias + subtotalPacotes;
+            const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
 
             document.getElementById('pdf-data-emissao').innerText = new Date().toLocaleString('pt-BR');
             document.getElementById('pdf-motorista-nome').innerText = motorista;
@@ -787,9 +853,13 @@
             document.getElementById('pdf-val-diaria').innerText = `R$ ${valorDiaria.toFixed(2)}`;
             document.getElementById('pdf-subtotal-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
 
-            document.getElementById('pdf-qtd-pacotes').innerText = qtdPacotes;
-            document.getElementById('pdf-val-pacote').innerText = `R$ ${valorPacote.toFixed(2)}`;
-            document.getElementById('pdf-subtotal-pacotes').innerText = `R$ ${subtotalPacotes.toFixed(2)}`;
+            document.getElementById('pdf-qtd-shopee').innerText = qtdShopee;
+            document.getElementById('pdf-val-shopee').innerText = `R$ ${valorShopee.toFixed(2)}`;
+            document.getElementById('pdf-subtotal-shopee').innerText = `R$ ${subtotalShopee.toFixed(2)}`;
+
+            document.getElementById('pdf-qtd-ml').innerText = qtdMl;
+            document.getElementById('pdf-val-ml').innerText = `R$ ${valorMl.toFixed(2)}`;
+            document.getElementById('pdf-subtotal-ml').innerText = `R$ ${subtotalMl.toFixed(2)}`;
 
             document.getElementById('pdf-total-geral').innerText = `R$ ${totalGeral.toFixed(2)}`;
             document.getElementById('pdf-ass-motorista').innerText = motorista;
@@ -812,8 +882,6 @@
 
         function gerarPDFRelatorioGeral() {
             const periodoFiltro = document.getElementById('filtro-periodo').selectedOptions[0].text;
-            const valorDiaria = parseFloat(document.getElementById('pag-valor-diaria').value) || 0;
-            const valorPacote = parseFloat(document.getElementById('pag-valor-pacote').value) || 0;
 
             document.getElementById('rel-data-emissao').innerText = new Date().toLocaleString('pt-BR');
             document.getElementById('rel-periodo-filtro').innerText = periodoFiltro;
@@ -863,17 +931,26 @@
             listaMotoristas.forEach(mot => {
                 const registrosMot = dadosFiltrados.filter(i => i.motorista === mot.nome);
                 const diasUnicos = new Set();
-                let pacotesMot = 0;
+                let pacotesShopeeMot = 0;
+                let pacotesMlMot = 0;
 
                 registrosMot.forEach(i => {
                     diasUnicos.add(new Date(i.created_at).toDateString());
-                    if (i.tipo === 'Coleta') pacotesMot += (i.pacotes || 0);
+                    if (i.tipo === 'Coleta') {
+                        if (i.plataforma === 'Shopee') pacotesShopeeMot += (i.pacotes || 0);
+                        if (i.plataforma === 'Mercado Livre') pacotesMlMot += (i.pacotes || 0);
+                    }
                 });
 
+                const vDiariaMot = parseFloat(mot.valor_diaria) || 150.00;
+                const vShopeeMot = parseFloat(mot.valor_shopee) || 0.50;
+                const vMlMot = parseFloat(mot.valor_ml) || 0.50;
+
                 const qtdDias = diasUnicos.size;
-                const totDiarias = qtdDias * valorDiaria;
-                const totProducao = pacotesMot * valorPacote;
-                const subtotalMot = totDiarias + totProducao;
+                const totDiarias = qtdDias * vDiariaMot;
+                const totShopee = pacotesShopeeMot * vShopeeMot;
+                const totMl = pacotesMlMot * vMlMot;
+                const subtotalMot = totDiarias + totShopee + totMl;
                 totalPagoMotoristasGeral += subtotalMot;
 
                 const tr = document.createElement('tr');
@@ -882,9 +959,8 @@
                     <td class="p-2 border font-bold">${mot.nome}</td>
                     <td class="p-2 border">${mot.veiculo}</td>
                     <td class="p-2 border text-center">${qtdDias}</td>
-                    <td class="p-2 border text-center font-bold text-blue-700">${pacotesMot}</td>
-                    <td class="p-2 border text-right">R$ ${totDiarias.toFixed(2)}</td>
-                    <td class="p-2 border text-right">R$ ${totProducao.toFixed(2)}</td>
+                    <td class="p-2 border text-center text-orange-600 font-bold">${pacotesShopeeMot}</td>
+                    <td class="p-2 border text-center text-yellow-600 font-bold">${pacotesMlMot}</td>
                     <td class="p-2 border text-right font-extrabold text-emerald-700">R$ ${subtotalMot.toFixed(2)}</td>
                 `;
                 tbodyMot.appendChild(tr);
