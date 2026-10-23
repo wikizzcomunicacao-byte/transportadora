@@ -344,10 +344,10 @@
 
     </main>
 
-    <!-- ================= TEMPLATES PDF COM ESTILOS EM LINHA (SEGUROS) ================= -->
+    <!-- ================= TEMPLATES PDF PERMANENTEMENTE RENDERIZADOS FORA DO ECRÃ (100% SEGUROS) ================= -->
 
     <!-- Template Comprovante Individual -->
-    <div id="pdf-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
+    <div id="pdf-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -435,7 +435,7 @@
     </div>
 
     <!-- Template Relatório Geral da Operação -->
-    <div id="pdf-relatorio-geral-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
+    <div id="pdf-relatorio-geral-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
                 <td>
@@ -929,21 +929,16 @@
             document.getElementById('pdf-ass-motorista').innerText = motorista;
 
             const element = document.getElementById('pdf-template');
-            element.style.display = 'block';
 
-            setTimeout(() => {
-                const opt = {
-                    margin:       10,
-                    filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       10,
+                filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-                html2pdf().set(opt).from(element).save().then(() => {
-                    element.style.display = 'none';
-                });
-            }, 300);
+            html2pdf().set(opt).from(element).save();
         }
 
         function gerarPDFRelatorioGeral() {
@@ -1092,21 +1087,16 @@
             });
 
             const element = document.getElementById('pdf-relatorio-geral-template');
-            element.style.display = 'block';
 
-            setTimeout(() => {
-                const opt = {
-                    margin:       8,
-                    filename:     `relatorio_operacao_gb_transportes_${new Date().toISOString().slice(0,10)}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
+            const opt = {
+                margin:       8,
+                filename:     `relatorio_operacao_gb_transportes_${new Date().toISOString().slice(0,10)}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-                html2pdf().set(opt).from(element).save().then(() => {
-                    element.style.display = 'none';
-                });
-            }, 300);
+            html2pdf().set(opt).from(element).save();
         }
 
         function mudancaSelecaoPeriodo() {
