@@ -3,280 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel do Motorista - Transportadora</title>
+    <title>GB Transportes - Painel do Motorista</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .bg-gb-navy { background-color: #0d2847; }
+        .text-gb-navy { color: #0d2847; }
+        .bg-gb-orange { background-color: #f26522; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-slate-100 text-gray-800 min-h-screen pb-12">
 
-    <!-- Cabeçalho -->
-    <header class="bg-blue-600 text-white shadow-md py-4 px-6 text-center">
-        <h1 class="text-xl font-bold">🚚 Transportadora - Painel do Motorista</h1>
+    <!-- Cabeçalho Principal com o Logótipo da GB Transportes -->
+    <header class="bg-gb-navy text-white shadow-lg py-4 px-4 text-center border-b-4 border-orange-500">
+        <div class="flex justify-center mb-2">
+            <div class="bg-white px-3 py-1.5 rounded-xl shadow-sm">
+                <svg class="h-9 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
+                    <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
+                    <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
+                    <text x="162" y="102" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#0d2847" letter-spacing="3">EFICIÊNCIA E AGILIDADE</text>
+                    <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
+                </svg>
+            </div>
+        </div>
+        <h1 class="text-lg font-black tracking-wide">GB TRANSPORTES</h1>
+        <p class="text-[11px] text-orange-400 font-semibold uppercase tracking-wider">Portal do Motorista</p>
     </header>
 
-    <main class="max-w-xl mx-auto p-4 sm:p-6 w-full flex-grow">
+    <main class="max-w-md mx-auto p-4 space-y-6">
 
         <!-- Seleção de Motorista -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200 mb-6">
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista:</label>
-            <select id="motorista-nome" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">A carregar motoristas...</option>
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Selecione o seu Nome</label>
+            <select id="select-motorista" class="w-full p-3 border rounded-xl bg-gray-50 text-base font-bold text-gb-navy outline-none focus:ring-2 focus:ring-orange-500">
+                <!-- Carregado via JS -->
             </select>
         </div>
 
-        <!-- Abas de Navegação -->
-        <div class="flex border-b border-gray-200 mb-6 bg-white rounded-xl shadow-sm overflow-hidden p-1">
-            <button onclick="mudarAba('coleta')" id="btn-coleta" class="flex-1 py-3 text-sm font-bold rounded-lg transition bg-blue-600 text-white">📦 Coleta</button>
-            <button onclick="mudarAba('abastecimento')" id="btn-abastecimento" class="flex-1 py-3 text-sm font-bold rounded-lg transition text-gray-600 hover:bg-gray-50">⛽ Abastecimento</button>
-            <button onclick="mudarAba('manutencao')" id="btn-manutencao" class="flex-1 py-3 text-sm font-bold rounded-lg transition text-gray-600 hover:bg-gray-50">🔧 Manutenção</button>
-        </div>
-
-        <!-- Formulário: Coleta -->
-        <div id="secao-coleta" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+        <!-- Formulários de Registro -->
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Plataforma *</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="selecionarPlataforma('Shopee')" id="plat-shopee" class="p-3 border-2 rounded-xl font-bold text-sm transition border-blue-600 bg-blue-50 text-blue-700">🛒 Shopee</button>
-                    <button type="button" onclick="selecionarPlataforma('Mercado Livre')" id="plat-ml" class="p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 text-gray-600">📦 Mercado Livre</button>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo de Lançamento</label>
+                <select id="tipo-lancamento" onchange="alternarCampos()" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-orange-500">
+                    <option value="Coleta">📦 Registro de Coleta (Pacotes)</option>
+                    <option value="Abastecimento">⛽ Registro de Abastecimento</option>
+                    <option value="Manutenção">🔧 Registro de Manutenção</option>
+                    <option value="KM">🚗 Registro de Quilometragem (KM)</option>
+                </select>
+            </div>
+
+            <!-- Campo Coleta -->
+            <div id="campo-coleta" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Plataforma</label>
+                    <select id="plataforma" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+                        <option value="Shopee">Shopee</option>
+                        <option value="Mercado Livre">Mercado Livre</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Quantidade de Pacotes *</label>
+                    <input type="number" id="pacotes" placeholder="Ex: 120" class="w-full p-3 border rounded-xl text-lg font-bold text-blue-600 outline-none focus:ring-2 focus:ring-orange-500">
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd. de Pacotes *</label>
-                <input type="number" id="coleta-pacotes" placeholder="Ex: 120" class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+            <!-- Campo Abastecimento -->
+            <div id="campo-abastecimento" class="space-y-3 hidden">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Total (R$) *</label>
+                        <input type="number" step="0.01" id="valor-abastecimento" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl text-base font-bold text-emerald-600 outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Litros *</label>
+                        <input type="number" step="0.01" id="litros" placeholder="Ex: 45.5" class="w-full p-3 border rounded-xl text-base font-bold text-emerald-600 outline-none focus:ring-2 focus:ring-orange-500">
+                    </div>
+                </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto / Comprovante de Coleta (Opcional)</label>
-                <input type="file" id="foto-coleta" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm">
+            <!-- Campo Manutenção -->
+            <div id="campo-manutencao" class="space-y-3 hidden">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição do Serviço / Peça *</label>
+                    <input type="text" id="servico-manutencao" placeholder="Ex: Troca de Óleo e Filtro" class="w-full p-3 border rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor do Serviço (R$) *</label>
+                    <input type="number" step="0.01" id="valor-manutencao" placeholder="Ex: 180.00" class="w-full p-3 border rounded-xl text-base font-bold text-rose-600 outline-none focus:ring-2 focus:ring-orange-500">
+                </div>
             </div>
 
+            <!-- Campo KM (Comum a KM e Manutenção) -->
+            <div id="campo-km" class="hidden">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">KM Atual do Odômetro *</label>
+                <input type="number" id="km-atual" placeholder="Ex: 145800" class="w-full p-3 border rounded-xl text-base font-bold text-amber-600 outline-none focus:ring-2 focus:ring-orange-500">
+            </div>
+
+            <!-- Observação -->
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
-                <textarea id="coleta-observacao" rows="2" placeholder="Ex: Pacotes avariados, observação da coleta..." class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <input type="text" id="observacao" placeholder="Ex: Rota centro / Recibo anexado" class="w-full p-3 border rounded-xl text-sm outline-none focus:ring-2 focus:ring-orange-500">
             </div>
 
-            <button onclick="salvarColeta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold p-3.5 rounded-xl shadow transition">Salvar Registro de Coleta</button>
-        </div>
-
-        <!-- Formulário: Abastecimento -->
-        <div id="secao-abastecimento" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
+            <!-- Upload da Foto/Comprovante -->
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor do Abastecimento (R$) *</label>
-                <input type="number" step="0.01" id="abast-valor" placeholder="Ex: 150.00" class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto / Comprovativo (Opcional)</label>
+                <input type="file" id="foto-input" accept="image/*" class="w-full p-2 border rounded-xl text-xs bg-gray-50 outline-none">
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Litros *</label>
-                <input type="number" step="0.1" id="abast-litros" placeholder="Ex: 25.5" class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Foto do Comprovante (Opcional)</label>
-                <input type="file" id="foto-abast" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm">
-            </div>
-
-            <button onclick="salvarAbastecimento()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold p-3.5 rounded-xl shadow transition">Salvar Abastecimento</button>
-        </div>
-
-        <!-- Formulário: Manutenção -->
-        <div id="secao-manutencao" class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo de Serviço / Peça *</label>
-                <input type="text" id="manut-servico" placeholder="Ex: Troca de Óleo, Pneus..." class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor do Serviço (R$) *</label>
-                <input type="number" step="0.01" id="manut-valor" placeholder="Ex: 250.00" class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Quilometragem (KM) Atual *</label>
-                <input type="number" id="manut-km" placeholder="Ex: 45000" class="w-full p-3 border rounded-xl bg-gray-50 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nota / Recibo (Opcional)</label>
-                <input type="file" id="foto-manut" accept="image/*" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm">
-            </div>
-
-            <button onclick="salvarManutencao()" class="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold p-3.5 rounded-xl shadow transition">Salvar Manutenção</button>
+            <button onclick="enviarRegistro()" id="btn-enviar" class="w-full bg-gb-orange hover:bg-orange-600 text-white font-black py-4 rounded-xl text-base shadow-lg transition">
+                🚀 CONCLUIR E ENVIAR
+            </button>
         </div>
 
     </main>
 
-    <!-- Script Motorista -->
+    <!-- Script Supabase Motorista -->
     <script>
         const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let plataformaSelecionada = 'Shopee';
-
-        async function carregarMotoristasSupabase() {
-            const select = document.getElementById('motorista-nome');
-            const { data, error } = await supabaseClient.from('motoristas').select('*').order('nome', { ascending: true });
-
-            if (error || !data || data.length === 0) {
-                console.error('Erro ao carregar motoristas:', error);
-                select.innerHTML = '<option value="Motorista 01">Motorista 01</option>';
-                return;
-            }
-
-            select.innerHTML = '';
-            data.forEach(mot => {
-                select.innerHTML += `<option value="${mot.nome}">${mot.nome} (${mot.veiculo})</option>`;
-            });
-        }
-
-        function mudarAba(aba) {
-            document.getElementById('secao-coleta').classList.add('hidden');
-            document.getElementById('secao-abastecimento').classList.add('hidden');
-            document.getElementById('secao-manutencao').classList.add('hidden');
-
-            document.getElementById('btn-coleta').className = "flex-1 py-3 text-sm font-bold rounded-lg transition text-gray-600 hover:bg-gray-50";
-            document.getElementById('btn-abastecimento').className = "flex-1 py-3 text-sm font-bold rounded-lg transition text-gray-600 hover:bg-gray-50";
-            document.getElementById('btn-manutencao').className = "flex-1 py-3 text-sm font-bold rounded-lg transition text-gray-600 hover:bg-gray-50";
-
-            if (aba === 'coleta') {
-                document.getElementById('secao-coleta').classList.remove('hidden');
-                document.getElementById('btn-coleta').className = "flex-1 py-3 text-sm font-bold rounded-lg transition bg-blue-600 text-white";
-            } else if (aba === 'abastecimento') {
-                document.getElementById('secao-abastecimento').classList.remove('hidden');
-                document.getElementById('btn-abastecimento').className = "flex-1 py-3 text-sm font-bold rounded-lg transition bg-emerald-600 text-white";
-            } else if (aba === 'manutencao') {
-                document.getElementById('secao-manutencao').classList.remove('hidden');
-                document.getElementById('btn-manutencao').className = "flex-1 py-3 text-sm font-bold rounded-lg transition bg-rose-600 text-white";
+        async function carregarMotoristas() {
+            const { data, error } = await supabaseClient.from('motoristas').select('nome').order('nome', { ascending: true });
+            if (!error && data) {
+                const select = document.getElementById('select-motorista');
+                select.innerHTML = '';
+                data.forEach(m => {
+                    select.innerHTML += `<option value="${m.nome}">${m.nome}</option>`;
+                });
             }
         }
 
-        function selecionarPlataforma(plat) {
-            plataformaSelecionada = plat;
-            if (plat === 'Shopee') {
-                document.getElementById('plat-shopee').className = "p-3 border-2 rounded-xl font-bold text-sm transition border-blue-600 bg-blue-50 text-blue-700";
-                document.getElementById('plat-ml').className = "p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 text-gray-600";
-            } else {
-                document.getElementById('plat-ml').className = "p-3 border-2 rounded-xl font-bold text-sm transition border-yellow-500 bg-yellow-50 text-yellow-700";
-                document.getElementById('plat-shopee').className = "p-3 border-2 rounded-xl font-bold text-sm transition border-gray-200 text-gray-600";
-            }
+        function alternarCampos() {
+            const tipo = document.getElementById('tipo-lancamento').value;
+            document.getElementById('campo-coleta').classList.toggle('hidden', tipo !== 'Coleta');
+            document.getElementById('campo-abastecimento').classList.toggle('hidden', tipo !== 'Abastecimento');
+            document.getElementById('campo-manutencao').classList.toggle('hidden', tipo !== 'Manutenção');
+            document.getElementById('campo-km').classList.toggle('hidden', tipo !== 'KM' && tipo !== 'Manutenção');
         }
 
-        async function uploadFoto(fileInputId) {
-            const fileInput = document.getElementById(fileInputId);
-            if (!fileInput.files || fileInput.files.length === 0) return null;
+        async function enviarRegistro() {
+            const btn = document.getElementById('btn-enviar');
+            btn.disabled = true;
+            btn.innerText = 'A enviar...';
 
-            const file = fileInput.files[0];
-            const fileName = `${Date.now()}_${file.name}`;
-            
-            const { data, error } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
-            if (error) {
-                console.error('Erro no upload da foto:', error.message);
-                return null;
+            const motorista = document.getElementById('select-motorista').value;
+            const tipo = document.getElementById('tipo-lancamento').value;
+            const observacao = document.getElementById('observacao').value.trim();
+            const fotoFile = document.getElementById('foto-input').files[0];
+
+            let fotoUrl = null;
+
+            if (fotoFile) {
+                const fileExt = fotoFile.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('comprovantes').upload(fileName, fotoFile);
+
+                if (!uploadError) {
+                    const { data: urlData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
+                    fotoUrl = urlData.publicUrl;
+                }
             }
 
-            const { data: publicURL } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
-            return publicURL.publicUrl;
-        }
+            const registro = { motorista, tipo, observacao, foto_comprovante: fotoUrl };
 
-        async function salvarColeta() {
-            const motorista = document.getElementById('motorista-nome').value;
-            const pacotes = parseInt(document.getElementById('coleta-pacotes').value);
-            const observacao = document.getElementById('coleta-observacao').value;
-
-            if (!pacotes || pacotes <= 0) {
-                alert('Por favor, informe a quantidade de pacotes.');
-                return;
+            if (tipo === 'Coleta') {
+                registro.plataforma = document.getElementById('plataforma').value;
+                registro.pacotes = parseInt(document.getElementById('pacotes').value) || 0;
+            } else if (tipo === 'Abastecimento') {
+                registro.valor_abastecimento = parseFloat(document.getElementById('valor-abastecimento').value) || 0;
+                registro.litros = parseFloat(document.getElementById('litros').value) || 0;
+                registro.foto_abastecimento = fotoUrl;
+            } else if (tipo === 'Manutenção') {
+                registro.observacao = document.getElementById('servico-manutencao').value.trim() || observacao;
+                registro.valor_abastecimento = parseFloat(document.getElementById('valor-manutencao').value) || 0;
+                registro.km = parseInt(document.getElementById('km-atual').value) || null;
+            } else if (tipo === 'KM') {
+                registro.km = parseInt(document.getElementById('km-atual').value) || null;
+                registro.foto_km = fotoUrl;
             }
 
-            const fotoUrl = await uploadFoto('foto-coleta');
+            const { error } = await supabaseClient.from('registros').insert([registro]);
 
-            const { error } = await supabaseClient.from('registros').insert([{
-                motorista: motorista,
-                tipo: 'Coleta',
-                plataforma: plataformaSelecionada,
-                pacotes: pacotes,
-                observacao: observacao,
-                foto_comprovante: fotoUrl
-            }]);
+            btn.disabled = false;
+            btn.innerText = '🚀 CONCLUIR E ENVIAR';
 
             if (error) {
-                alert('Erro ao salvar coleta: ' + error.message);
+                alert('Erro ao guardar o registo: ' + error.message);
             } else {
-                alert('Coleta registada com sucesso!');
-                document.getElementById('coleta-pacotes').value = '';
-                document.getElementById('coleta-observacao').value = '';
-                document.getElementById('foto-coleta').value = '';
+                alert('Registo enviado com sucesso!');
+                document.getElementById('pacotes').value = '';
+                document.getElementById('valor-abastecimento').value = '';
+                document.getElementById('litros').value = '';
+                document.getElementById('servico-manutencao').value = '';
+                document.getElementById('valor-manutencao').value = '';
+                document.getElementById('km-atual').value = '';
+                document.getElementById('observacao').value = '';
+                document.getElementById('foto-input').value = '';
             }
         }
 
-        async function salvarAbastecimento() {
-            const motorista = document.getElementById('motorista-nome').value;
-            const valor = parseFloat(document.getElementById('abast-valor').value);
-            const litros = parseFloat(document.getElementById('abast-litros').value);
-
-            if (!valor || !litros) {
-                alert('Preencha o valor e os litros.');
-                return;
-            }
-
-            const fotoUrl = await uploadFoto('foto-abast');
-
-            const { error } = await supabaseClient.from('registros').insert([{
-                motorista: motorista,
-                tipo: 'Abastecimento',
-                valor_abastecimento: valor,
-                litros: litros,
-                foto_comprovante: fotoUrl
-            }]);
-
-            if (error) {
-                alert('Erro ao salvar abastecimento: ' + error.message);
-            } else {
-                alert('Abastecimento registado com sucesso!');
-                document.getElementById('abast-valor').value = '';
-                document.getElementById('abast-litros').value = '';
-                document.getElementById('foto-abast').value = '';
-            }
-        }
-
-        async function salvarManutencao() {
-            const motorista = document.getElementById('motorista-nome').value;
-            const servico = document.getElementById('manut-servico').value;
-            const valor = parseFloat(document.getElementById('manut-valor').value);
-            const km = parseInt(document.getElementById('manut-km').value);
-
-            if (!servico || !valor || !km) {
-                alert('Preencha todos os campos obrigatórios da manutenção.');
-                return;
-            }
-
-            const fotoUrl = await uploadFoto('foto-manut');
-
-            const { error } = await supabaseClient.from('registros').insert([{
-                motorista: motorista,
-                tipo: 'Manutenção',
-                observacao: servico,
-                valor_abastecimento: valor,
-                km: km,
-                foto_comprovante: fotoUrl
-            }]);
-
-            if (error) {
-                alert('Erro ao salvar manutenção: ' + error.message);
-            } else {
-                alert('Manutenção registada com sucesso!');
-                document.getElementById('manut-servico').value = '';
-                document.getElementById('manut-valor').value = '';
-                document.getElementById('manut-km').value = '';
-                document.getElementById('foto-manut').value = '';
-            }
-        }
-
-        window.onload = carregarMotoristasSupabase;
+        window.onload = carregarMotoristas;
     </script>
 </body>
 </html>
