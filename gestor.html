@@ -344,7 +344,95 @@
 
     </main>
 
-    <!-- ================= TEMPLATE APENAS PARA O RELATÓRIO GERAL (MANTIDO) ================= -->
+    <!-- ================= TEMPLATE PARA O COMPROVANTE DE PAGAMENTO ================= -->
+    <div id="pdf-comprovante-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
+        <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
+            <tr>
+                <td>
+                    <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                    <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                    <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
+                </td>
+                <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
+                    <p style="margin:0;">Data de Emissão: <span id="comp-data-emissao">--</span></p>
+                </td>
+            </tr>
+        </table>
+
+        <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+            <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
+            <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                <tr>
+                    <td style="padding:4px 0;"><strong>Motorista:</strong> <span id="comp-motorista-nome">--</span></td>
+                    <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span id="comp-veiculo-info">--</span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span id="comp-periodo-texto">--</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:25px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Discriminação do Fechamento</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                <thead>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                        <th style="padding:10px; border:1px solid #cbd5e1;">Item / Descrição</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:center;">Quantidade</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Valor Unitário</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
+                        <td id="comp-qtd-dias" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="comp-val-diaria" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="comp-sub-diarias" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ 0,00</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
+                        <td id="comp-qtd-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="comp-val-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="comp-sub-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ 0,00</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
+                        <td id="comp-qtd-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="comp-val-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="comp-sub-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ 0,00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:40px;">
+            <tr>
+                <td style="text-align:right;">
+                    <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
+                        <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
+                        <h2 id="comp-total-geral" style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ 0,00</h2>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
+            <tr>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p id="comp-assinatura-motorista" style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">--</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
+                </td>
+                <td style="width:10%;"></td>
+                <td style="width:45%; text-align:center; vertical-align:top;">
+                    <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
+                    <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- ================= TEMPLATE PARA O RELATÓRIO GERAL ================= -->
     <div id="pdf-relatorio-geral-template" style="position:fixed; left:-9999px; top:0; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333; z-index:-9999;">
         <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
             <tr>
@@ -817,123 +905,39 @@
             const subtotalShopee = totalShopee * valorShopee;
             const subtotalMl = totalML * valorMl;
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
-            const dataEmissao = new Date().toLocaleString('pt-BR');
 
-            // Criação dinâmica do elemento PDF com z-index positivo e posicionado corretamente
-            const element = document.createElement('div');
-            element.style.width = '210mm';
-            element.style.background = '#ffffff';
-            element.style.padding = '30px';
-            element.style.fontFamily = 'Arial, sans-serif';
-            element.style.color = '#333333';
-            element.style.position = 'fixed';
-            element.style.left = '0';
-            element.style.top = '0';
-            element.style.zIndex = '99999';
+            // Preenche o template estático oculto
+            document.getElementById('comp-data-emissao').innerText = new Date().toLocaleString('pt-BR');
+            document.getElementById('comp-motorista-nome').innerText = motorista;
+            document.getElementById('comp-veiculo-info').innerText = veiculoInfo;
+            document.getElementById('comp-periodo-texto').innerText = periodoTexto;
 
-            element.innerHTML = `
-                <table style="width:100%; border-collapse:collapse; border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px;">
-                    <tr>
-                        <td>
-                            <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
-                            <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                            <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
-                        </td>
-                        <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
-                            <p style="margin:0;">Data de Emissão: <span>${dataEmissao}</span></p>
-                        </td>
-                    </tr>
-                </table>
+            document.getElementById('comp-qtd-dias').innerText = qtdDias;
+            document.getElementById('comp-val-diaria').innerText = `R$ ${valorDiaria.toFixed(2)}`;
+            document.getElementById('comp-sub-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
 
-                <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
-                    <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
-                    <table style="width:100%; font-size:13px; border-collapse:collapse;">
-                        <tr>
-                            <td style="padding:4px 0;"><strong>Motorista:</strong> <span>${motorista}</span></td>
-                            <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span>${veiculoInfo}</span></td>
-                        </tr>
-                        <tr>
-                            <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span>${periodoTexto}</span></td>
-                        </tr>
-                    </table>
-                </div>
+            document.getElementById('comp-qtd-shopee').innerText = totalShopee;
+            document.getElementById('comp-val-shopee').innerText = `R$ ${valorShopee.toFixed(2)}`;
+            document.getElementById('comp-sub-shopee').innerText = `R$ ${subtotalShopee.toFixed(2)}`;
 
-                <div style="margin-bottom:25px;">
-                    <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Discriminação do Fechamento</h2>
-                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
-                        <thead>
-                            <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
-                                <th style="padding:10px; border:1px solid #cbd5e1;">Item / Descrição</th>
-                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:center;">Quantidade</th>
-                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Valor Unitário</th>
-                                <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorDiaria.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalDiarias.toFixed(2)}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalShopee}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorShopee.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ ${subtotalShopee.toFixed(2)}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalML}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorMl.toFixed(2)}</td>
-                                <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ ${subtotalMl.toFixed(2)}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            document.getElementById('comp-qtd-ml').innerText = totalML;
+            document.getElementById('comp-val-ml').innerText = `R$ ${valorMl.toFixed(2)}`;
+            document.getElementById('comp-sub-ml').innerText = `R$ ${subtotalMl.toFixed(2)}`;
 
-                <table style="width:100%; border-collapse:collapse; margin-bottom:40px;">
-                    <tr>
-                        <td style="text-align:right;">
-                            <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
-                                <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
-                                <h2 style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ ${totalGeral.toFixed(2)}</h2>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+            document.getElementById('comp-total-geral').innerText = `R$ ${totalGeral.toFixed(2)}`;
+            document.getElementById('comp-assinatura-motorista').innerText = motorista;
 
-                <table style="width:100%; border-collapse:collapse; margin-top:60px; border-top:1px solid #cbd5e1; padding-top:20px; font-size:12px; color:#475569;">
-                    <tr>
-                        <td style="width:45%; text-align:center; vertical-align:top;">
-                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">${motorista}</p>
-                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
-                        </td>
-                        <td style="width:10%;"></td>
-                        <td style="width:45%; text-align:center; vertical-align:top;">
-                            <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
-                            <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
-                        </td>
-                    </tr>
-                </table>
-            `;
+            const element = document.getElementById('pdf-comprovante-template');
 
-            document.body.appendChild(element);
+            const opt = {
+                margin:       10,
+                filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
 
-            // Atraso de segurança para garantir a renderização completa pelo html2canvas
-            setTimeout(() => {
-                const opt = {
-                    margin:       10,
-                    filename:     `comprovante_gb_transportes_${motorista.replace(' ', '_')}.pdf`,
-                    image:        { type: 'jpeg', quality: 0.98 },
-                    html2canvas:  { scale: 2, useCORS: true },
-                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(element).save().then(() => {
-                    element.remove();
-                });
-            }, 300);
+            html2pdf().set(opt).from(element).save();
         }
 
         function gerarPDFRelatorioGeral() {
