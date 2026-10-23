@@ -26,7 +26,7 @@
             body > *:not(#print-container) {
                 display: none !important;
             }
-            header, main {
+            header, main, #modal-editar-lancamento {
                 display: none !important;
             }
             #print-container {
@@ -355,7 +355,7 @@
                             <th class="p-3">Tipo</th>
                             <th class="p-3">Detalhes</th>
                             <th class="p-3">Fotos / Comprovantes</th>
-                            <th class="p-3 text-right">Ação</th>
+                            <th class="p-3 text-right">Ações</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-registros" class="text-sm divide-y">
@@ -366,6 +366,77 @@
         </div>
 
     </main>
+
+    <!-- ================= MODAL PARA EDIÇÃO DE LANÇAMENTOS ================= -->
+    <div id="modal-editar-lancamento" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100">
+            <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
+                <h3 class="font-bold text-base flex items-center gap-2">✏️ Editar Lançamento</h3>
+                <button onclick="fecharModalEdicaoLancamento()" class="text-gray-300 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="edit-id-lancamento">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista *</label>
+                    <select id="edit-motorista" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- Opções dinâmicas -->
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo de Lançamento *</label>
+                        <select id="edit-tipo" onchange="ajustarCamposModalEdicao()" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Coleta">Coleta</option>
+                            <option value="Abastecimento">Abastecimento</option>
+                            <option value="Manutenção">Manutenção</option>
+                            <option value="KM">KM</option>
+                        </select>
+                    </div>
+                    <div id="div-edit-plataforma">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Plataforma</label>
+                        <select id="edit-plataforma" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Shopee">Shopee</option>
+                            <option value="Mercado Livre">Mercado Livre</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div id="div-edit-pacotes">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Qtd. Pacotes</label>
+                        <input type="number" id="edit-pacotes" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div id="div-edit-valor">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$)</label>
+                        <input type="number" step="0.01" id="edit-valor" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div id="div-edit-litros">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Litros</label>
+                        <input type="number" step="0.01" id="edit-litros" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div id="div-edit-km">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">KM Atual</label>
+                        <input type="number" id="edit-km" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação / Serviço</label>
+                    <input type="text" id="edit-observacao" placeholder="Ex: Troca de óleo, Rota centro, etc." class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 flex justify-end gap-2 border-t">
+                <button onclick="fecharModalEdicaoLancamento()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+                <button onclick="salvarEdicaoLancamento()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💾 Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Container Universal para Impressão e PDF Nativo -->
     <div id="print-container"></div>
@@ -456,18 +527,21 @@
         function atualizarSelectsMotoristas() {
             const selectPag = document.getElementById('pag-motorista');
             const selectFiltro = document.getElementById('filtro-motorista');
+            const selectModal = document.getElementById('edit-motorista');
 
             const valorPagAtual = selectPag.value;
             const valorFiltroAtual = selectFiltro.value;
 
             selectPag.innerHTML = '';
             selectFiltro.innerHTML = '<option value="TODOS">Todos os Motoristas</option>';
+            if (selectModal) selectModal.innerHTML = '';
 
             listaMotoristas.forEach(mot => {
                 const nomeEscapado = escapeHtml(mot.nome);
                 const veiculoEscapado = escapeHtml(mot.veiculo);
                 selectPag.innerHTML += `<option value="${nomeEscapado}">${nomeEscapado} (${veiculoEscapado})</option>`;
                 selectFiltro.innerHTML += `<option value="${nomeEscapado}">${nomeEscapado}</option>`;
+                if (selectModal) selectModal.innerHTML += `<option value="${nomeEscapado}">${nomeEscapado}</option>`;
             });
 
             if (valorPagAtual) selectPag.value = valorPagAtual;
@@ -1228,7 +1302,10 @@
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badgeCor}">${escapeHtml(item.tipo)}</span></td>
                     <td class="p-3 text-gray-600 font-medium">${detalheTexto}</td>
                     <td class="p-3 flex flex-wrap gap-2">${colunaFotos}</td>
-                    <td class="p-3 text-right"><button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button></td>
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="abrirModalEdicaoLancamento(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
+                        <button onclick="excluirRegistro(${item.id})" class="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -1248,6 +1325,79 @@
             document.getElementById('contador-tabela').innerText = `A mostrar ${dados.length} registos`;
 
             atualizarGraficos(pacotesPorMotorista, totalShopee, totalML);
+        }
+
+        // ================= LÓGICA DO MODAL DE EDIÇÃO DE LANÇAMENTOS =================
+        function abrirModalEdicaoLancamento(id) {
+            const item = dadosGlobais.find(i => i.id == id);
+            if (!item) return;
+
+            document.getElementById('edit-id-lancamento').value = item.id;
+            document.getElementById('edit-motorista').value = item.motorista;
+            document.getElementById('edit-tipo').value = item.tipo;
+            document.getElementById('edit-plataforma').value = item.plataforma || 'Shopee';
+            document.getElementById('edit-pacotes').value = item.pacotes || '';
+            document.getElementById('edit-valor').value = item.valor_abastecimento || '';
+            document.getElementById('edit-litros').value = item.litros || '';
+            document.getElementById('edit-km').value = item.km || '';
+            document.getElementById('edit-observacao').value = item.observacao || '';
+
+            ajustarCamposModalEdicao();
+            document.getElementById('modal-editar-lancamento').classList.remove('hidden');
+        }
+
+        function fecharModalEdicaoLancamento() {
+            document.getElementById('modal-editar-lancamento').classList.add('hidden');
+        }
+
+        function ajustarCamposModalEdicao() {
+            const tipo = document.getElementById('edit-tipo').value;
+
+            const divPlat = document.getElementById('div-edit-plataforma');
+            const divPkt = document.getElementById('div-edit-pacotes');
+            const divVal = document.getElementById('div-edit-valor');
+            const divLit = document.getElementById('div-edit-litros');
+            const divKm = document.getElementById('div-edit-km');
+
+            divPlat.style.display = tipo === 'Coleta' ? 'block' : 'none';
+            divPkt.style.display = tipo === 'Coleta' ? 'block' : 'none';
+
+            divLit.style.display = tipo === 'Abastecimento' ? 'block' : 'none';
+
+            divVal.style.display = (tipo === 'Abastecimento' || tipo === 'Manutenção') ? 'block' : 'none';
+            divKm.style.display = (tipo === 'KM' || tipo === 'Manutenção') ? 'block' : 'none';
+        }
+
+        async function salvarEdicaoLancamento() {
+            const id = document.getElementById('edit-id-lancamento').value;
+            const motorista = document.getElementById('edit-motorista').value;
+            const tipo = document.getElementById('edit-tipo').value;
+            const plataforma = document.getElementById('edit-plataforma').value;
+            const pacotes = parseInt(document.getElementById('edit-pacotes').value) || 0;
+            const valor_abastecimento = parseFloat(document.getElementById('edit-valor').value) || 0;
+            const litros = parseFloat(document.getElementById('edit-litros').value) || 0;
+            const km = document.getElementById('edit-km').value ? parseInt(document.getElementById('edit-km').value) : null;
+            const observacao = document.getElementById('edit-observacao').value;
+
+            const dadosAtualizar = {
+                motorista,
+                tipo,
+                plataforma: tipo === 'Coleta' ? plataforma : null,
+                pacotes: tipo === 'Coleta' ? pacotes : 0,
+                valor_abastecimento: (tipo === 'Abastecimento' || tipo === 'Manutenção') ? valor_abastecimento : 0,
+                litros: tipo === 'Abastecimento' ? litros : 0,
+                km: (tipo === 'KM' || tipo === 'Manutenção') ? km : null,
+                observacao
+            };
+
+            const { error } = await supabaseClient.from('registros').update(dadosAtualizar).eq('id', id);
+
+            if (error) {
+                alert('Erro ao atualizar lançamento: ' + error.message);
+            } else {
+                fecharModalEdicaoLancamento();
+                await carregarDadosGestor();
+            }
         }
 
         function atualizarGraficos(motoristasData, shopee, ml) {
