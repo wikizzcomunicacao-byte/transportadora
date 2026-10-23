@@ -344,132 +344,140 @@
 
     </main>
 
-    <!-- Template Oculto para Comprovante Individual (PDF) -->
-    <div id="pdf-template" style="display: none; width: 210mm; background: white;" class="p-8 text-gray-800 font-sans">
-        <div class="border-b-2 border-gb-navy pb-4 mb-6 flex justify-between items-center">
+    <!-- ================= TEMPLATES PDF COM ESTILOS EM LINHA (GARANTE QUE NUNCA SAI EM BRANCO) ================= -->
+
+    <!-- Template Comprovante Individual -->
+    <div id="pdf-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
+        <div style="border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <h1 class="text-2xl font-black text-gb-navy">GB TRANSPORTES</h1>
-                <p class="text-xs text-gb-orange font-bold uppercase tracking-wider">Eficiência e Agilidade</p>
-                <p class="text-xs text-gray-500 mt-1">Demonstrativo de Serviços e Produção por Período</p>
+                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo de Serviços e Produção por Período</p>
             </div>
-            <div class="text-right text-xs text-gray-500">
-                <p>Data de Emissão: <span id="pdf-data-emissao">--</span></p>
-            </div>
-        </div>
-
-        <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
-            <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Dados do Prestador / Motorista</h2>
-            <div class="grid grid-cols-2 gap-4 text-sm">
-                <p><strong>Motorista:</strong> <span id="pdf-motorista-nome">--</span></p>
-                <p><strong>Veículo / Placa:</strong> <span id="pdf-motorista-veiculo">--</span></p>
-                <p><strong>Período Selecionado:</strong> <span id="pdf-periodo-texto">--</span></p>
+            <div style="text-align:right; font-size:11px; color:#666666;">
+                <p style="margin:0;">Data de Emissão: <span id="pdf-data-emissao">--</span></p>
             </div>
         </div>
 
-        <div class="mb-6">
-            <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase">Discriminação do Fechamento</h2>
-            <table class="w-full text-left border-collapse border border-gray-200 text-sm">
+        <div style="margin-bottom:25px; background:#f8fafc; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+            <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Dados do Prestador / Motorista</h2>
+            <table style="width:100%; font-size:13px; border-collapse:collapse;">
+                <tr>
+                    <td style="padding:4px 0;"><strong>Motorista:</strong> <span id="pdf-motorista-nome">--</span></td>
+                    <td style="padding:4px 0;"><strong>Veículo / Placa:</strong> <span id="pdf-motorista-veiculo">--</span></td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding:4px 0;"><strong>Período Selecionado:</strong> <span id="pdf-periodo-texto">--</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:25px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#475569; text-transform:uppercase; margin:0 0 10px 0;">Discriminação do Fechamento</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
                 <thead>
-                    <tr class="bg-gray-100 border-b border-gray-200">
-                        <th class="p-3">Item / Descrição</th>
-                        <th class="p-3 text-center">Quantidade</th>
-                        <th class="p-3 text-right">Valor Unitário</th>
-                        <th class="p-3 text-right">Subtotal</th>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                        <th style="padding:10px; border:1px solid #cbd5e1;">Item / Descrição</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:center;">Quantidade</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Valor Unitário</th>
+                        <th style="padding:10px; border:1px solid #cbd5e1; text-align:right;">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Diárias Trabalhadas</td>
-                        <td id="pdf-qtd-diarias" class="p-3 text-center">0</td>
-                        <td id="pdf-val-diaria" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-diarias" class="p-3 text-right font-bold text-emerald-700">R$ 0,00</td>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
+                        <td id="pdf-qtd-diarias" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="pdf-val-diaria" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="pdf-subtotal-diarias" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ 0,00</td>
                     </tr>
-                    <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Pacotes Shopee</td>
-                        <td id="pdf-qtd-shopee" class="p-3 text-center">0</td>
-                        <td id="pdf-val-shopee" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-shopee" class="p-3 text-right font-bold text-orange-600">R$ 0,00</td>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
+                        <td id="pdf-qtd-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="pdf-val-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="pdf-subtotal-shopee" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ 0,00</td>
                     </tr>
-                    <tr class="border-b border-gray-200">
-                        <td class="p-3 font-medium">Pacotes Mercado Livre</td>
-                        <td id="pdf-qtd-ml" class="p-3 text-center">0</td>
-                        <td id="pdf-val-ml" class="p-3 text-right">R$ 0,00</td>
-                        <td id="pdf-subtotal-ml" class="p-3 text-right font-bold text-yellow-600">R$ 0,00</td>
+                    <tr>
+                        <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
+                        <td id="pdf-qtd-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:center;">0</td>
+                        <td id="pdf-val-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ 0,00</td>
+                        <td id="pdf-subtotal-ml" style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ 0,00</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="flex justify-end mb-12">
-            <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg text-right w-72">
-                <p class="text-xs font-bold text-gb-navy uppercase">VALOR TOTAL LIQUIDO A PAGAR</p>
-                <h2 id="pdf-total-geral" class="text-2xl font-black text-gb-navy mt-1">R$ 0,00</h2>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:40px;">
+            <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
+                <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
+                <h2 id="pdf-total-geral" style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ 0,00</h2>
             </div>
         </div>
 
-        <div class="mt-20 pt-8 border-t flex justify-between gap-12 text-center text-xs text-gray-600">
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p id="pdf-ass-motorista" class="font-bold text-gray-800">Motorista</p>
-                <p>Assinatura do Prestador</p>
+        <div style="margin-top:60px; padding-top:20px; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; text-align:center; font-size:12px; color:#475569;">
+            <div style="width:45%;">
+                <p id="pdf-ass-motorista" style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Motorista</p>
+                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Prestador</p>
             </div>
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p class="font-bold text-gray-800">GB Transportes</p>
-                <p>Assinatura do Responsável</p>
+            <div style="width:45%;">
+                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">GB Transportes</p>
+                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Assinatura do Responsável</p>
             </div>
         </div>
     </div>
 
-    <!-- TEMPLATE RELATÓRIO GERAL DA OPERAÇÃO (PDF) -->
-    <div id="pdf-relatorio-geral-template" style="display: none; width: 210mm; background: white;" class="p-8 text-gray-800 font-sans">
-        <div class="border-b-2 border-gb-navy pb-4 mb-6 flex justify-between items-center">
+    <!-- Template Relatório Geral da Operação -->
+    <div id="pdf-relatorio-geral-template" style="display:none; width:210mm; background:#ffffff; padding:30px; font-family:Arial, sans-serif; color:#333333;">
+        <div style="border-bottom:3px solid #0d2847; padding-bottom:15px; margin-bottom:25px; display:flex; justify-content:space-between; align-items:center;">
             <div>
-                <h1 class="text-2xl font-black text-gb-navy">GB TRANSPORTES</h1>
-                <p class="text-xs text-gb-orange font-bold uppercase tracking-wider">Eficiência e Agilidade</p>
-                <p class="text-xs text-gray-500 mt-1">Relatório Consolidado da Operação e Custos</p>
+                <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
+                <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
+                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Relatório Consolidado da Operação e Custos</p>
             </div>
-            <div class="text-right text-xs text-gray-500">
-                <p><strong>Emissão:</strong> <span id="rel-data-emissao">--</span></p>
-                <p><strong>Filtro Período:</strong> <span id="rel-periodo-filtro">--</span></p>
-            </div>
-        </div>
-
-        <div class="mb-6">
-            <h2 class="font-bold text-gb-navy text-sm mb-3 uppercase border-b pb-1">1. Resumo Geral de Operação e Custos</h2>
-            <div class="grid grid-cols-4 gap-3 text-center">
-                <div class="bg-gray-50 p-3 rounded border">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase">Pacotes Totais</p>
-                    <p id="rel-total-pacotes" class="text-lg font-black text-blue-700">0</p>
-                    <p class="text-[9px] text-gray-400 mt-0.5">Shopee: <span id="rel-shopee">0</span> | ML: <span id="rel-ml">0</span></p>
-                </div>
-                <div class="bg-gray-50 p-3 rounded border">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase">Gasto Combustível</p>
-                    <p id="rel-total-combustivel" class="text-lg font-black text-emerald-700">R$ 0,00</p>
-                    <p class="text-[9px] text-gray-400 mt-0.5"><span id="rel-total-litros">0</span> L (Média R$ <span id="rel-medio-litro">0</span>/L)</p>
-                </div>
-                <div class="bg-gray-50 p-3 rounded border">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase">Gasto Manutenção</p>
-                    <p id="rel-total-manutencao" class="text-lg font-black text-rose-700">R$ 0,00</p>
-                    <p class="text-[9px] text-gray-400 mt-0.5"><span id="rel-qtd-manutencoes">0</span> serviço(s)</p>
-                </div>
-                <div class="bg-blue-50 p-3 rounded border border-blue-200">
-                    <p class="text-[10px] font-bold text-gb-navy uppercase">Custo Geral Total</p>
-                    <p id="rel-custo-geral" class="text-lg font-black text-gb-navy">R$ 0,00</p>
-                    <p class="text-[9px] text-blue-600 mt-0.5">Operação + Frota</p>
-                </div>
+            <div style="text-align:right; font-size:11px; color:#666666;">
+                <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> <span id="rel-data-emissao">--</span></p>
+                <p style="margin:0;"><strong>Filtro Período:</strong> <span id="rel-periodo-filtro">--</span></p>
             </div>
         </div>
 
-        <div class="mb-6">
-            <h2 class="font-bold text-gb-navy text-sm mb-2 uppercase border-b pb-1">2. Produção e Desempenho por Motorista</h2>
-            <table class="w-full text-left border-collapse border border-gray-200 text-xs">
+        <div style="margin-bottom:20px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo Geral de Operação e Custos</h2>
+            <table style="width:100%; border-collapse:collapse; text-align:center; font-size:11px;">
+                <tr>
+                    <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
+                        <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Pacotes Totais</p>
+                        <p id="rel-total-pacotes" style="font-size:16px; font-weight:900; color:#1d4ed8; margin:0 0 3px 0;">0</p>
+                        <p style="font-size:9px; color:#64748b; margin:0;">Shopee: <span id="rel-shopee">0</span> | ML: <span id="rel-ml">0</span></p>
+                    </td>
+                    <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
+                        <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Combustível</p>
+                        <p id="rel-total-combustivel" style="font-size:16px; font-weight:900; color:#047857; margin:0 0 3px 0;">R$ 0,00</p>
+                        <p style="font-size:9px; color:#64748b; margin:0;"><span id="rel-total-litros">0</span> L (Média R$ <span id="rel-medio-litro">0</span>/L)</p>
+                    </td>
+                    <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
+                        <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Manutenção</p>
+                        <p id="rel-total-manutencao" style="font-size:16px; font-weight:900; color:#be123c; margin:0 0 3px 0;">R$ 0,00</p>
+                        <p style="font-size:9px; color:#64748b; margin:0;"><span id="rel-qtd-manutencoes">0</span> serviço(s)</p>
+                    </td>
+                    <td style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px; width:25%;">
+                        <p style="font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">Custo Geral Total</p>
+                        <p id="rel-custo-geral" style="font-size:16px; font-weight:900; color:#0d2847; margin:0 0 3px 0;">R$ 0,00</p>
+                        <p style="font-size:9px; color:#2563eb; margin:0;">Operação + Frota</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom:20px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">2. Produção e Desempenho por Motorista</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
                 <thead>
-                    <tr class="bg-gray-100 border-b border-gray-200 font-bold uppercase text-gray-600">
-                        <th class="p-2 border">Motorista</th>
-                        <th class="p-2 border">Veículo / Placa</th>
-                        <th class="p-2 text-center border">Diárias Trab.</th>
-                        <th class="p-2 text-center border">Shopee</th>
-                        <th class="p-2 text-center border">Mercado Livre</th>
-                        <th class="p-2 text-right border">Subtotal a Pagar</th>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                        <th style="padding:8px; border:1px solid #cbd5e1;">Motorista</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Diárias Trab.</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Shopee</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Mercado Livre</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Subtotal a Pagar</th>
                     </tr>
                 </thead>
                 <tbody id="rel-tabela-motoristas">
@@ -478,14 +486,14 @@
             </table>
         </div>
 
-        <div class="mb-6">
-            <h2 class="font-bold text-gb-navy text-sm mb-2 uppercase border-b pb-1">3. Resumo de Manutenção por Veículo</h2>
-            <table class="w-full text-left border-collapse border border-gray-200 text-xs">
+        <div style="margin-bottom:20px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">3. Resumo de Manutenção por Veículo</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:11px; text-align:left;">
                 <thead>
-                    <tr class="bg-gray-100 border-b border-gray-200 font-bold uppercase text-gray-600">
-                        <th class="p-2 border">Veículo / Placa</th>
-                        <th class="p-2 text-center border">Qtd. Serviços</th>
-                        <th class="p-2 text-right border">Total Investido em Oficina (R$)</th>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                        <th style="padding:8px; border:1px solid #cbd5e1;">Veículo / Placa</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:center;">Qtd. Serviços</th>
+                        <th style="padding:8px; border:1px solid #cbd5e1; text-align:right;">Total Investido em Oficina (R$)</th>
                     </tr>
                 </thead>
                 <tbody id="rel-tabela-veiculos">
@@ -494,16 +502,16 @@
             </table>
         </div>
 
-        <div class="mb-6">
-            <h2 class="font-bold text-gb-navy text-sm mb-2 uppercase border-b pb-1">4. Histórico Detalhado dos Registros de Rota / Lançamentos</h2>
-            <table class="w-full text-left border-collapse border border-gray-200 text-[10px]">
+        <div style="margin-bottom:30px;">
+            <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">4. Histórico Detalhado dos Registros</h2>
+            <table style="width:100%; border-collapse:collapse; font-size:9px; text-align:left;">
                 <thead>
-                    <tr class="bg-gray-100 border-b border-gray-200 font-bold uppercase text-gray-600">
-                        <th class="p-1.5 border">Data / Hora</th>
-                        <th class="p-1.5 border">Motorista</th>
-                        <th class="p-1.5 border">Tipo</th>
-                        <th class="p-1.5 border">Detalhes da Rota / Serviço</th>
-                        <th class="p-1.5 text-right border">Valor / Litros / KM</th>
+                    <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1; font-weight:bold; text-transform:uppercase; color:#475569;">
+                        <th style="padding:6px; border:1px solid #cbd5e1;">Data / Hora</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1;">Motorista</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1;">Tipo</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1;">Detalhes da Rota / Serviço</th>
+                        <th style="padding:6px; border:1px solid #cbd5e1; text-align:right;">Valor / Litros / KM</th>
                     </tr>
                 </thead>
                 <tbody id="rel-tabela-historico">
@@ -512,14 +520,14 @@
             </table>
         </div>
 
-        <div class="mt-12 pt-6 border-t flex justify-between gap-12 text-center text-xs text-gray-600">
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p class="font-bold text-gray-800">Gestor Financeiro / Operacional</p>
-                <p>Responsável pelo Relatório</p>
+        <div style="margin-top:40px; padding-top:20px; border-top:1px solid #cbd5e1; display:flex; justify-content:space-between; text-align:center; font-size:11px; color:#475569;">
+            <div style="width:45%;">
+                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Gestor Financeiro / Operacional</p>
+                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Responsável pelo Relatório</p>
             </div>
-            <div class="flex-1 border-t border-gray-400 pt-2">
-                <p class="font-bold text-gray-800">Diretoria GB Transportes</p>
-                <p>Aprovação de Custos</p>
+            <div style="width:45%;">
+                <p style="font-weight:bold; color:#1e293b; margin:0 0 5px 0;">Diretoria GB Transportes</p>
+                <p style="margin:0; border-top:1px solid #94a3b8; padding-top:5px;">Aprovação de Custos</p>
             </div>
         </div>
     </div>
@@ -980,14 +988,14 @@
                 totalPagoMotoristasGeral += subtotalMot;
 
                 const tr = document.createElement('tr');
-                tr.className = "border-b";
+                tr.style.borderBottom = "1px solid #cbd5e1";
                 tr.innerHTML = `
-                    <td class="p-2 border font-bold">${mot.nome}</td>
-                    <td class="p-2 border">${mot.veiculo}</td>
-                    <td class="p-2 border text-center">${qtdDias}</td>
-                    <td class="p-2 border text-center text-orange-600 font-bold">${pacotesShopeeMot}</td>
-                    <td class="p-2 border text-center text-yellow-600 font-bold">${pacotesMlMot}</td>
-                    <td class="p-2 border text-right font-extrabold text-emerald-700">R$ ${subtotalMot.toFixed(2)}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${mot.nome}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1;">${mot.veiculo}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${pacotesShopeeMot}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${pacotesMlMot}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalMot.toFixed(2)}</td>
                 `;
                 tbodyMot.appendChild(tr);
             });
@@ -1009,11 +1017,11 @@
                 manutencaoVeic.forEach(i => totGastoVeic += (i.valor_abastecimento || 0));
 
                 const tr = document.createElement('tr');
-                tr.className = "border-b";
+                tr.style.borderBottom = "1px solid #cbd5e1";
                 tr.innerHTML = `
-                    <td class="p-2 border font-bold">${veic}</td>
-                    <td class="p-2 border text-center">${manutencaoVeic.length}</td>
-                    <td class="p-2 border text-right font-bold text-rose-700">R$ ${totGastoVeic.toFixed(2)}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${veic}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${manutencaoVeic.length}</td>
+                    <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${totGastoVeic.toFixed(2)}</td>
                 `;
                 tbodyVeic.appendChild(tr);
             });
@@ -1021,7 +1029,7 @@
             const tbodyHist = document.getElementById('rel-tabela-historico');
             tbodyHist.innerHTML = '';
 
-            dadosFiltrados.slice(0, 50).forEach(item => {
+            dadosFiltrados.slice(0, 100).forEach(item => {
                 let detalhe = '';
                 let valorKM = '--';
 
@@ -1040,13 +1048,13 @@
                 }
 
                 const tr = document.createElement('tr');
-                tr.className = "border-b";
+                tr.style.borderBottom = "1px solid #cbd5e1";
                 tr.innerHTML = `
-                    <td class="p-1.5 border">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
-                    <td class="p-1.5 border font-semibold">${item.motorista}</td>
-                    <td class="p-1.5 border font-bold">${item.tipo}</td>
-                    <td class="p-1.5 border">${detalhe}</td>
-                    <td class="p-1.5 border text-right font-bold">${valorKM}</td>
+                    <td style="padding:5px; border:1px solid #cbd5e1;">${new Date(item.created_at).toLocaleString('pt-BR')}</td>
+                    <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.motorista}</td>
+                    <td style="padding:5px; border:1px solid #cbd5e1; font-weight:bold;">${item.tipo}</td>
+                    <td style="padding:5px; border:1px solid #cbd5e1;">${detalhe}</td>
+                    <td style="padding:5px; border:1px solid #cbd5e1; text-align:right; font-weight:bold;">${valorKM}</td>
                 `;
                 tbodyHist.appendChild(tr);
             });
