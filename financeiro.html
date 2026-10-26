@@ -57,7 +57,7 @@
                 <p class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Painel Financeiro & DRE Executivo</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap justify-end">
             <!-- Botão de Acesso Direto ao Painel do Gestor -->
             <a href="gestor.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
                 🚚 Painel do Gestor
@@ -67,6 +67,10 @@
             </button>
             <button onclick="carregarDadosFinanceiros()" class="bg-gb-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-1 shadow-sm">
                 🔄 Atualizar Dados
+            </button>
+            <!-- Botão de Sair / Logout -->
+            <button onclick="fazerLogout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
+                🚪 Sair
             </button>
         </div>
     </header>
@@ -270,6 +274,12 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        const DOMINIO_INTERNO = 'gbtransportes.com';
+        const ADMINS_AUTORIZADOS = [
+            `adm@${DOMINIO_INTERNO}`,
+            `guilherme@${DOMINIO_INTERNO}`
+        ];
+
         let dadosRegistros = [];
         let listaMotoristas = [];
         let dadosTransacoes = [];
@@ -278,6 +288,29 @@
         function escapeHtml(str) {
             if (!str) return '';
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        // Trava de Segurança: Verifica se está autenticado e se é Administrador
+        async function verificarAutenticacao() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            if (!ADMINS_AUTORIZADOS.includes(session.user.email)) {
+                window.location.href = 'index.html';
+                return false;
+            }
+
+            return true;
+        }
+
+        // Função de Logout
+        async function fazerLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
         }
 
         function inicializarDatas() {
@@ -646,9 +679,12 @@
             }, 300);
         }
 
-        window.onload = () => {
-            inicializarDatas();
-            carregarDadosFinanceiros();
+        window.onload = async () => {
+            const autorizado = await verificarAutenticacao();
+            if (autorizado) {
+                inicializarDatas();
+                carregarDadosFinanceiros();
+            }
         };
     </script>
 </body>
