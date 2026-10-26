@@ -44,7 +44,7 @@
 
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Usuário / Motorista *</label>
-                <input type="text" id="nome-motorista" required placeholder="Ex: ADM, EDUARDA, LEANDRO..." class="w-full p-3 border-2 border-gray-200 rounded-xl font-bold uppercase text-gray-800 text-sm outline-none focus:border-gb-navy transition">
+                <input type="text" id="nome-motorista" required placeholder="Ex: ADM, GUILHERME, EDUARDA..." class="w-full p-3 border-2 border-gray-200 rounded-xl font-bold uppercase text-gray-800 text-sm outline-none focus:border-gb-navy transition">
             </div>
 
             <div>
@@ -67,8 +67,13 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Domínio interno para mapear nome -> e-mail no Supabase
         const DOMINIO_INTERNO = 'gbtransportes.com';
+        
+        // Lista de e-mails com acesso administrativo ao painel de gestor
+        const ADMINS_AUTORIZADOS = [
+            `adm@${DOMINIO_INTERNO}`,
+            `guilherme@${DOMINIO_INTERNO}`
+        ];
 
         // Configurações de Segurança de Tentativas
         const MAX_TENTATIVAS = 5;
@@ -77,7 +82,7 @@
         async function verificarSessaoExistente() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
-                if (session.user.email === `adm@${DOMINIO_INTERNO}`) {
+                if (ADMINS_AUTORIZADOS.includes(session.user.email)) {
                     window.location.href = 'gestor.html';
                 } else {
                     window.location.href = 'index.html';
@@ -154,7 +159,7 @@
                 localStorage.removeItem('gb_tentativas_falhas');
                 localStorage.removeItem('gb_bloqueio_login');
 
-                if (emailEquivalente === `adm@${DOMINIO_INTERNO}`) {
+                if (ADMINS_AUTORIZADOS.includes(emailEquivalente)) {
                     window.location.href = 'gestor.html';
                 } else {
                     window.location.href = 'index.html';
