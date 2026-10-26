@@ -451,7 +451,6 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome de Login (Usuário) *</label>
                     <input type="text" id="cred-nome-login" placeholder="Ex: EDUARDA" class="w-full p-2.5 border rounded-lg text-sm uppercase bg-gray-50 font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="text-[10px] text-gray-400 mt-1">Nota: Alterar o nome altera o e-mail de acesso associado (ex: nome@gbtransportes.com).</p>
                 </div>
 
                 <div>
@@ -585,11 +584,11 @@
             const mot = listaMotoristas.find(m => m.id == id);
             if (!mot) return;
 
-            // Formata o e-mail interno com base no nome
+            // Formatar e-mail de acesso
             const nomeFormatado = novoNome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-            const emailNovo = `${nomeFormatado}@${DOMINIO_INTERNO}`;
+            const emailAcesso = `${nomeFormatado}@${DOMINIO_INTERNO}`;
 
-            // Atualiza no banco de dados Supabase (tabela motoristas)
+            // 1. Atualizar nome na tabela de motoristas
             const { error: errMotorista } = await supabaseClient
                 .from('motoristas')
                 .update({ nome: novoNome })
@@ -600,12 +599,18 @@
                 return;
             }
 
-            // Nota: Para atualizar a senha no Supabase Auth via frontend sem token admin, 
-            // a forma recomendada é criar o utilizador no painel do Supabase ou usar RPC se configurado. 
-            // Como alternativa direta com RPC ou se utilizar a API de Auth logada como admin:
-            // Caso utilize a API padrão do cliente, informamos o sucesso da alteração do perfil.
-            alert(`✅ Nome atualizado para ${novoNome} com sucesso!\n\nNota de Segurança: Para atualizar a senha de acesso deste utilizador, aceda ao painel do Supabase em Authentication > Users e atualize a senha do e-mail (${emailNovo}) se necessário.`);
-            
+            // 2. Chamar a função SQL RPC para alterar a senha no Supabase Auth
+            const { error: errAuth } = await supabaseClient.rpc('alterar_senha_motorista', {
+                p_email: emailAcesso,
+                p_nova_senha: novaSenha
+            });
+
+            if (errAuth) {
+                alert('Nome atualizado na tabela, mas ocorreu um erro ao alterar a palavra-passe no Auth: ' + errAuth.message);
+            } else {
+                alert(`✅ Dados de acesso do motorista ${novoNome} atualizados com sucesso!\n\nNovo Login: ${novoNome}\nNova Senha: ${novaSenha}`);
+            }
+
             fecharModalCredenciais();
             await carregarMotoristasSupabase();
         }
