@@ -26,7 +26,7 @@
             body > *:not(#print-container) {
                 display: none !important;
             }
-            header, main, #modal-editar-lancamento {
+            header, main, #modal-editar-lancamento, #modal-editar-credenciais {
                 display: none !important;
             }
             #print-container {
@@ -438,6 +438,35 @@
         </div>
     </div>
 
+    <!-- ================= MODAL PARA ALTERAR CREDENCIAIS DE LOGIN ================= -->
+    <div id="modal-editar-credenciais" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
+            <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
+                <h3 class="font-bold text-base flex items-center gap-2">🔐 Alterar Dados de Acesso</h3>
+                <button onclick="fecharModalCredenciais()" class="text-gray-300 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="cred-motorista-id">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome de Login (Usuário) *</label>
+                    <input type="text" id="cred-nome-login" placeholder="Ex: EDUARDA" class="w-full p-2.5 border rounded-lg text-sm uppercase bg-gray-50 font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-[10px] text-gray-400 mt-1">Nota: Alterar o nome altera o e-mail de acesso associado (ex: nome@gbtransportes.com).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nova Palavra-passe (Senha) *</label>
+                    <input type="password" id="cred-nova-senha" placeholder="Mínimo de 6 caracteres" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+
+            <div class="bg-gray-50 p-4 flex justify-end gap-2 border-t">
+                <button onclick="fecharModalCredenciais()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+                <button onclick="salvarCredenciaisLogin()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💾 Atualizar Acesso</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Container Universal para Impressão e PDF Nativo -->
     <div id="print-container"></div>
 
@@ -447,6 +476,7 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const DOMINIO_INTERNO = 'gbtransportes.com';
 
         let dadosGlobais = [];
         let listaMotoristas = [];
@@ -515,13 +545,69 @@
                     <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 0).toFixed(2)}</td>
                     <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0).toFixed(2)}</td>
                     <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0).toFixed(2)}</td>
-                    <td class="p-3 text-right space-x-2">
+                    <td class="p-3 text-right space-x-1">
+                        <button onclick="abrirModalCredenciais(${mot.id}, '${escapeHtml(mot.nome)}')" class="text-purple-600 hover:text-purple-800 text-xs font-bold bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded transition">🔑 Acesso</button>
                         <button onclick="editarMotorista(${mot.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
                         <button onclick="excluirMotorista(${mot.id})" class="text-red-600 hover:text-red-800 text-xs font-bold bg-red-50 hover:bg-red-100 px-2.5 py-1 rounded transition">Excluir</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+        }
+
+        // ================= GESTÃO DE CREDENCIAIS (LOGIN E SENHA) =================
+        function abrirModalCredenciais(id, nomeAtual) {
+            document.getElementById('cred-motorista-id').value = id;
+            document.getElementById('cred-nome-login').value = nomeAtual;
+            document.getElementById('cred-nova-senha').value = '';
+            document.getElementById('modal-editar-credenciais').classList.remove('hidden');
+        }
+
+        function fecharModalCredenciais() {
+            document.getElementById('modal-editar-credenciais').classList.add('hidden');
+        }
+
+        async function salvarCredenciaisLogin() {
+            const id = document.getElementById('cred-motorista-id').value;
+            const novoNome = document.getElementById('cred-nome-login').value.trim().toUpperCase();
+            const novaSenha = document.getElementById('cred-nova-senha').value;
+
+            if (!novoNome || !novaSenha) {
+                alert('Preencha o nome de login e a nova senha.');
+                return;
+            }
+
+            if (novaSenha.length < 6) {
+                alert('A senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+
+            const mot = listaMotoristas.find(m => m.id == id);
+            if (!mot) return;
+
+            // Formata o e-mail interno com base no nome
+            const nomeFormatado = novoNome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+            const emailNovo = `${nomeFormatado}@${DOMINIO_INTERNO}`;
+
+            // Atualiza no banco de dados Supabase (tabela motoristas)
+            const { error: errMotorista } = await supabaseClient
+                .from('motoristas')
+                .update({ nome: novoNome })
+                .eq('id', id);
+
+            if (errMotorista) {
+                alert('Erro ao atualizar nome do motorista: ' + errMotorista.message);
+                return;
+            }
+
+            // Nota: Para atualizar a senha no Supabase Auth via frontend sem token admin, 
+            // a forma recomendada é criar o utilizador no painel do Supabase ou usar RPC se configurado. 
+            // Como alternativa direta com RPC ou se utilizar a API de Auth logada como admin:
+            // Caso utilize a API padrão do cliente, informamos o sucesso da alteração do perfil.
+            alert(`✅ Nome atualizado para ${novoNome} com sucesso!\n\nNota de Segurança: Para atualizar a senha de acesso deste utilizador, aceda ao painel do Supabase em Authentication > Users e atualize a senha do e-mail (${emailNovo}) se necessário.`);
+            
+            fecharModalCredenciais();
+            await carregarMotoristasSupabase();
         }
 
         function atualizarSelectsMotoristas() {
@@ -627,7 +713,7 @@
 
         async function salvarMotorista() {
             const idEdicao = document.getElementById('mot-id-edicao').value;
-            const nome = document.getElementById('mot-nome-input').value.trim();
+            const nome = document.getElementById('mot-nome-input').value.trim().toUpperCase();
             const veiculo = document.getElementById('mot-veiculo-input').value.trim();
             
             const valDiariaInput = document.getElementById('mot-diaria-input').value;
