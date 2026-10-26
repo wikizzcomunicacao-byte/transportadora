@@ -100,9 +100,9 @@
         <!-- Cards de Métricas Financeiras -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">💰 Receita Bruta Estimada</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">💰 Receita Bruta Total</p>
                 <h3 id="card-receita-bruta" class="text-2xl font-black text-blue-600 mt-1">R$ 0,00</h3>
-                <p id="sub-receita-pacotes" class="mt-2 text-xs text-gray-500">0 pacotes recolhidos</p>
+                <p id="sub-receita-pacotes" class="mt-2 text-xs text-gray-500">Operacional + Extras</p>
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
@@ -118,9 +118,36 @@
             </div>
 
             <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Custos de Manutenção</p>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Custos Manutenção & Extras</p>
                 <h3 id="card-custo-manutencao" class="text-2xl font-black text-rose-600 mt-1">R$ 0,00</h3>
-                <p id="sub-qtd-manutencoes" class="mt-2 text-xs text-gray-500">0 serviços de oficina</p>
+                <p id="sub-qtd-manutencoes" class="mt-2 text-xs text-gray-500">Oficina + Saídas avulsas</p>
+            </div>
+        </div>
+
+        <!-- Seção Novo Lançamento Manual (Entrada / Saída Extra) -->
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+            <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">➕ Registrar Entrada ou Saída Avulsa (Notas / Reparos / Outros)</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
+                    <select id="form-trans-tipo" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Entrada">🟢 Entrada (Receita Extra)</option>
+                        <option value="Saida">🔴 Saída (Custo / Reparo)</option>
+                    </select>
+                </div>
+                <div class="lg:col-span-2">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição do Lançamento *</label>
+                    <input type="text" id="form-trans-desc" placeholder="Ex: Nota de reparo oficina externa, Frete avulso..." class="w-full p-3 border rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
+                    <input type="number" step="0.01" id="form-trans-valor" placeholder="Ex: 350.00" class="w-full p-3 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="salvarTransacaoManual()" class="w-full bg-gb-navy hover:bg-slate-900 text-white font-bold p-3 rounded-xl text-sm transition shadow-sm">
+                        💾 Salvar Lançamento
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -136,7 +163,7 @@
 
                 <div class="space-y-3 text-sm font-semibold">
                     <div class="flex justify-between p-3 bg-blue-50/50 rounded-xl text-blue-900 font-bold border border-blue-100">
-                        <span>(+) Receita Operacional Bruta</span>
+                        <span>(+) Receita Operacional Bruta (Pacotes + Extras)</span>
                         <span id="dre-receita-bruta" class="text-base">R$ 0,00</span>
                     </div>
 
@@ -154,8 +181,12 @@
                             <span id="dre-custo-combustivel" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Manutenção da Frota & Oficina</span>
+                            <span>(-) Manutenção da Frota & Oficina (Sistema)</span>
                             <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Outras Saídas / Custos Avulsos</span>
+                            <span id="dre-custo-extras" class="text-red-600">R$ 0,00</span>
                         </div>
                     </div>
 
@@ -204,6 +235,27 @@
             </div>
         </div>
 
+        <!-- Histórico de Lançamentos Manuais Avulsos -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+            <h3 class="font-bold text-lg text-gb-navy">📋 Histórico de Entradas e Saídas Manuais</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                            <th class="p-3">Data / Hora</th>
+                            <th class="p-3">Tipo</th>
+                            <th class="p-3">Descrição</th>
+                            <th class="p-3 text-right">Valor</th>
+                            <th class="p-3 text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-transacoes-manuais" class="text-sm divide-y">
+                        <!-- Preenchido via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </main>
 
     <!-- Container para Impressão -->
@@ -216,6 +268,7 @@
 
         let dadosRegistros = [];
         let listaMotoristas = [];
+        let dadosTransacoes = [];
         let chartCustosInstance = null;
 
         function escapeHtml(str) {
@@ -238,7 +291,37 @@
             const { data: regData } = await supabaseClient.from('registros').select('*').order('id', { ascending: false });
             dadosRegistros = regData || [];
 
+            const { data: transData } = await supabaseClient.from('transacoes_financeiras').select('*').order('id', { ascending: false });
+            dadosTransacoes = transData || [];
+
             calcularFinanceiro();
+        }
+
+        async function salvarTransacaoManual() {
+            const tipo = document.getElementById('form-trans-tipo').value;
+            const descricao = document.getElementById('form-trans-desc').value.trim();
+            const valor = parseFloat(document.getElementById('form-trans-valor').value);
+
+            if (!descricao || isNaN(valor) || valor <= 0) {
+                alert('Preencha a descrição e um valor válido.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('transacoes_financeiras').insert([{ tipo, descricao, valor }]);
+
+            if (error) {
+                alert('Erro ao salvar transação: ' + error.message);
+            } else {
+                document.getElementById('form-trans-desc').value = '';
+                document.getElementById('form-trans-valor').value = '';
+                await carregarDadosFinanceiros();
+            }
+        }
+
+        async function excluirTransacaoManual(id) {
+            if (!confirm('Tem certeza que deseja apagar este lançamento?')) return;
+            const { error } = await supabaseClient.from('transacoes_financeiras').delete().eq('id', id);
+            if (!error) carregarDadosFinanceiros();
         }
 
         function mudancaPeriodoFinanceiro() {
@@ -251,7 +334,7 @@
             calcularFinanceiro();
         }
 
-        function obterDadosFiltrados() {
+        function filtrarPorPeriodo(arrayDados) {
             const periodo = document.getElementById('fin-periodo').value;
             const dInicioStr = document.getElementById('fin-data-inicio').value;
             const dFimStr = document.getElementById('fin-data-fim').value;
@@ -260,7 +343,7 @@
             const dataFim = dFimStr ? new Date(dFimStr + 'T23:59:59') : null;
             const agora = new Date();
 
-            return dadosRegistros.filter(item => {
+            return arrayDados.filter(item => {
                 const dataItem = new Date(item.created_at);
 
                 if (periodo === 'HOJE') {
@@ -280,7 +363,8 @@
         }
 
         function calcularFinanceiro() {
-            const dados = obterDadosFiltrados();
+            const dadosReg = filtrarPorPeriodo(dadosRegistros);
+            const dadosTrans = filtrarPorPeriodo(dadosTransacoes);
 
             let totalPacotesShopee = 0;
             let totalPacotesML = 0;
@@ -289,7 +373,7 @@
             let totalManutencao = 0;
             let qtdManutencoes = 0;
 
-            dados.forEach(item => {
+            dadosReg.forEach(item => {
                 if (item.tipo === 'Coleta') {
                     if (item.plataforma === 'Shopee') totalPacotesShopee += (item.pacotes || 0);
                     if (item.plataforma === 'Mercado Livre') totalPacotesML += (item.pacotes || 0);
@@ -304,6 +388,36 @@
                 }
             });
 
+            // Somar transações manuais extras
+            let totalEntradasManuais = 0;
+            let totalSaidasManuais = 0;
+
+            const tabelaTransBody = document.getElementById('tabela-transacoes-manuais');
+            tabelaTransBody.innerHTML = '';
+
+            dadosTrans.forEach(t => {
+                if (t.tipo === 'Entrada') totalEntradasManuais += Number(t.valor);
+                if (t.tipo === 'Saida') totalSaidasManuais += Number(t.valor);
+
+                const dataFmt = new Date(t.created_at).toLocaleString('pt-BR');
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b";
+                tr.innerHTML = `
+                    <td class="p-3 text-gray-600">${dataFmt}</td>
+                    <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${t.tipo === 'Entrada' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${t.tipo}</span></td>
+                    <td class="p-3 font-semibold text-gray-800">${escapeHtml(t.descricao)}</td>
+                    <td class="p-3 text-right font-bold ${t.tipo === 'Entrada' ? 'text-emerald-600' : 'text-rose-600'}">R$ ${Number(t.valor).toFixed(2)}</td>
+                    <td class="p-3 text-center">
+                        <button onclick="excluirTransacaoManual(${t.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️ Apagar</button>
+                    </td>
+                `;
+                tabelaTransBody.appendChild(tr);
+            });
+
+            if (dadosTrans.length === 0) {
+                tabelaTransBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Nenhum lançamento manual registado no período.</td></tr>`;
+            }
+
             let custoTotalDiarias = 0;
             let custoTotalPacotes = 0;
 
@@ -311,7 +425,7 @@
             tabelaBody.innerHTML = '';
 
             listaMotoristas.forEach(mot => {
-                const registrosMot = dados.filter(i => i.motorista === mot.nome);
+                const registrosMot = dadosReg.filter(i => i.motorista === mot.nome);
                 const diasUnicos = new Set();
                 let shopeeMot = 0;
                 let mlMot = 0;
@@ -358,50 +472,56 @@
             });
 
             const custoTotalMotoristas = custoTotalDiarias + custoTotalPacotes;
-            const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao;
+            const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao + totalSaidasManuais;
 
-            const estimativaReceitaBruta = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
-            const resultadoLiquido = estimativaReceitaBruta - totalDespesas;
-            const margemPorcentagem = estimativaReceitaBruta > 0 ? ((resultadoLiquido / estimativaReceitaBruta) * 100).toFixed(1) : '0.0';
+            const estimativaReceitaOperacional = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
+            const receitaBrutaTotal = estimativaReceitaOperacional + totalEntradasManuais;
+            
+            const resultadoLiquido = receitaBrutaTotal - totalDespesas;
+            const margemPorcentagem = receitaBrutaTotal > 0 ? ((resultadoLiquido / receitaBrutaTotal) * 100).toFixed(1) : '0.0';
 
-            document.getElementById('card-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
-            document.getElementById('sub-receita-pacotes').innerText = `${totalPacotesShopee + totalPacotesML} pacotes (Shopee + ML)`;
+            // Atualização dos Cards
+            document.getElementById('card-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
+            document.getElementById('sub-receita-pacotes').innerText = `Op: R$ ${estimativaReceitaOperacional.toFixed(2)} | Extras: R$ ${totalEntradasManuais.toFixed(2)}`;
 
             document.getElementById('card-custo-motoristas').innerText = `R$ ${custoTotalMotoristas.toFixed(2)}`;
             document.getElementById('card-custo-combustivel').innerText = `R$ ${totalCombustivel.toFixed(2)}`;
             const mediaPrecoL = totalLitros > 0 ? (totalCombustivel / totalLitros).toFixed(2) : '0.00';
             document.getElementById('sub-combustivel-litros').innerText = `${totalLitros.toFixed(1)} L (Média R$ ${mediaPrecoL}/L)`;
 
-            document.getElementById('card-custo-manutencao').innerText = `R$ ${totalManutencao.toFixed(2)}`;
-            document.getElementById('sub-qtd-manutencoes').innerText = `${qtdManutencoes} serviço(s) registrado(s)`;
+            const custoManutencaoTotalGeral = totalManutencao + totalSaidasManuais;
+            document.getElementById('card-custo-manutencao').innerText = `R$ ${custoManutencaoTotalGeral.toFixed(2)}`;
+            document.getElementById('sub-qtd-manutencoes').innerText = `${qtdManutencoes} oficina(s) | ${dadosTrans.filter(t=>t.tipo==='Saida').length} saída(s) avulsa(s)`;
 
             document.getElementById('card-margem-porcentagem').innerText = `${margemPorcentagem}%`;
 
-            document.getElementById('dre-receita-bruta').innerText = `R$ ${estimativaReceitaBruta.toFixed(2)}`;
+            // Atualização da DRE
+            document.getElementById('dre-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
             document.getElementById('dre-custo-diarias').innerText = `- R$ ${custoTotalDiarias.toFixed(2)}`;
             document.getElementById('dre-custo-pacotes').innerText = `- R$ ${custoTotalPacotes.toFixed(2)}`;
             document.getElementById('dre-custo-combustivel').innerText = `- R$ ${totalCombustivel.toFixed(2)}`;
             document.getElementById('dre-custo-oficina').innerText = `- R$ ${totalManutencao.toFixed(2)}`;
+            document.getElementById('dre-custo-extras').innerText = `- R$ ${totalSaidasManuais.toFixed(2)}`;
             document.getElementById('dre-total-despesas').innerText = `- R$ ${totalDespesas.toFixed(2)}`;
 
             const elResultado = document.getElementById('dre-resultado-liquido');
             elResultado.innerText = `R$ ${resultadoLiquido.toFixed(2)}`;
             elResultado.className = resultadoLiquido >= 0 ? 'text-emerald-400 font-black' : 'text-red-400 font-black';
 
-            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao);
+            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, totalSaidasManuais);
         }
 
-        function atualizarGraficoCustos(motoristas, combustivel, oficina) {
+        function atualizarGraficoCustos(motoristas, combustivel, oficina, extras) {
             const ctx = document.getElementById('chartComposicaoCustos').getContext('2d');
             if (chartCustosInstance) chartCustosInstance.destroy();
 
             chartCustosInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Motoristas', 'Combustível', 'Oficina / Peças'],
+                    labels: ['Motoristas', 'Combustível', 'Oficina Frota', 'Saídas Extras'],
                     datasets: [{
-                        data: [motoristas, combustivel, oficina],
-                        backgroundColor: ['#f26522', '#10b981', '#f43f5e']
+                        data: [motoristas, combustivel, oficina, extras],
+                        backgroundColor: ['#f26522', '#10b981', '#f43f5e', '#a855f7']
                     }]
                 },
                 options: {
@@ -421,6 +541,7 @@
             const custoPacotes = document.getElementById('dre-custo-pacotes').innerText;
             const custoCombustivel = document.getElementById('dre-custo-combustivel').innerText;
             const custoOficina = document.getElementById('dre-custo-oficina').innerText;
+            const custoExtras = document.getElementById('dre-custo-extras').innerText;
             const totalDespesas = document.getElementById('dre-total-despesas').innerText;
             const resultadoLiquido = document.getElementById('dre-resultado-liquido').innerText;
             const margem = document.getElementById('card-margem-porcentagem').innerText;
@@ -434,7 +555,7 @@
                             <td>
                                 <h1 style="font-size:24px; font-weight:900; color:#0d2847; margin:0;">GB TRANSPORTES</h1>
                                 <p style="font-size:11px; font-weight:bold; color:#f26522; text-transform:uppercase; margin:3px 0 0 0;">Eficiência e Agilidade</p>
-                                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo do Resultado do Exercício (DRE Operacional)</p>
+                                <p style="font-size:12px; color:#666666; margin:5px 0 0 0;">Demonstrativo do Resultado do Exercício (DRE Operacional & Extras)</p>
                             </td>
                             <td style="text-align:right; font-size:11px; color:#666666; vertical-align:top;">
                                 <p style="margin:0 0 3px 0;"><strong>Emissão:</strong> ${dataEmissao}</p>
@@ -447,7 +568,7 @@
                         <h2 style="font-size:12px; font-weight:bold; color:#0d2847; text-transform:uppercase; border-bottom:1px solid #cbd5e1; padding-bottom:5px; margin:0 0 10px 0;">1. Resumo DRE Operacional</h2>
                         <table style="width:100%; border-collapse:collapse; font-size:13px;">
                             <tr style="background:#eff6ff; border:1px solid #cbd5e1;">
-                                <td style="padding:10px; font-weight:bold; color:#1e3a8a;">(+) Receita Operacional Bruta</td>
+                                <td style="padding:10px; font-weight:bold; color:#1e3a8a;">(+) Receita Bruta Total (Op. + Extras)</td>
                                 <td style="padding:10px; text-align:right; font-weight:bold; color:#1e3a8a;">${receitaBruta}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
@@ -465,6 +586,10 @@
                             <tr style="border:1px solid #cbd5e1;">
                                 <td style="padding:8px; color:#475569;">(-) Manutenção da Frota & Oficina</td>
                                 <td style="padding:8px; text-align:right; color:#dc2626;">${custoOficina}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Outras Saídas / Custos Avulsos</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoExtras}</td>
                             </tr>
                             <tr style="background:#fff1f2; border:1px solid #cbd5e1;">
                                 <td style="padding:10px; font-weight:bold; color:#9f1239;">(=) Total de Despesas Operacionais</td>
