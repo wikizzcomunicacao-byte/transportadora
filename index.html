@@ -57,22 +57,20 @@
                 <p class="text-[10px] font-bold uppercase tracking-widest text-orange-400">Painel do Motorista</p>
             </div>
         </div>
-        <div>
+
+        <div class="flex items-center gap-3">
+            <!-- Badge do Motorista Logado -->
+            <div class="bg-white/10 px-3 py-1.5 rounded-xl border border-white/20 text-right">
+                <span class="text-[10px] text-gray-300 font-bold uppercase block">Motorista Logado</span>
+                <span id="nome-motorista-logado" class="text-xs font-black text-white uppercase">A carregar...</span>
+            </div>
             <button onclick="fazerLogout()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1 shadow">
-                🚪 Sair da Conta
+                🚪 Sair
             </button>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-4">
-
-        <!-- Seleção do Motorista -->
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Selecione o seu Nome *</label>
-            <select id="select-motorista" class="w-full p-3 border-2 border-gray-200 rounded-xl bg-gray-50 font-bold text-gray-800 text-base outline-none focus:border-gb-navy transition">
-                <option value="">A carregar motoristas...</option>
-            </select>
-        </div>
 
         <!-- Abas do Tipo de Lançamento -->
         <div class="grid grid-cols-3 gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200">
@@ -154,36 +152,30 @@
 
         let abaAtual = 'Coleta';
         let plataformaAtual = 'Shopee';
+        let motoristaLogadoNome = '';
 
-        // 1. Verificar se o motorista está autenticado ao carregar a página
+        // 1. Verificar autenticação e identificar o nome do motorista logado
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
+            
             if (!session) {
-                window.location.href = 'login.html'; // Se não estiver logado, manda para o login
-            } else {
-                carregarMotoristas();
+                window.location.href = 'login.html';
+                return;
             }
+
+            // Extrai o nome do e-mail do Supabase (ex: eduarda@gbtransportes.com -> EDUARDA)
+            const email = session.user.email || '';
+            const usuarioEmail = email.split('@')[0];
+            motoristaLogadoNome = usuarioEmail.toUpperCase();
+
+            // Atualiza o indicador no cabeçalho
+            document.getElementById('nome-motorista-logado').innerText = motoristaLogadoNome;
         }
 
         // 2. Função de Sair (Logout)
         async function fazerLogout() {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
-        }
-
-        async function carregarMotoristas() {
-            const { data, error } = await supabaseClient.from('motoristas').select('nome').order('nome', { ascending: true });
-            const select = document.getElementById('select-motorista');
-            
-            if (error || !data || data.length === 0) {
-                select.innerHTML = '<option value="">Nenhum motorista encontrado</option>';
-                return;
-            }
-
-            select.innerHTML = '<option value="">Escolha seu nome...</option>';
-            data.forEach(m => {
-                select.innerHTML += `<option value="${m.nome}">${m.nome}</option>`;
-            });
         }
 
         function mudarAba(aba) {
@@ -238,9 +230,9 @@
         }
 
         async function salvarRegistro() {
-            const motorista = document.getElementById('select-motorista').value;
-            if (!motorista) {
-                alert('Selecione o seu nome na lista.');
+            if (!motoristaLogadoNome) {
+                alert('Sessão inválida. Por favor, faça login novamente.');
+                window.location.href = 'login.html';
                 return;
             }
 
@@ -264,7 +256,7 @@
             }
 
             const registro = {
-                motorista,
+                motorista: motoristaLogadoNome,
                 tipo: abaAtual,
                 plataforma: abaAtual === 'Coleta' ? plataformaAtual : null,
                 pacotes: abaAtual === 'Coleta' ? (parseInt(document.getElementById('input-pacotes').value) || 0) : 0,
@@ -293,7 +285,6 @@
             mudarAba(abaAtual);
         }
 
-        // Executar verificação de segurança ao carregar
         window.onload = verificarAutenticacao;
     </script>
 </body>
