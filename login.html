@@ -70,6 +70,10 @@
         // Domínio interno para mapear nome -> e-mail no Supabase
         const DOMINIO_INTERNO = 'gbtransportes.com';
 
+        // Configurações de Segurança de Tentativas
+        const MAX_TENTATIVAS = 5;
+        const TEMPO_BLOQUEIO_MS = 30000; // 30 segundos de bloqueio
+
         async function verificarSessaoExistente() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -77,13 +81,37 @@
             }
         }
 
+        function verificarBloqueio() {
+            const bloqueioAte = localStorage.getItem('gb_bloqueio_login');
+            if (bloqueioAte) {
+                const agora = new Date().getTime();
+                if (agora < parseInt(bloqueioAte)) {
+                    const segundosRestantes = Math.ceil((parseInt(bloqueioAte) - agora) / 1000);
+                    return segundosRestantes;
+                } else {
+                    localStorage.removeItem('gb_bloqueio_login');
+                    localStorage.setItem('gb_tentativas_falhas', '0');
+                }
+            }
+            return 0;
+        }
+
         async function fazerLogin(event) {
             event.preventDefault();
             
+            const boxErro = document.getElementById('mensagem-erro');
+            const btn = document.getElementById('btn-login');
+
+            // Verifica se está temporariamente bloqueado
+            const segundosRestantes = verificarBloqueio();
+            if (segundosRestantes > 0) {
+                boxErro.innerText = `Muitas tentativas incorretas. Acesso bloqueado temporariamente. Tente novamente em ${segundosRestantes} segundos.`;
+                boxErro.classList.remove('hidden');
+                return;
+            }
+
             const nomeInput = document.getElementById('nome-motorista').value.trim().toLowerCase();
             const password = document.getElementById('password').value;
-            const btn = document.getElementById('btn-login');
-            const boxErro = document.getElementById('mensagem-erro');
 
             if (!nomeInput) return;
 
@@ -101,11 +129,26 @@
             });
 
             if (error) {
-                boxErro.innerText = 'Nome de motorista ou senha incorretos. Tente novamente.';
+                // Incrementa contador de falhas
+                let tentativas = parseInt(localStorage.getItem('gb_tentativas_falhas') || '0') + 1;
+                localStorage.setItem('gb_tentativas_falhas', tentativas);
+
+                if (tentativas >= MAX_TENTATIVAS) {
+                    const bloqueioAte = new Date().getTime() + TEMPO_BLOQUEIO_MS;
+                    localStorage.setItem('gb_bloqueio_login', bloqueioAte);
+                    boxErro.innerText = `Muitas tentativas incorretas. Conta bloqueada por 30 segundos por motivos de segurança.`;
+                } else {
+                    const tentativasRestantes = MAX_TENTATIVAS - tentativas;
+                    boxErro.innerText = `Nome de motorista ou senha incorretos. Restam ${tentativasRestantes} tentativa(s).`;
+                }
+
                 boxErro.classList.remove('hidden');
                 btn.disabled = false;
                 btn.innerText = '🔐 Entrar na Conta';
             } else {
+                // Sucesso: limpa os registos de falhas e redireciona
+                localStorage.removeItem('gb_tentativas_falhas');
+                localStorage.removeItem('gb_bloqueio_login');
                 window.location.href = 'index.html';
             }
         }
