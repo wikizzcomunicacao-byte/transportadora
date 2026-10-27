@@ -63,7 +63,7 @@
                 <p class="text-xs text-orange-400 font-semibold uppercase tracking-wider">Painel do Gestor - Eficiência e Agilidade</p>
             </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap justify-end">
             <!-- Botão de Acesso Direto ao Painel Financeiro -->
             <a href="financeiro.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
                 💰 Painel Financeiro
@@ -74,6 +74,10 @@
             <button onclick="carregarDadosGestor()" class="bg-gb-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-1 shadow-sm">
                 🔄 Atualizar Dados
             </button>
+            <!-- Botão de Sair / Logout -->
+            <button onclick="fazerLogout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
+                🚪 Sair
+            </button>
         </div>
     </header>
 
@@ -83,8 +87,8 @@
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
             <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
                 <div>
-                    <h3 class="text-lg font-bold text-gb-navy flex items-center gap-2">🚚 Cadastro de Motoristas, Veículos e Taxas Individuais</h3>
-                    <p class="text-xs text-gray-500">Cadastre motoristas com os respetivos valores de diária e pacotes.</p>
+                    <h3 class="text-lg font-bold text-gb-navy flex items-center gap-2">🚚 Cadastro de Motoristas, Aniversários e Taxas Individuais</h3>
+                    <p class="text-xs text-gray-500">Cadastre motoristas com os respetivos aniversários, valores de diária e pacotes.</p>
                 </div>
                 <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
             </div>
@@ -94,7 +98,7 @@
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
                     <input type="hidden" id="mot-id-edicao" value="">
                     
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
                             <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
@@ -102,6 +106,10 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
                             <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-purple-700 uppercase mb-1">🎂 Data de Aniversário (Brinde)</label>
+                            <input type="date" id="mot-nascimento-input" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-purple-900 outline-none focus:ring-2 focus:ring-purple-500">
                         </div>
                     </div>
 
@@ -133,9 +141,10 @@
                             <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
                                 <th class="p-3">Motorista</th>
                                 <th class="p-3">Veículo / Placa</th>
+                                <th class="p-3">🎂 Aniversário</th>
                                 <th class="p-3">Valor Diária</th>
                                 <th class="p-3">Pkt Shopee</th>
-                                <th class="p-3">Pkt Mercado Livre</th>
+                                <th class="p-3">Pkt ML</th>
                                 <th class="p-3 text-right">Ações</th>
                             </tr>
                         </thead>
@@ -382,6 +391,11 @@
                 <input type="hidden" id="edit-id-lancamento">
 
                 <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">📅 Data e Hora do Lançamento *</label>
+                    <input type="datetime-local" id="edit-data-hora" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-bold text-gray-800 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista *</label>
                     <select id="edit-motorista" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                         <!-- Opções dinâmicas -->
@@ -480,13 +494,16 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const DOMINIO_INTERNO = 'gbtransportes.com';
+        const ADMINS_AUTORIZADOS = [
+            `adm@${DOMINIO_INTERNO}`,
+            `guilherme@${DOMINIO_INTERNO}`
+        ];
 
         let dadosGlobais = [];
         let listaMotoristas = [];
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
 
-        // Função de Sanitização contra XSS
         function escapeHtml(str) {
             if (!str) return '';
             return String(str)
@@ -495,6 +512,27 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#039;');
+        }
+
+        async function verificarAutenticacao() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            
+            if (!session) {
+                window.location.href = 'login.html';
+                return false;
+            }
+
+            if (!ADMINS_AUTORIZADOS.includes(session.user.email)) {
+                window.location.href = 'index.html';
+                return false;
+            }
+
+            return true;
+        }
+
+        async function fazerLogout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
         }
 
         function toggleGestaoMotoristas() {
@@ -539,12 +577,35 @@
             const tbody = document.getElementById('tabela-motoristas');
             tbody.innerHTML = '';
 
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth() + 1;
+            const diaAtual = hoje.getDate();
+
             listaMotoristas.forEach(mot => {
+                let niverTexto = '--';
+                let isAniversarianteMes = false;
+
+                if (mot.data_nascimento) {
+                    const partes = mot.data_nascimento.split('-');
+                    if (partes.length === 3) {
+                        const diaNasc = parseInt(partes[2]);
+                        const mesNasc = parseInt(partes[1]);
+                        niverTexto = `${String(diaNasc).padStart(2,'0')}/${String(mesNasc).padStart(2,'0')}/${partes[0]}`;
+
+                        if (mesNasc === mesAtual) {
+                            isAniversarianteMes = true;
+                        }
+                    }
+                }
+
+                const badgeNiver = isAniversarianteMes ? `<span class="ml-1 bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-purple-300">🎁 Aniversariante!</span>` : '';
+
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 border-b";
                 tr.innerHTML = `
-                    <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)}</td>
+                    <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)} ${badgeNiver}</td>
                     <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
+                    <td class="p-3 font-bold text-purple-900">${niverTexto}</td>
                     <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 0).toFixed(2)}</td>
                     <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0).toFixed(2)}</td>
                     <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0).toFixed(2)}</td>
@@ -588,11 +649,9 @@
             const mot = listaMotoristas.find(m => m.id == id);
             if (!mot) return;
 
-            // Formatar e-mail de acesso
             const nomeFormatado = novoNome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
             const emailAcesso = `${nomeFormatado}@${DOMINIO_INTERNO}`;
 
-            // 1. Atualizar nome na tabela de motoristas
             const { error: errMotorista } = await supabaseClient
                 .from('motoristas')
                 .update({ nome: novoNome })
@@ -603,7 +662,6 @@
                 return;
             }
 
-            // 2. Chamar a função SQL RPC para alterar a senha no Supabase Auth
             const { error: errAuth } = await supabaseClient.rpc('alterar_senha_motorista', {
                 p_email: emailAcesso,
                 p_nova_senha: novaSenha
@@ -724,6 +782,7 @@
             const idEdicao = document.getElementById('mot-id-edicao').value;
             const nome = document.getElementById('mot-nome-input').value.trim().toUpperCase();
             const veiculo = document.getElementById('mot-veiculo-input').value.trim();
+            const data_nascimento = document.getElementById('mot-nascimento-input').value || null;
             
             const valDiariaInput = document.getElementById('mot-diaria-input').value;
             const valShopeeInput = document.getElementById('mot-shopee-input').value;
@@ -738,7 +797,7 @@
                 return;
             }
 
-            const dadosSalvar = { nome, veiculo, valor_diaria, valor_shopee, valor_ml };
+            const dadosSalvar = { nome, veiculo, data_nascimento, valor_diaria, valor_shopee, valor_ml };
 
             if (idEdicao) {
                 const { error } = await supabaseClient.from('motoristas').update(dadosSalvar).eq('id', idEdicao);
@@ -758,6 +817,7 @@
                 document.getElementById('mot-id-edicao').value = mot.id;
                 document.getElementById('mot-nome-input').value = mot.nome;
                 document.getElementById('mot-veiculo-input').value = mot.veiculo;
+                document.getElementById('mot-nascimento-input').value = mot.data_nascimento || '';
                 document.getElementById('mot-diaria-input').value = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
                 document.getElementById('mot-shopee-input').value = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? mot.valor_shopee : 0.50;
                 document.getElementById('mot-ml-input').value = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? mot.valor_ml : 0.50;
@@ -772,6 +832,7 @@
             document.getElementById('mot-id-edicao').value = '';
             document.getElementById('mot-nome-input').value = '';
             document.getElementById('mot-veiculo-input').value = '';
+            document.getElementById('mot-nascimento-input').value = '';
             document.getElementById('mot-diaria-input').value = '150.00';
             document.getElementById('mot-shopee-input').value = '0.50';
             document.getElementById('mot-ml-input').value = '0.50';
@@ -1428,6 +1489,17 @@
             if (!item) return;
 
             document.getElementById('edit-id-lancamento').value = item.id;
+            
+            // Formatar data para o input datetime-local (YYYY-MM-DDTHH:mm)
+            if (item.created_at) {
+                const d = new Date(item.created_at);
+                const tzOffset = d.getTimezoneOffset() * 60000;
+                const localISOTime = (new Date(d.getTime() - tzOffset)).toISOString().slice(0, 16);
+                document.getElementById('edit-data-hora').value = localISOTime;
+            } else {
+                document.getElementById('edit-data-hora').value = '';
+            }
+
             document.getElementById('edit-motorista').value = item.motorista;
             document.getElementById('edit-tipo').value = item.tipo;
             document.getElementById('edit-plataforma').value = item.plataforma || 'Shopee';
@@ -1465,6 +1537,7 @@
 
         async function salvarEdicaoLancamento() {
             const id = document.getElementById('edit-id-lancamento').value;
+            const dataHoraVal = document.getElementById('edit-data-hora').value;
             const motorista = document.getElementById('edit-motorista').value;
             const tipo = document.getElementById('edit-tipo').value;
             const plataforma = document.getElementById('edit-plataforma').value;
@@ -1474,7 +1547,15 @@
             const km = document.getElementById('edit-km').value ? parseInt(document.getElementById('edit-km').value) : null;
             const observacao = document.getElementById('edit-observacao').value;
 
+            if (!dataHoraVal) {
+                alert('A data e hora do lançamento são obrigatórias.');
+                return;
+            }
+
+            const novaDataIso = new Date(dataHoraVal).toISOString();
+
             const dadosAtualizar = {
+                created_at: novaDataIso,
                 motorista,
                 tipo,
                 plataforma: tipo === 'Coleta' ? plataforma : null,
@@ -1571,7 +1652,12 @@
             }
         }
 
-        window.onload = carregarDadosGestor;
+        window.onload = async () => {
+            const autorizado = await verificarAutenticacao();
+            if (autorizado) {
+                carregarDadosGestor();
+            }
+        };
     </script>
 </body>
 </html>
