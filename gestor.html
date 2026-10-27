@@ -17,7 +17,6 @@
         .bg-gb-orange { background-color: #f26522; }
         .text-gb-orange { color: #f26522; }
 
-        /* Estilos exclusivos para Impressão / PDF Nativo */
         #print-container {
             display: none;
         }
@@ -49,14 +48,8 @@
     <header class="bg-gb-navy text-white shadow-lg py-4 px-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-b-4 border-orange-500">
         <div class="flex items-center gap-3">
             <div class="bg-white p-2 rounded-xl shadow-sm">
-                <!-- Logótipo da GB Transportes -->
-                <svg class="h-10 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
-                    <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
-                    <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
-                    <text x="162" y="102" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#0d2847" letter-spacing="3">EFICIÊNCIA E AGILIDADE</text>
-                    <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
-                </svg>
+                <!-- Logótipo da GB Transportes (logo.jpg) -->
+                <img src="logo.jpg" alt="GB Transportes" class="h-10 w-auto object-contain">
             </div>
             <div>
                 <h1 class="text-xl font-black tracking-wide text-white">GB TRANSPORTES</h1>
@@ -64,7 +57,6 @@
             </div>
         </div>
         <div class="flex items-center gap-3 flex-wrap justify-end">
-            <!-- Botão de Acesso Direto ao Painel Financeiro -->
             <a href="financeiro.html" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
                 💰 Painel Financeiro
             </a>
@@ -74,7 +66,6 @@
             <button onclick="carregarDadosGestor()" class="bg-gb-orange hover:bg-orange-600 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-1 shadow-sm">
                 🔄 Atualizar Dados
             </button>
-            <!-- Botão de Sair / Logout -->
             <button onclick="fazerLogout()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
                 🚪 Sair
             </button>
@@ -94,7 +85,6 @@
             </div>
 
             <div id="conteudo-gestao-motoristas" class="space-y-4 pt-2">
-                <!-- Formulário para Inclusão / Edição -->
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
                     <input type="hidden" id="mot-id-edicao" value="">
                     
@@ -134,7 +124,6 @@
                     </div>
                 </div>
 
-                <!-- Tabela de Motoristas Cadastrados -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
                         <thead>
@@ -149,7 +138,6 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-motoristas" class="text-sm divide-y">
-                            <!-- Preenchido via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -171,7 +159,6 @@
                     <div class="w-full sm:w-1/2">
                         <label class="block text-xs font-bold text-rose-800 uppercase mb-1">Selecione o Veículo / Placa:</label>
                         <select id="select-veiculo-manutencao" onchange="renderizarManutencaoPorVeiculo()" class="w-full p-2.5 border rounded-xl bg-white text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500">
-                            <!-- Carregado via JS -->
                         </select>
                     </div>
                     <div class="flex gap-4 text-right w-full sm:w-auto justify-end">
@@ -199,7 +186,6 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-manutencao-veiculo" class="text-sm divide-y">
-                            <!-- Preenchido via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -216,12 +202,10 @@
                 <button onclick="gerarPDFComprovante()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovativo (PDF)</button>
             </div>
 
-            <!-- Configurações de Valores e Datas -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
                     <select id="pag-motorista" onchange="aoSelecionarMotoristaFechamento()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <!-- Carregado via JS -->
                     </select>
                 </div>
                 <div>
@@ -248,7 +232,6 @@
                 </div>
             </div>
 
-            <!-- Resumo dos Valores -->
             <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <p class="text-xs font-bold text-gray-500 uppercase">🗓️ Diárias Apuradas</p>
@@ -278,13 +261,12 @@
             </div>
         </div>
 
-        <!-- Barra de Filtros do Histórico com Calendário -->
+        <!-- Filtros do Histórico -->
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Filtrar Motorista</label>
                     <select id="filtro-motorista" onchange="aplicarFiltros()" class="p-2 border rounded-lg bg-gray-50 text-sm font-medium outline-none focus:ring-2 focus:ring-blue-500">
-                        <!-- Carregado via JS -->
                     </select>
                 </div>
                 <div>
@@ -312,7 +294,7 @@
             </div>
         </div>
 
-        <!-- Cards de Métricas Principais -->
+        <!-- Métricas -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📦 Total de Pacotes</p>
@@ -327,13 +309,11 @@
                 <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
                 <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0 L (R$ 0.00/L)</p>
             </div>
-            
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
                 <h3 id="metric-manutencao" class="text-3xl font-extrabold text-rose-600 mt-1">R$ 0,00</h3>
                 <p id="sub-manutencao-qtd" class="mt-2 text-xs text-gray-500">0 serviço(s) registrado(s)</p>
             </div>
-
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📋 Lançamentos</p>
                 <h3 id="metric-total-registros" class="text-3xl font-extrabold text-purple-600 mt-1">0</h3>
@@ -341,7 +321,7 @@
             </div>
         </div>
 
-        <!-- Seção de Gráficos -->
+        <!-- Gráficos -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
                 <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
@@ -372,7 +352,6 @@
                         </tr>
                     </thead>
                     <tbody id="tabela-registros" class="text-sm divide-y">
-                        <!-- Inserido via JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -380,7 +359,7 @@
 
     </main>
 
-    <!-- ================= MODAL PARA EDIÇÃO DE LANÇAMENTOS ================= -->
+    <!-- Modal Edição Lançamento -->
     <div id="modal-editar-lancamento" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-100">
             <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
@@ -398,7 +377,6 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista *</label>
                     <select id="edit-motorista" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <!-- Opções dinâmicas -->
                     </select>
                 </div>
 
@@ -456,7 +434,7 @@
         </div>
     </div>
 
-    <!-- ================= MODAL PARA ALTERAR CREDENCIAIS DE LOGIN ================= -->
+    <!-- Modal Credenciais -->
     <div id="modal-editar-credenciais" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
             <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
@@ -465,18 +443,15 @@
             </div>
             <div class="p-6 space-y-4">
                 <input type="hidden" id="cred-motorista-id">
-
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome de Login (Usuário) *</label>
                     <input type="text" id="cred-nome-login" placeholder="Ex: EDUARDA" class="w-full p-2.5 border rounded-lg text-sm uppercase bg-gray-50 font-bold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nova Palavra-passe (Senha) *</label>
                     <input type="password" id="cred-nova-senha" placeholder="Mínimo de 6 caracteres" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-
             <div class="bg-gray-50 p-4 flex justify-end gap-2 border-t">
                 <button onclick="fecharModalCredenciais()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
                 <button onclick="salvarCredenciaisLogin()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💾 Atualizar Acesso</button>
@@ -484,10 +459,8 @@
         </div>
     </div>
 
-    <!-- Container Universal para Impressão e PDF Nativo -->
     <div id="print-container"></div>
 
-    <!-- Script Gestor -->
     <script>
         const SUPABASE_URL = 'https://tvnwulvpauexcpqhbqpb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_8AWTXHRJX4gVjsTdMdO0Lw_gJGg5igQ';
@@ -579,7 +552,6 @@
 
             const hoje = new Date();
             const mesAtual = hoje.getMonth() + 1;
-            const diaAtual = hoje.getDate();
 
             listaMotoristas.forEach(mot => {
                 let niverTexto = '--';
@@ -619,7 +591,6 @@
             });
         }
 
-        // ================= GESTÃO DE CREDENCIAIS (LOGIN E SENHA) =================
         function abrirModalCredenciais(id, nomeAtual) {
             document.getElementById('cred-motorista-id').value = id;
             document.getElementById('cred-nome-login').value = nomeAtual;
@@ -943,7 +914,6 @@
             document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
         }
 
-        // ================= GERAÇÃO DE COMPROVANTE VIA WINDOW.PRINT() =================
         function gerarPDFComprovante() {
             const motorista = document.getElementById('pag-motorista').value;
             const motObj = listaMotoristas.find(m => m.nome === motorista);
@@ -1086,7 +1056,6 @@
             }, 300);
         }
 
-        // ================= GERAÇÃO DE RELATÓRIO GERAL VIA WINDOW.PRINT() =================
         function gerarPDFRelatorioGeral() {
             const periodoFiltro = document.getElementById('filtro-periodo').selectedOptions[0].text;
             const dataEmissao = new Date().toLocaleString('pt-BR');
@@ -1483,14 +1452,12 @@
             atualizarGraficos(pacotesPorMotorista, totalShopee, totalML);
         }
 
-        // ================= LÓGICA DO MODAL DE EDIÇÃO DE LANÇAMENTOS =================
         function abrirModalEdicaoLancamento(id) {
             const item = dadosGlobais.find(i => i.id == id);
             if (!item) return;
 
             document.getElementById('edit-id-lancamento').value = item.id;
             
-            // Formatar data para o input datetime-local (YYYY-MM-DDTHH:mm)
             if (item.created_at) {
                 const d = new Date(item.created_at);
                 const tzOffset = d.getTimezoneOffset() * 60000;
