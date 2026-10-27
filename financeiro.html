@@ -43,14 +43,8 @@
     <header class="bg-gb-navy text-white shadow-lg py-4 px-6 flex flex-col sm:flex-row justify-between items-center gap-4 border-b-4 border-orange-500">
         <div class="flex items-center gap-3">
             <div class="bg-white p-2 rounded-xl shadow-sm">
-                <!-- Logótipo da GB Transportes -->
-                <svg class="h-10 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
-                    <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
-                    <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
-                    <text x="162" y="102" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#0d2847" letter-spacing="3">EFICIÊNCIA E AGILIDADE</text>
-                    <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
-                </svg>
+                <!-- Logótipo da GB Transportes (logo.jpg) -->
+                <img src="logo.jpg" alt="GB Transportes" class="h-10 w-auto object-contain">
             </div>
             <div>
                 <h1 class="text-xl font-black tracking-wide text-white">GB TRANSPORTES</h1>
@@ -290,7 +284,6 @@
             return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
         }
 
-        // Trava de Segurança: Verifica se está autenticado e se é Administrador
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -307,7 +300,6 @@
             return true;
         }
 
-        // Função de Logout
         async function fazerLogout() {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
@@ -425,7 +417,6 @@
                 }
             });
 
-            // Somar transações manuais extras
             let totalEntradasManuais = 0;
             let totalSaidasManuais = 0;
 
@@ -517,7 +508,6 @@
             const resultadoLiquido = receitaBrutaTotal - totalDespesas;
             const margemPorcentagem = receitaBrutaTotal > 0 ? ((resultadoLiquido / receitaBrutaTotal) * 100).toFixed(1) : '0.0';
 
-            // Atualização dos Cards
             document.getElementById('card-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
             document.getElementById('sub-receita-pacotes').innerText = `Op: R$ ${estimativaReceitaOperacional.toFixed(2)} | Extras: R$ ${totalEntradasManuais.toFixed(2)}`;
 
@@ -532,7 +522,6 @@
 
             document.getElementById('card-margem-porcentagem').innerText = `${margemPorcentagem}%`;
 
-            // Atualização da DRE
             document.getElementById('dre-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
             document.getElementById('dre-custo-diarias').innerText = `- R$ ${custoTotalDiarias.toFixed(2)}`;
             document.getElementById('dre-custo-pacotes').innerText = `- R$ ${custoTotalPacotes.toFixed(2)}`;
