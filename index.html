@@ -72,21 +72,24 @@
 
     <main class="max-w-md mx-auto p-4 space-y-4">
 
-        <!-- Abas do Tipo de Lançamento -->
-        <div class="grid grid-cols-3 gap-2 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200">
-            <button id="tab-coleta" onclick="mudarAba('Coleta')" class="py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1">
+        <!-- Abas do Tipo de Lançamento / Consulta -->
+        <div class="grid grid-cols-4 gap-1.5 bg-white p-1.5 rounded-2xl shadow-sm border border-gray-200">
+            <button id="tab-coleta" onclick="mudarAba('Coleta')" class="py-2.5 px-1 rounded-xl text-[11px] font-extrabold transition btn-tab-active flex items-center justify-center gap-1">
                 📦 Coleta
             </button>
-            <button id="tab-abastecer" onclick="mudarAba('Abastecimento')" class="py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
-                ⛽ Abastecer
+            <button id="tab-abastecer" onclick="mudarAba('Abastecimento')" class="py-2.5 px-1 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
+                ⛽ Abast.
             </button>
-            <button id="tab-manutencao" onclick="mudarAba('Manutenção')" class="py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
-                🔧 Manutenção
+            <button id="tab-manutencao" onclick="mudarAba('Manutenção')" class="py-2.5 px-1 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
+                🔧 Manut.
+            </button>
+            <button id="tab-ganhos" onclick="mudarAba('Ganhos')" class="py-2.5 px-1 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1">
+                💰 Ganhos
             </button>
         </div>
 
-        <!-- Formulário Dinâmico -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
+        <!-- Formulário Dinâmico de Lançamento -->
+        <div id="secao-formulario" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4">
             
             <!-- Campo de Plataforma (Apenas Coleta) -->
             <div id="campo-plataforma" class="space-y-1">
@@ -125,22 +128,74 @@
                 <input type="number" id="input-km" placeholder="Ex: 145000" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-amber-700 text-lg outline-none focus:border-amber-600 transition">
             </div>
 
-            <!-- Campo Foto / Comprovante -->
+            <!-- Campo Foto / Comprovante (Obrigatório em todas as abas de lançamento) -->
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-foto">Foto / Comprovante de Coleta (Opcional)</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-foto">Foto / Comprovante *</label>
                 <input type="file" id="input-foto" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gb-navy hover:file:bg-gray-200 transition cursor-pointer">
             </div>
 
             <!-- Campo Observação -->
             <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Observação (Opcional)</label>
-                <textarea id="input-obs" rows="2" placeholder="Ex: Pacotes avariados, observação da coleta..." class="w-full p-3 border-2 border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-gb-navy transition resize-none"></textarea>
+                <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-obs">Observação (Opcional)</label>
+                <textarea id="input-obs" rows="2" placeholder="Ex: Pacotes avariados, observação..." class="w-full p-3 border-2 border-gray-200 rounded-xl text-sm font-medium outline-none focus:border-gb-navy transition resize-none"></textarea>
             </div>
 
             <!-- Botão Enviar principal -->
             <button id="btn-salvar" onclick="salvarRegistro()" class="w-full bg-gb-orange hover:bg-orange-600 text-white font-black text-base py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2 transform active:scale-95">
                 💾 Salvar Registro de Coleta
             </button>
+        </div>
+
+        <!-- Seção de Ganhos da Semana (Oculta por defeito) -->
+        <div id="secao-ganhos" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
+            <div class="border-b pb-3 flex justify-between items-center">
+                <div>
+                    <h3 class="font-black text-base text-gb-navy">💰 Ganhos da Semana</h3>
+                    <p class="text-[11px] text-gray-500">Apuramento de Segunda a Domingo (Semana Atual)</p>
+                </div>
+                <button onclick="carregarGanhosSemana()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-xl text-xs font-bold transition">🔄 Atualizar</button>
+            </div>
+
+            <!-- Cards Resumo Ganhos -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
+                    <span class="text-[10px] font-bold text-emerald-800 uppercase block">Total de Diárias</span>
+                    <span id="ganhos-tot-diarias" class="text-lg font-black text-emerald-700">R$ 0,00</span>
+                </div>
+                <div class="bg-orange-50 p-3.5 rounded-xl border border-orange-100">
+                    <span class="text-[10px] font-bold text-orange-800 uppercase block">Total de Pacotes</span>
+                    <span id="ganhos-tot-pacotes" class="text-lg font-black text-orange-600">R$ 0,00</span>
+                </div>
+            </div>
+
+            <div class="bg-gb-navy text-white p-4 rounded-xl shadow-sm flex justify-between items-center">
+                <div>
+                    <span class="text-[10px] text-orange-400 font-bold uppercase block">Total Bruto a Receber</span>
+                    <span class="text-xs text-gray-300">Diárias + Shopee + Mercado Livre</span>
+                </div>
+                <span id="ganhos-total-geral" class="text-2xl font-black text-emerald-400">R$ 0,00</span>
+            </div>
+
+            <!-- Tabela Diária (Segunda a Domingo) -->
+            <div class="space-y-2 pt-2">
+                <h4 class="text-xs font-bold text-gray-500 uppercase">Detalhamento Diário (Seg - Dom)</h4>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-gray-100 font-bold text-gray-500 uppercase border-b">
+                                <th class="p-2.5">Dia</th>
+                                <th class="p-2.5 text-center">Data</th>
+                                <th class="p-2.5 text-center">Status</th>
+                                <th class="p-2.5 text-center">Pkts</th>
+                                <th class="p-2.5 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-ganhos-dias" class="divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </main>
@@ -153,8 +208,9 @@
         let abaAtual = 'Coleta';
         let plataformaAtual = 'Shopee';
         let motoristaLogadoNome = '';
+        let dadosMotoristaObj = null;
 
-        // 1. Verificar autenticação e identificar o nome do motorista logado
+        // 1. Verificar autenticação e carregar dados do motorista
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -163,16 +219,21 @@
                 return;
             }
 
-            // Extrai o nome do e-mail do Supabase (ex: eduarda@gbtransportes.com -> EDUARDA)
             const email = session.user.email || '';
             const usuarioEmail = email.split('@')[0];
             motoristaLogadoNome = usuarioEmail.toUpperCase();
 
-            // Atualiza o indicador no cabeçalho
             document.getElementById('nome-motorista-logado').innerText = motoristaLogadoNome;
+
+            // Busca as taxas individuais do motorista (diária, shopee, ml)
+            const { data: motData } = await supabaseClient.from('motoristas').select('*').eq('nome', motoristaLogadoNome).single();
+            if (motData) {
+                dadosMotoristaObj = motData;
+            } else {
+                dadosMotoristaObj = { valor_diaria: 150.00, valor_shopee: 0.50, valor_ml: 0.50 };
+            }
         }
 
-        // 2. Função de Sair (Logout)
         async function fazerLogout() {
             await supabaseClient.auth.signOut();
             window.location.href = 'login.html';
@@ -181,16 +242,31 @@
         function mudarAba(aba) {
             abaAtual = aba;
 
-            ['coleta', 'abastecer', 'manutencao'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = 'py-2.5 px-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1';
+            ['coleta', 'abastecer', 'manutencao', 'ganhos'].forEach(t => {
+                document.getElementById(`tab-${t}`).className = 'py-2.5 px-1 rounded-xl text-[11px] font-bold text-gray-600 hover:bg-gray-100 transition flex items-center justify-center gap-1';
             });
 
             if (aba === 'Coleta') {
-                document.getElementById('tab-coleta').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+                document.getElementById('tab-coleta').className = 'py-2.5 px-1 rounded-xl text-[11px] font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
             } else if (aba === 'Abastecimento') {
-                document.getElementById('tab-abastecer').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+                document.getElementById('tab-abastecer').className = 'py-2.5 px-1 rounded-xl text-[11px] font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
             } else if (aba === 'Manutenção') {
-                document.getElementById('tab-manutencao').className = 'py-2.5 px-2 rounded-xl text-xs font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+                document.getElementById('tab-manutencao').className = 'py-2.5 px-1 rounded-xl text-[11px] font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+            } else if (aba === 'Ganhos') {
+                document.getElementById('tab-ganhos').className = 'py-2.5 px-1 rounded-xl text-[11px] font-extrabold transition btn-tab-active flex items-center justify-center gap-1';
+            }
+
+            const secaoForm = document.getElementById('secao-formulario');
+            const secaoGanhos = document.getElementById('secao-ganhos');
+
+            if (aba === 'Ganhos') {
+                secaoForm.style.display = 'none';
+                secaoGanhos.style.display = 'block';
+                carregarGanhosSemana();
+                return;
+            } else {
+                secaoForm.style.display = 'block';
+                secaoGanhos.style.display = 'none';
             }
 
             document.getElementById('campo-plataforma').style.display = aba === 'Coleta' ? 'block' : 'none';
@@ -202,16 +278,20 @@
 
             const btnSalvar = document.getElementById('btn-salvar');
             const labelFoto = document.getElementById('label-foto');
+            const labelObs = document.getElementById('label-obs');
 
             if (aba === 'Coleta') {
                 btnSalvar.innerText = '💾 Salvar Registro de Coleta';
-                labelFoto.innerText = 'Foto / Comprovante de Coleta (Opcional)';
+                labelFoto.innerText = 'Foto / Comprovante de Coleta *';
+                labelObs.innerText = 'Observação (Opcional)';
             } else if (aba === 'Abastecimento') {
                 btnSalvar.innerText = '⛽ Salvar Abastecimento';
                 labelFoto.innerText = 'Foto do Comprovante / Noteira *';
+                labelObs.innerText = 'Observação (Opcional)';
             } else if (aba === 'Manutenção') {
                 btnSalvar.innerText = '🔧 Salvar Manutenção';
                 labelFoto.innerText = 'Foto da Nota / Recibo de Serviço *';
+                labelObs.innerText = 'Observação / Descrição do Serviço *';
             }
         }
 
@@ -236,24 +316,42 @@
                 return;
             }
 
+            const fotoInput = document.getElementById('input-foto');
+            const obsInput = document.getElementById('input-obs').value.trim();
+
+            // Validação de Foto Obrigatória
+            if (fotoInput.files.length === 0) {
+                alert('⚠️ A fotografia / comprovante é obrigatória para este registo.');
+                return;
+            }
+
+            // Validação de Observação Obrigatória na Manutenção
+            if (abaAtual === 'Manutenção' && !obsInput) {
+                alert('⚠️ A descrição / observação do serviço de manutenção é obrigatória.');
+                document.getElementById('input-obs').focus();
+                return;
+            }
+
             const btnSalvar = document.getElementById('btn-salvar');
             btnSalvar.disabled = true;
-            btnSalvar.innerText = '⏳ A gravar...';
+            btnSalvar.innerText = '⏳ A carregar foto e gravar...';
 
             let fotoUrl = null;
-            const fotoInput = document.getElementById('input-foto');
+            const file = fotoInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
-            if (fotoInput.files.length > 0) {
-                const file = fotoInput.files[0];
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-
-                const { data, error } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
-                if (!error) {
-                    const { data: publicData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
-                    fotoUrl = publicData.publicUrl;
-                }
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
+            
+            if (uploadError) {
+                alert('Erro ao enviar imagem: ' + uploadError.message);
+                btnSalvar.disabled = false;
+                mudarAba(abaAtual);
+                return;
             }
+
+            const { data: publicData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
+            fotoUrl = publicData.publicUrl;
 
             const registro = {
                 motorista: motoristaLogadoNome,
@@ -264,7 +362,7 @@
                 litros: abaAtual === 'Abastecimento' ? (parseFloat(document.getElementById('input-litros').value) || 0) : 0,
                 km: (abaAtual === 'Abastecimento' || abaAtual === 'Manutenção') ? (parseInt(document.getElementById('input-km').value) || null) : null,
                 foto_comprovante: fotoUrl,
-                observacao: document.getElementById('input-obs').value
+                observacao: obsInput
             };
 
             const { error } = await supabaseClient.from('registros').insert([registro]);
@@ -283,6 +381,97 @@
 
             btnSalvar.disabled = false;
             mudarAba(abaAtual);
+        }
+
+        // ================= LÓGICA DE APURAMENTO DE GANHOS DA SEMANA =================
+        async function carregarGanhosSemana() {
+            if (!motoristaLogadoNome) return;
+
+            // Calcula a segunda-feira e domingo da semana atual
+            const hoje = new Date();
+            const diaSemana = hoje.getDay(); // 0 (Dom) a 6 (Sáb)
+            const diffParaSegunda = diaSemana === 0 ? -6 : 1 - diaSemana;
+            
+            const segunda = new Date(hoje);
+            segunda.setDate(hoje.getDate() + diffParaSegunda);
+            segunda.setHours(0, 0, 0, 0);
+
+            const domingo = new Date(segunda);
+            domingo.setDate(segunda.getDate() + 6);
+            domingo.setHours(23, 59, 59, 999);
+
+            // Busca os registos do motorista na base de dados
+            const { data: registros, error } = await supabaseClient
+                .from('registros')
+                .select('*')
+                .eq('motorista', motoristaLogadoNome)
+                .gte('created_at', segunda.toISOString())
+                .lte('created_at', domingo.toISOString());
+
+            if (error) {
+                console.error('Erro ao carregar ganhos:', error);
+                return;
+            }
+
+            const vDiaria = dadosMotoristaObj ? (parseFloat(dadosMotoristaObj.valor_diaria) || 150.00) : 150.00;
+            const vShopee = dadosMotoristaObj ? (parseFloat(dadosMotoristaObj.valor_shopee) || 0.50) : 0.50;
+            const vMl = dadosMotoristaObj ? (parseFloat(dadosMotoristaObj.valor_ml) || 0.50) : 0.50;
+
+            const diasNomes = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo'];
+            const tbody = document.getElementById('tabela-ganhos-dias');
+            tbody.innerHTML = '';
+
+            let totalDiariasApuradas = 0;
+            let totalPacotesApurados = 0;
+
+            // Percorre de Segunda (0) a Domingo (6)
+            for (let i = 0; i < 7; i++) {
+                const diaAtualLoop = new Date(segunda);
+                diaAtualLoop.setDate(segunda.getDate() + i);
+                const dataStr = diaAtualLoop.toDateString();
+
+                // Filtra registos deste dia específico
+                const regsDoDia = (registros || []).filter(r => new Date(r.created_at).toDateString() === dataStr);
+                
+                const trabalhou = regsDoDia.length > 0;
+                let pktsDia = 0;
+                let subtotDia = 0;
+
+                if (trabalhou) {
+                    totalDiariasApuradas += vDiaria;
+                    subtotDia += vDiaria;
+
+                    regsDoDia.forEach(r => {
+                        if (r.tipo === 'Coleta') {
+                            const p = r.pacotes || 0;
+                            pktsDia += p;
+                            const taxaPkt = r.plataforma === 'Shopee' ? vShopee : vMl;
+                            const valorPkt = p * taxaPkt;
+                            subtotDia += valorPkt;
+                            totalPacotesApurados += valorPkt;
+                        }
+                    });
+                }
+
+                const dataFmt = diaAtualLoop.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b";
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-gray-800">${diasNomes[i]}</td>
+                    <td class="p-2.5 text-center text-gray-500">${dataFmt}</td>
+                    <td class="p-2.5 text-center"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${trabalhou ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'}">${trabalhou ? 'Trabalhou' : 'Sem registo'}</span></td>
+                    <td class="p-2.5 text-center font-semibold">${pktsDia} pkts</td>
+                    <td class="p-2.5 text-right font-black ${trabalhou ? 'text-gb-navy' : 'text-gray-400'}">R$ ${subtotDia.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+
+            const totalGeralSemana = totalDiariasApuradas + totalPacotesApurados;
+
+            document.getElementById('ganhos-tot-diarias').innerText = `R$ ${totalDiariasApuradas.toFixed(2)}`;
+            document.getElementById('ganhos-tot-pacotes').innerText = `R$ ${totalPacotesApurados.toFixed(2)}`;
+            document.getElementById('ganhos-total-geral').innerText = `R$ ${totalGeralSemana.toFixed(2)}`;
         }
 
         window.onload = verificarAutenticacao;
