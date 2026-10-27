@@ -42,15 +42,9 @@
     <!-- Cabeçalho Principal -->
     <header class="bg-gb-navy text-white shadow-md py-4 px-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-b-4 border-gb-orange">
         <div class="flex items-center gap-3">
-            <div class="bg-white p-2.5 rounded-xl shadow-md">
-                <!-- Logótipo GB Transportes -->
-                <svg class="h-8 w-auto" viewBox="0 0 500 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M70 30 L115 30 C135 30 145 40 145 52 C145 62 138 68 125 70 C140 73 148 82 148 95 C148 110 132 118 110 118 L65 118 L80 30 Z M92 50 L87 70 L110 70 C118 70 123 66 123 60 C123 54 118 50 110 50 L92 50 Z M83 85 L78 102 L112 102 C120 102 126 98 126 92 C126 86 120 85 112 85 L83 85 Z" fill="#0d2847"/>
-                    <path d="M30 40 C50 15 100 15 130 30 L120 45 C98 32 60 32 45 50 C30 68 35 95 60 102 C80 107 110 100 125 85 L125 72 L90 72 L90 58 L142 58 L142 95 C118 118 75 122 42 112 C10 102 -5 70 30 40 Z" fill="#f26522"/>
-                    <text x="160" y="75" font-family="Arial, sans-serif" font-weight="900" font-size="42" font-style="italic" fill="#58595b" letter-spacing="1">TRANSPORTES</text>
-                    <text x="162" y="102" font-family="Arial, sans-serif" font-weight="700" font-size="18" fill="#0d2847" letter-spacing="3">EFICIÊNCIA E AGILIDADE</text>
-                    <line x1="420" y1="98" x2="470" y2="98" stroke="#f26522" stroke-width="4"/>
-                </svg>
+            <div class="bg-white p-2 rounded-xl shadow-md">
+                <!-- Logótipo GB Transportes (logo.jpg) -->
+                <img src="logo.jpg" alt="GB Transportes" class="h-9 w-auto object-contain">
             </div>
             <div>
                 <h1 class="text-sm font-black tracking-wide text-white">GB TRANSPORTES</h1>
@@ -128,7 +122,7 @@
                 <input type="number" id="input-km" placeholder="Ex: 145000" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-amber-700 text-lg outline-none focus:border-amber-600 transition">
             </div>
 
-            <!-- Campo Foto / Comprovante (Obrigatório em todas as abas de lançamento) -->
+            <!-- Campo Foto / Comprovante (Obrigatório em todas as abas) -->
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-foto">Foto / Comprovante *</label>
                 <input type="file" id="input-foto" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gb-navy hover:file:bg-gray-200 transition cursor-pointer">
@@ -146,7 +140,7 @@
             </button>
         </div>
 
-        <!-- Seção de Ganhos da Semana (Oculta por defeito) -->
+        <!-- Seção de Ganhos da Semana -->
         <div id="secao-ganhos" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 space-y-4 hidden">
             <div class="border-b pb-3 flex justify-between items-center">
                 <div>
@@ -156,7 +150,6 @@
                 <button onclick="carregarGanhosSemana()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-xl text-xs font-bold transition">🔄 Atualizar</button>
             </div>
 
-            <!-- Cards Resumo Ganhos -->
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-emerald-50 p-3.5 rounded-xl border border-emerald-100">
                     <span class="text-[10px] font-bold text-emerald-800 uppercase block">Total de Diárias</span>
@@ -176,7 +169,6 @@
                 <span id="ganhos-total-geral" class="text-2xl font-black text-emerald-400">R$ 0,00</span>
             </div>
 
-            <!-- Tabela Diária (Segunda a Domingo) -->
             <div class="space-y-2 pt-2">
                 <h4 class="text-xs font-bold text-gray-500 uppercase">Detalhamento Diário (Seg - Dom)</h4>
                 <div class="overflow-x-auto">
@@ -191,7 +183,6 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-ganhos-dias" class="divide-y">
-                            <!-- Preenchido via JS -->
                         </tbody>
                     </table>
                 </div>
@@ -210,7 +201,6 @@
         let motoristaLogadoNome = '';
         let dadosMotoristaObj = null;
 
-        // 1. Verificar autenticação e carregar dados do motorista
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -225,7 +215,6 @@
 
             document.getElementById('nome-motorista-logado').innerText = motoristaLogadoNome;
 
-            // Busca as taxas individuais do motorista (diária, shopee, ml)
             const { data: motData } = await supabaseClient.from('motoristas').select('*').eq('nome', motoristaLogadoNome).single();
             if (motData) {
                 dadosMotoristaObj = motData;
@@ -319,13 +308,11 @@
             const fotoInput = document.getElementById('input-foto');
             const obsInput = document.getElementById('input-obs').value.trim();
 
-            // Validação de Foto Obrigatória
             if (fotoInput.files.length === 0) {
                 alert('⚠️ A fotografia / comprovante é obrigatória para este registo.');
                 return;
             }
 
-            // Validação de Observação Obrigatória na Manutenção
             if (abaAtual === 'Manutenção' && !obsInput) {
                 alert('⚠️ A descrição / observação do serviço de manutenção é obrigatória.');
                 document.getElementById('input-obs').focus();
@@ -383,13 +370,11 @@
             mudarAba(abaAtual);
         }
 
-        // ================= LÓGICA DE APURAMENTO DE GANHOS DA SEMANA =================
         async function carregarGanhosSemana() {
             if (!motoristaLogadoNome) return;
 
-            // Calcula a segunda-feira e domingo da semana atual
             const hoje = new Date();
-            const diaSemana = hoje.getDay(); // 0 (Dom) a 6 (Sáb)
+            const diaSemana = hoje.getDay();
             const diffParaSegunda = diaSemana === 0 ? -6 : 1 - diaSemana;
             
             const segunda = new Date(hoje);
@@ -400,7 +385,6 @@
             domingo.setDate(segunda.getDate() + 6);
             domingo.setHours(23, 59, 59, 999);
 
-            // Busca os registos do motorista na base de dados
             const { data: registros, error } = await supabaseClient
                 .from('registros')
                 .select('*')
@@ -424,13 +408,11 @@
             let totalDiariasApuradas = 0;
             let totalPacotesApurados = 0;
 
-            // Percorre de Segunda (0) a Domingo (6)
             for (let i = 0; i < 7; i++) {
                 const diaAtualLoop = new Date(segunda);
                 diaAtualLoop.setDate(segunda.getDate() + i);
                 const dataStr = diaAtualLoop.toDateString();
 
-                // Filtra registos deste dia específico
                 const regsDoDia = (registros || []).filter(r => new Date(r.created_at).toDateString() === dataStr);
                 
                 const trabalhou = regsDoDia.length > 0;
