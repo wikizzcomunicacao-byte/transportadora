@@ -191,6 +191,12 @@
                 </div>
             </div>
 
+            <!-- ADIÇÃO: BARRA DE PESQUISA RÁPIDA DE BOLETOS -->
+            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border">
+                <span class="text-sm">🔍</span>
+                <input type="text" id="input-pesquisa-boleto" oninput="renderizarBoletos()" placeholder="Pesquisar boleto específico por descrição ou fornecedor (ex: Rastreador, Ford, Acelo)..." class="w-full bg-transparent text-sm font-semibold outline-none text-gray-700">
+            </div>
+
             <!-- Tabela de Boletos a Pagar -->
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -589,10 +595,16 @@
         function renderizarBoletos() {
             const mostrarTodos = document.getElementById('chk-mostrar-todos-boletos').checked;
             const dataFiltro = document.getElementById('filtro-vencimento-data').value;
+            const textoPesquisa = document.getElementById('input-pesquisa-boleto').value.toLowerCase().trim();
             const tbody = document.getElementById('tabela-boletos');
             tbody.innerHTML = '';
 
             const boletosFiltrados = dadosBoletos.filter(b => {
+                // Filtro por texto de pesquisa
+                if (textoPesquisa && !b.descricao.toLowerCase().includes(textoPesquisa)) {
+                    return false;
+                }
+                // Filtro por data / mostrar todos
                 if (mostrarTodos) return true;
                 if (!dataFiltro) return true;
                 return b.data_vencimento === dataFiltro;
@@ -622,7 +634,7 @@
             });
 
             if (boletosFiltrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a seleção atual.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a pesquisa ou seleção atual.</td></tr>`;
             }
         }
 
