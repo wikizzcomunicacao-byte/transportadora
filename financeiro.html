@@ -148,6 +148,10 @@
                     <p class="text-xs text-gray-500">Cadastre boletos únicos ou parcelados (ex: mecânica em 3x) para controlo de vencimentos.</p>
                 </div>
                 <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                    <!-- Botão Excluir Selecionados -->
+                    <button onclick="excluirBoletosSelecionados()" id="btn-excluir-lote" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                        🗑️ Excluir Selecionados (<span id="contador-selecionados">0</span>)
+                    </button>
                     <!-- Checkbox Mostrar Todos -->
                     <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-gray-700 hover:text-gb-navy transition bg-gray-50 px-3 py-2 rounded-xl border">
                         <input type="checkbox" id="chk-mostrar-todos-boletos" onchange="renderizarBoletos()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
@@ -191,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- ADIÇÃO: BARRA DE PESQUISA RÁPIDA DE BOLETOS -->
+            <!-- Barra de Pesquisa Rápida de Boletos -->
             <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border">
                 <span class="text-sm">🔍</span>
                 <input type="text" id="input-pesquisa-boleto" oninput="renderizarBoletos()" placeholder="Pesquisar boleto específico por descrição ou fornecedor (ex: Rastreador, Ford, Acelo)..." class="w-full bg-transparent text-sm font-semibold outline-none text-gray-700">
@@ -202,6 +206,9 @@
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                            <th class="p-3 text-center w-10">
+                                <input type="checkbox" id="chk-selecionar-todos" onchange="alternarSelecionarTodos(this)" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                            </th>
                             <th class="p-3">Descrição / Fornecedor</th>
                             <th class="p-3 text-center">Parcela</th>
                             <th class="p-3 text-center">Vencimento</th>
@@ -571,6 +578,45 @@
             if (!error) await carregarBoletos();
         }
 
+        function alternarSelecionarTodos(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.chk-boleto-individual');
+            checkboxes.forEach(chk => {
+                chk.checked = masterCheckbox.checked;
+            });
+            atualizarContadorSelecao();
+        }
+
+        function atualizarContadorSelecao() {
+            const selecionados = document.querySelectorAll('.chk-boleto-individual:checked');
+            const btnExcluir = document.getElementById('btn-excluir-lote');
+            const contador = document.getElementById('contador-selecionados');
+            
+            contador.innerText = selecionados.length;
+            if (selecionados.length > 0) {
+                btnExcluir.classList.remove('hidden');
+            } else {
+                btnExcluir.classList.add('hidden');
+            }
+        }
+
+        async function excluirBoletosSelecionados() {
+            const selecionados = document.querySelectorAll('.chk-boleto-individual:checked');
+            if (selecionados.length === 0) return;
+
+            if (!confirm(`Tem certeza que deseja excluir os ${selecionados.length} boletos selecionados?`)) return;
+
+            const idsParaExcluir = Array.from(selecionados).map(chk => parseInt(chk.value));
+
+            const { error } = await supabaseClient.from('boletos_a_pagar').delete().in('id', idsParaExcluir);
+
+            if (error) {
+                alert('Erro ao excluir boletos: ' + error.message);
+            } else {
+                document.getElementById('chk-selecionar-todos').checked = false;
+                await carregarBoletos();
+            }
+        }
+
         function verificarAlertasVencimentoHoje() {
             const hojeStr = new Date().toISOString().split('T')[0];
             const boletosHoje = dadosBoletos.filter(b => b.data_vencimento === hojeStr && b.status === 'Pendente');
@@ -599,12 +645,13 @@
             const tbody = document.getElementById('tabela-boletos');
             tbody.innerHTML = '';
 
+            document.getElementById('chk-selecionar-todos').checked = false;
+            atualizarContadorSelecao();
+
             const boletosFiltrados = dadosBoletos.filter(b => {
-                // Filtro por texto de pesquisa
                 if (textoPesquisa && !b.descricao.toLowerCase().includes(textoPesquisa)) {
                     return false;
                 }
-                // Filtro por data / mostrar todos
                 if (mostrarTodos) return true;
                 if (!dataFiltro) return true;
                 return b.data_vencimento === dataFiltro;
@@ -617,6 +664,9 @@
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 border-b";
                 tr.innerHTML = `
+                    <td class="p-3 text-center">
+                        <input type="checkbox" value="${b.id}" onchange="atualizarContadorSelecao()" class="chk-boleto-individual w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                    </td>
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(b.descricao)}</td>
                     <td class="p-3 text-center text-xs font-bold text-gray-500">Parcela</td>
                     <td class="p-3 text-center font-bold text-amber-700">${dataFmt}</td>
@@ -634,7 +684,7 @@
             });
 
             if (boletosFiltrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a pesquisa ou seleção atual.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a pesquisa ou seleção atual.</td></tr>`;
             }
         }
 
