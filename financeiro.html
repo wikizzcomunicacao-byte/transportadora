@@ -140,7 +140,7 @@
             </div>
         </div>
 
-        <!-- ADIÇÃO: GESTÃO DE BOLETOS E CONTAS A PAGAR -->
+        <!-- GESTÃO DE BOLETOS E CONTAS A PAGAR -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
                 <div>
@@ -335,6 +335,44 @@
 
     </main>
 
+    <!-- MODAL DE EDIÇÃO DE BOLETO -->
+    <div id="modal-editar-boleto" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
+            <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
+                <h3 class="font-bold text-base flex items-center gap-2">✏️ Editar Boleto / Conta</h3>
+                <button onclick="fecharModalBoleto()" class="text-gray-300 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="edit-boleto-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição / Fornecedor *</label>
+                    <input type="text" id="edit-boleto-desc" class="w-full p-2.5 border rounded-lg text-sm bg-white font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
+                        <input type="number" step="0.01" id="edit-boleto-valor" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-rose-600 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Vencimento *</label>
+                        <input type="date" id="edit-boleto-venc" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Status *</label>
+                    <select id="edit-boleto-status" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Pago">Pago</option>
+                    </select>
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 flex justify-end gap-2 border-t">
+                <button onclick="fecharModalBoleto()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+                <button onclick="salvarEdicaoBoleto()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💾 Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Container para Impressão -->
     <div id="print-container"></div>
 
@@ -405,7 +443,6 @@
             await carregarBoletos();
         }
 
-        // ADIÇÃO: Funções de Gestão de Boletos / Contas a Pagar
         async function carregarBoletos() {
             const { data, error } = await supabaseClient.from('boletos_a_pagar').select('*').order('data_vencimento', { ascending: true });
             if (!error) {
@@ -460,6 +497,50 @@
             if (!error) await carregarBoletos();
         }
 
+        function abrirModalEdicaoBoleto(id) {
+            const b = dadosBoletos.find(item => item.id == id);
+            if (!b) return;
+
+            document.getElementById('edit-boleto-id').value = b.id;
+            document.getElementById('edit-boleto-desc').value = b.descricao;
+            document.getElementById('edit-boleto-valor').value = b.valor;
+            document.getElementById('edit-boleto-venc').value = b.data_vencimento;
+            document.getElementById('edit-boleto-status').value = b.status;
+
+            document.getElementById('modal-editar-boleto').classList.remove('hidden');
+        }
+
+        function fecharModalBoleto() {
+            document.getElementById('modal-editar-boleto').classList.add('hidden');
+        }
+
+        async function salvarEdicaoBoleto() {
+            const id = document.getElementById('edit-boleto-id').value;
+            const descricao = document.getElementById('edit-boleto-desc').value.trim();
+            const valor = parseFloat(document.getElementById('edit-boleto-valor').value);
+            const data_vencimento = document.getElementById('edit-boleto-venc').value;
+            const status = document.getElementById('edit-boleto-status').value;
+
+            if (!descricao || isNaN(valor) || !data_vencimento) {
+                alert('Preencha todos os campos obrigatórios.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('boletos_a_pagar').update({
+                descricao,
+                valor,
+                data_vencimento,
+                status
+            }).eq('id', id);
+
+            if (error) {
+                alert('Erro ao atualizar boleto: ' + error.message);
+            } else {
+                fecharModalBoleto();
+                await carregarBoletos();
+            }
+        }
+
         async function excluirBoleto(id) {
             if (!confirm('Deseja excluir este boleto?')) return;
             const { error } = await supabaseClient.from('boletos_a_pagar').delete().eq('id', id);
@@ -512,6 +593,7 @@
                     </td>
                     <td class="p-3 text-center space-x-1">
                         <button onclick="alternarStatusBoleto(${b.id}, '${b.status}')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${isPago ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}">${isPago ? 'Marcar Pendente' : '✅ Pagar'}</button>
+                        <button onclick="abrirModalEdicaoBoleto(${b.id})" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">✏️</button>
                         <button onclick="excluirBoleto(${b.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️</button>
                     </td>
                 `;
@@ -665,7 +747,7 @@
                         if (i.plataforma === 'Mercado Livre') mlMot += (i.pacotes || 0);
                     }
                     if (i.tipo === 'Abastecimento') {
-                        combustivelMot += (item.valor_abastecimento || 0);
+                        combustivelMot += (i.valor_abastecimento || 0);
                     }
                 });
 
