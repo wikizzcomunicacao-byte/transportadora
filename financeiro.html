@@ -167,7 +167,11 @@
                         <input type="text" id="boleto-desc" placeholder="Ex: Peças Oficina / Pneu / IPVA..." class="w-full p-2.5 border rounded-xl text-sm bg-white font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
+                        <!-- Checkbox Valor Fixo logo acima do input de valor -->
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <input type="checkbox" id="boleto-chk-valor-fixo" class="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                            <label for="boleto-chk-valor-fixo" class="text-[10px] font-bold text-gray-600 cursor-pointer">Valor fixo</label>
+                        </div>
                         <input type="number" step="0.01" id="boleto-valor-total" placeholder="Ex: 119.80" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold text-rose-600 outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
@@ -178,14 +182,6 @@
                         <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">1º Vencimento *</label>
                         <input type="date" id="boleto-vencimento" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
-                </div>
-                
-                <!-- ADIÇÃO: Checkbox para Valor Fixo Mensal -->
-                <div class="flex items-center gap-2 pt-1">
-                    <input type="checkbox" id="boleto-chk-valor-fixo" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
-                    <label for="boleto-chk-valor-fixo" class="text-xs font-bold text-gray-700 cursor-pointer">
-                        🔄 O valor acima é o **valor fixo de cada parcela** (ex: R$ 119,80 por mês todo mês, sem precisar dividir o total).
-                    </label>
                 </div>
 
                 <div class="flex justify-end pt-1">
@@ -479,8 +475,6 @@
                 return;
             }
 
-            // Se o checkbox estiver marcado, o valor informado é o valor unitário da parcela.
-            // Se não estiver, o valor informado é o total e dividimos pelas parcelas.
             let valorParcela;
             if (valorFixoMensal) {
                 valorParcela = Number(valorInformado.toFixed(2));
