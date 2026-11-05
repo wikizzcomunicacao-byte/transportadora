@@ -147,7 +147,12 @@
                     <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📑 Contas a Pagar / Gestão de Boletos (Parcelamento Inteligente)</h3>
                     <p class="text-xs text-gray-500">Cadastre boletos únicos ou parcelados (ex: mecânica em 3x) para controlo de vencimentos.</p>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto">
+                <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                    <!-- Checkbox Mostrar Todos -->
+                    <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-gray-700 hover:text-gb-navy transition bg-gray-50 px-3 py-2 rounded-xl border">
+                        <input type="checkbox" id="chk-mostrar-todos-boletos" onchange="renderizarBoletos()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        Mostrar todos
+                    </label>
                     <input type="date" id="filtro-vencimento-data" onchange="carregarBoletos()" class="p-2 border rounded-xl text-xs font-semibold bg-gray-50">
                     <button onclick="carregarBoletos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition">🔄 Filtrar Data</button>
                 </div>
@@ -564,15 +569,18 @@
         function filtrarVencimentosHoje() {
             const hojeStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-vencimento-data').value = hojeStr;
+            document.getElementById('chk-mostrar-todos-boletos').checked = false;
             renderizarBoletos();
         }
 
         function renderizarBoletos() {
+            const mostrarTodos = document.getElementById('chk-mostrar-todos-boletos').checked;
             const dataFiltro = document.getElementById('filtro-vencimento-data').value;
             const tbody = document.getElementById('tabela-boletos');
             tbody.innerHTML = '';
 
             const boletosFiltrados = dadosBoletos.filter(b => {
+                if (mostrarTodos) return true;
                 if (!dataFiltro) return true;
                 return b.data_vencimento === dataFiltro;
             });
@@ -601,7 +609,7 @@
             });
 
             if (boletosFiltrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a data selecionada.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum boleto encontrado para a seleção atual.</td></tr>`;
             }
         }
 
