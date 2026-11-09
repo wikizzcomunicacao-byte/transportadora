@@ -122,7 +122,7 @@
                 <input type="number" id="input-km" placeholder="Ex: 145000" class="w-full p-3 border-2 border-gray-200 rounded-xl font-extrabold text-amber-700 text-lg outline-none focus:border-amber-600 transition">
             </div>
 
-            <!-- Campo Foto / Comprovante (Obrigatório em todas as abas) -->
+            <!-- Campo Foto / Comprovante -->
             <div>
                 <label class="block text-xs font-bold text-gray-500 uppercase mb-1" id="label-foto">Foto / Comprovante *</label>
                 <input type="file" id="input-foto" accept="image/*" class="w-full text-sm text-gray-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gb-navy hover:file:bg-gray-200 transition cursor-pointer">
@@ -247,6 +247,7 @@
 
             const secaoForm = document.getElementById('secao-formulario');
             const secaoGanhos = document.getElementById('secao-ganhos');
+            const inputFoto = document.getElementById('input-foto');
 
             if (aba === 'Ganhos') {
                 secaoForm.style.display = 'none';
@@ -256,6 +257,13 @@
             } else {
                 secaoForm.style.display = 'block';
                 secaoGanhos.style.display = 'none';
+            }
+
+            // Habilitar 'multiple' apenas na aba de Abastecimento
+            if (aba === 'Abastecimento') {
+                inputFoto.setAttribute('multiple', 'multiple');
+            } else {
+                inputFoto.removeAttribute('multiple');
             }
 
             document.getElementById('campo-plataforma').style.display = aba === 'Coleta' ? 'block' : 'none';
@@ -275,7 +283,7 @@
                 labelObs.innerText = 'Observação (Opcional)';
             } else if (aba === 'Abastecimento') {
                 btnSalvar.innerText = '⛽ Salvar Abastecimento';
-                labelFoto.innerText = 'Foto do Comprovante / Noteira *';
+                labelFoto.innerText = 'Fotos do Comprovante / Noteiras (Pode selecionar várias) *';
                 labelObs.innerText = 'Observação (Opcional)';
             } else if (aba === 'Manutenção') {
                 btnSalvar.innerText = '🔧 Salvar Manutenção';
@@ -321,24 +329,31 @@
 
             const btnSalvar = document.getElementById('btn-salvar');
             btnSalvar.disabled = true;
-            btnSalvar.innerText = '⏳ A carregar foto e gravar...';
+            btnSalvar.innerText = '⏳ A carregar fotos e gravar...';
 
-            let fotoUrl = null;
-            const file = fotoInput.files[0];
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            let urlsFotos = [];
 
-            const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
-            
-            if (uploadError) {
-                alert('Erro ao enviar imagem: ' + uploadError.message);
-                btnSalvar.disabled = false;
-                mudarAba(abaAtual);
-                return;
+            // Loop para enviar todas as imagens selecionadas
+            for (let i = 0; i < fotoInput.files.length; i++) {
+                const file = fotoInput.files[i];
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${i}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+                const { error: uploadError } = await supabaseClient.storage.from('comprovantes').upload(fileName, file);
+                
+                if (uploadError) {
+                    alert('Erro ao enviar imagem: ' + uploadError.message);
+                    btnSalvar.disabled = false;
+                    mudarAba(abaAtual);
+                    return;
+                }
+
+                const { data: publicData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
+                urlsFotos.push(publicData.publicUrl);
             }
 
-            const { data: publicData } = supabaseClient.storage.from('comprovantes').getPublicUrl(fileName);
-            fotoUrl = publicData.publicUrl;
+            // Se for abastecimento, salva as URLs separadas por vírgula (ou apenas a única URL se for 1)
+            const fotoUrlFinal = urlsFotos.join(', ');
 
             const registro = {
                 motorista: motoristaLogadoNome,
@@ -348,7 +363,7 @@
                 valor_abastecimento: (abaAtual === 'Abastecimento' || abaAtual === 'Manutenção') ? (parseFloat(document.getElementById('input-valor').value) || 0) : 0,
                 litros: abaAtual === 'Abastecimento' ? (parseFloat(document.getElementById('input-litros').value) || 0) : 0,
                 km: (abaAtual === 'Abastecimento' || abaAtual === 'Manutenção') ? (parseInt(document.getElementById('input-km').value) || null) : null,
-                foto_comprovante: fotoUrl,
+                foto_comprovante: fotoUrlFinal,
                 observacao: obsInput
             };
 
