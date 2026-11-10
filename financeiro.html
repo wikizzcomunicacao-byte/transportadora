@@ -157,8 +157,8 @@
                         <input type="checkbox" id="chk-mostrar-todos-boletos" onchange="renderizarBoletos()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
                         Mostrar todos
                     </label>
-                    <input type="date" id="filtro-vencimento-data" onchange="carregarBoletos()" class="p-2 border rounded-xl text-xs font-semibold bg-gray-50">
-                    <button onclick="carregarBoletos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition">🔄 Filtrar Data</button>
+                    <input type="date" id="filtro-vencimento-data" onchange="renderizarBoletos()" class="p-2 border rounded-xl text-xs font-semibold bg-gray-50">
+                    <button onclick="renderizarBoletos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition">🔄 Filtrar Data</button>
                 </div>
             </div>
 
@@ -618,7 +618,7 @@
             document.getElementById('edit-boleto-id').value = b.id;
             document.getElementById('edit-boleto-desc').value = b.descricao;
             document.getElementById('edit-boleto-valor').value = b.valor;
-            document.getElementById('edit-boleto-venc').value = b.data_vencimento;
+            document.getElementById('edit-boleto-venc').value = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
             document.getElementById('edit-boleto-status').value = b.status;
 
             document.getElementById('modal-editar-boleto').classList.remove('hidden');
@@ -702,7 +702,10 @@
 
         function verificarAlertasVencimentoHoje() {
             const hojeStr = new Date().toISOString().split('T')[0];
-            const boletosHoje = dadosBoletos.filter(b => b.data_vencimento === hojeStr && b.status === 'Pendente');
+            const boletosHoje = dadosBoletos.filter(b => {
+                const dataBoleto = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
+                return dataBoleto === hojeStr && b.status === 'Pendente';
+            });
             
             const secaoAlerta = document.getElementById('secao-alerta-vencimentos');
             if (boletosHoje.length > 0) {
@@ -737,11 +740,13 @@
                 }
                 if (mostrarTodos) return true;
                 if (!dataFiltro) return true;
-                return b.data_vencimento === dataFiltro;
+
+                const dataBoleto = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
+                return dataBoleto === dataFiltro;
             });
 
             boletosFiltrados.forEach(b => {
-                const dataFmt = new Date(b.data_vencimento + 'T00:00:00').toLocaleDateString('pt-BR');
+                const dataFmt = b.data_vencimento ? new Date(b.data_vencimento.substring(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR') : '';
                 const isPago = b.status === 'Pago';
 
                 const tr = document.createElement('tr');
