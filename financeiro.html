@@ -227,12 +227,29 @@
         <!-- Seção Novo Lançamento Manual (Entrada / Saída Extra) -->
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">➕ Registrar Entrada ou Saída Avulsa (Notas / Reparos / Outros)</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
                     <select id="form-trans-tipo" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="Entrada">🟢 Entrada (Receita Extra)</option>
                         <option value="Saida">🔴 Saída (Custo / Reparo)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria *</label>
+                    <select id="form-trans-categoria" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="imposto">Imposto</option>
+                        <option value="parcela/financiamento">Parcela / Financiamento</option>
+                        <option value="prolabore">Prolabore</option>
+                        <option value="pecas">Peças</option>
+                        <option value="manutencao">Manutenção</option>
+                        <option value="pneus">Pneus</option>
+                        <option value="pedagios">Pedágio</option>
+                        <option value="funcionario">Funcionário</option>
+                        <option value="frete">Frete</option>
+                        <option value="outros tipos de receitas">Outros tipos de receitas</option>
+                        <option value="cesta basica">Cesta básica</option>
+                        <option value="premiacao">Premiação</option>
                     </select>
                 </div>
                 <div class="lg:col-span-2">
@@ -283,6 +300,22 @@
                         <div class="flex justify-between text-gray-600">
                             <span>(-) Manutenção da Frota & Oficina (Sistema)</span>
                             <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Peças, Manutenção & Pneus</span>
+                            <span id="dre-custo-pecas-pneus" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Funcionários, Cesta Básica & Premiação</span>
+                            <span id="dre-custo-funcionarios" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Impostos & Pedágios</span>
+                            <span id="dre-custo-impostos" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Parcelas / Financiamentos & Prolabore</span>
+                            <span id="dre-custo-parcelas-prolabore" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
                             <span>(-) Outras Saídas / Custos Avulsos / Boletos Pagos</span>
@@ -344,6 +377,7 @@
                         <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
                             <th class="p-3">Data / Hora</th>
                             <th class="p-3">Tipo</th>
+                            <th class="p-3">Categoria</th>
                             <th class="p-3">Descrição</th>
                             <th class="p-3 text-right">Valor</th>
                             <th class="p-3 text-center">Ações</th>
@@ -690,6 +724,7 @@
 
         async function salvarTransacaoManual() {
             const tipo = document.getElementById('form-trans-tipo').value;
+            const categoria = document.getElementById('form-trans-categoria').value;
             const descricao = document.getElementById('form-trans-desc').value.trim();
             const valor = parseFloat(document.getElementById('form-trans-valor').value);
 
@@ -698,7 +733,7 @@
                 return;
             }
 
-            const { error } = await supabaseClient.from('transacoes_financeiras').insert([{ tipo, descricao, valor }]);
+            const { error } = await supabaseClient.from('transacoes_financeiras').insert([{ tipo, categoria, descricao, valor }]);
 
             if (error) {
                 alert('Erro ao salvar transação: ' + error.message);
@@ -784,12 +819,40 @@
             let totalSaidasManuais = 0;
             let totalBoletosPagosValor = boletosPagosPeriodo.reduce((acc, b) => acc + Number(b.valor), 0);
 
+            let catPecasPneus = 0;
+            let catFuncionarios = 0;
+            let catImpostos = 0;
+            let catParcelasProlabore = 0;
+            let catOutrasSaidas = 0;
+            let catOutrasReceitas = 0;
+
             const tabelaTransBody = document.getElementById('tabela-transacoes-manuais');
             tabelaTransBody.innerHTML = '';
 
             dadosTrans.forEach(t => {
-                if (t.tipo === 'Entrada') totalEntradasManuais += Number(t.valor);
-                if (t.tipo === 'Saida') totalSaidasManuais += Number(t.valor);
+                const val = Number(t.valor);
+                const cat = t.categoria || '';
+
+                if (t.tipo === 'Entrada') {
+                    if (cat === 'outros tipos de receitas' || cat === 'frete') {
+                        catOutrasReceitas += val;
+                    } else {
+                        totalEntradasManuais += val;
+                    }
+                } else if (t.tipo === 'Saida') {
+                    totalSaidasManuais += val;
+                    if (cat === 'pecas' || cat === 'manutencao' || cat === 'pneus') {
+                        catPecasPneus += val;
+                    } else if (cat === 'funcionario' || cat === 'cesta basica' || cat === 'premiacao') {
+                        catFuncionarios += val;
+                    } else if (cat === 'imposto' || cat === 'pedagios') {
+                        catImpostos += val;
+                    } else if (cat === 'parcela/financiamento' || cat === 'prolabore') {
+                        catParcelasProlabore += val;
+                    } else {
+                        catOutrasSaidas += val;
+                    }
+                }
 
                 const dataFmt = new Date(t.created_at).toLocaleString('pt-BR');
                 const tr = document.createElement('tr');
@@ -797,8 +860,9 @@
                 tr.innerHTML = `
                     <td class="p-3 text-gray-600">${dataFmt}</td>
                     <td class="p-3"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${t.tipo === 'Entrada' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${t.tipo}</span></td>
+                    <td class="p-3 font-semibold text-gray-700 capitalize">${escapeHtml(t.categoria || 'Geral')}</td>
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(t.descricao)}</td>
-                    <td class="p-3 text-right font-bold ${t.tipo === 'Entrada' ? 'text-emerald-600' : 'text-rose-600'}">R$ ${Number(t.valor).toFixed(2)}</td>
+                    <td class="p-3 text-right font-bold ${t.tipo === 'Entrada' ? 'text-emerald-600' : 'text-rose-600'}">R$ ${val.toFixed(2)}</td>
                     <td class="p-3 text-center">
                         <button onclick="excluirTransacaoManual(${t.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️ Apagar</button>
                     </td>
@@ -807,7 +871,7 @@
             });
 
             if (dadosTrans.length === 0) {
-                tabelaTransBody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-gray-400">Nenhum lançamento manual registado no período.</td></tr>`;
+                tabelaTransBody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-400">Nenhum lançamento manual registado no período.</td></tr>`;
             }
 
             let custoTotalDiarias = 0;
@@ -830,7 +894,7 @@
                         if (i.plataforma === 'Mercado Livre') mlMot += (i.pacotes || 0);
                     }
                     if (i.tipo === 'Abastecimento') {
-                        combustivelMot += (item.valor_abastecimento || 0);
+                        combustivelMot += (i.valor_abastecimento || 0);
                     }
                 });
 
@@ -867,13 +931,13 @@
             const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao + totalSaidasManuais + totalBoletosPagosValor;
 
             const estimativaReceitaOperacional = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
-            const receitaBrutaTotal = estimativaReceitaOperacional + totalEntradasManuais;
+            const receitaBrutaTotal = estimativaReceitaOperacional + totalEntradasManuais + catOutrasReceitas;
             
             const resultadoLiquido = receitaBrutaTotal - totalDespesas;
             const margemPorcentagem = receitaBrutaTotal > 0 ? ((resultadoLiquido / receitaBrutaTotal) * 100).toFixed(1) : '0.0';
 
             document.getElementById('card-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
-            document.getElementById('sub-receita-pacotes').innerText = `Op: R$ ${estimativaReceitaOperacional.toFixed(2)} | Extras: R$ ${totalEntradasManuais.toFixed(2)}`;
+            document.getElementById('sub-receita-pacotes').innerText = `Op: R$ ${estimativaReceitaOperacional.toFixed(2)} | Extras: R$ ${(totalEntradasManuais + catOutrasReceitas).toFixed(2)}`;
 
             document.getElementById('card-custo-motoristas').innerText = `R$ ${custoTotalMotoristas.toFixed(2)}`;
             document.getElementById('card-custo-combustivel').innerText = `R$ ${totalCombustivel.toFixed(2)}`;
@@ -891,14 +955,18 @@
             document.getElementById('dre-custo-pacotes').innerText = `- R$ ${custoTotalPacotes.toFixed(2)}`;
             document.getElementById('dre-custo-combustivel').innerText = `- R$ ${totalCombustivel.toFixed(2)}`;
             document.getElementById('dre-custo-oficina').innerText = `- R$ ${totalManutencao.toFixed(2)}`;
-            document.getElementById('dre-custo-extras').innerText = `- R$ ${(totalSaidasManuais + totalBoletosPagosValor).toFixed(2)}`;
+            document.getElementById('dre-custo-pecas-pneus').innerText = `- R$ ${catPecasPneus.toFixed(2)}`;
+            document.getElementById('dre-custo-funcionarios').innerText = `- R$ ${catFuncionarios.toFixed(2)}`;
+            document.getElementById('dre-custo-impostos').innerText = `- R$ ${catImpostos.toFixed(2)}`;
+            document.getElementById('dre-custo-parcelas-prolabore').innerText = `- R$ ${catParcelasProlabore.toFixed(2)}`;
+            document.getElementById('dre-custo-extras').innerText = `- R$ ${(catOutrasSaidas + totalBoletosPagosValor).toFixed(2)}`;
             document.getElementById('dre-total-despesas').innerText = `- R$ ${totalDespesas.toFixed(2)}`;
 
             const elResultado = document.getElementById('dre-resultado-liquido');
             elResultado.innerText = `R$ ${resultadoLiquido.toFixed(2)}`;
             elResultado.className = resultadoLiquido >= 0 ? 'text-emerald-400 font-black' : 'text-red-400 font-black';
 
-            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, totalSaidasManuais + totalBoletosPagosValor);
+            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, catPecasPneus + catFuncionarios + catImpostos + catParcelasProlabore + catOutrasSaidas + totalBoletosPagosValor);
         }
 
         function atualizarGraficoCustos(motoristas, combustivel, oficina, extras) {
@@ -908,7 +976,7 @@
             chartCustosInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Motoristas', 'Combustível', 'Oficina Frota', 'Boletos/Extras'],
+                    labels: ['Motoristas', 'Combustível', 'Oficina Frota', 'Demais Despesas/Categorias'],
                     datasets: [{
                         data: [motoristas, combustivel, oficina, extras],
                         backgroundColor: ['#f26522', '#10b981', '#f43f5e', '#a855f7']
@@ -931,6 +999,10 @@
             const custoPacotes = document.getElementById('dre-custo-pacotes').innerText;
             const custoCombustivel = document.getElementById('dre-custo-combustivel').innerText;
             const custoOficina = document.getElementById('dre-custo-oficina').innerText;
+            const custoPecasPneus = document.getElementById('dre-custo-pecas-pneus').innerText;
+            const custoFuncionarios = document.getElementById('dre-custo-funcionarios').innerText;
+            const custoImpostos = document.getElementById('dre-custo-impostos').innerText;
+            const custoParcelasProlabore = document.getElementById('dre-custo-parcelas-prolabore').innerText;
             const custoExtras = document.getElementById('dre-custo-extras').innerText;
             const totalDespesas = document.getElementById('dre-total-despesas').innerText;
             const resultadoLiquido = document.getElementById('dre-resultado-liquido').innerText;
@@ -978,7 +1050,23 @@
                                 <td style="padding:8px; text-align:right; color:#dc2626;">${custoOficina}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Boletos Pagos / Custos Extras</td>
+                                <td style="padding:8px; color:#475569;">(-) Peças, Manutenção & Pneus</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPecasPneus}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Funcionários, Cesta Básica & Premiação</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoFuncionarios}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Impostos & Pedágios</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoImpostos}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Parcelas / Financiamentos & Prolabore</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoParcelasProlabore}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Outras Saídas / Custos Extras</td>
                                 <td style="padding:8px; text-align:right; color:#dc2626;">${custoExtras}</td>
                             </tr>
                             <tr style="background:#fff1f2; border:1px solid #cbd5e1;">
