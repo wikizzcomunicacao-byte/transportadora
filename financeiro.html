@@ -430,6 +430,55 @@
         </div>
     </div>
 
+    <!-- MODAL DE EDIÇÃO DE TRANSAÇÃO MANUAL -->
+    <div id="modal-editar-transacao" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-gray-100">
+            <div class="bg-gb-navy text-white p-4 flex justify-between items-center border-b-2 border-orange-500">
+                <h3 class="font-bold text-base flex items-center gap-2">✏️ Editar Lançamento Manual</h3>
+                <button onclick="fecharModalTransacao()" class="text-gray-300 hover:text-white font-bold text-lg">&times;</button>
+            </div>
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="edit-trans-id">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
+                    <select id="edit-trans-tipo" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Entrada">🟢 Entrada (Receita Extra)</option>
+                        <option value="Saida">🔴 Saída (Custo / Reparo)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria *</label>
+                    <select id="edit-trans-categoria" class="w-full p-2.5 border rounded-lg text-sm bg-gray-50 font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="imposto">Imposto</option>
+                        <option value="parcela/financiamento">Parcela / Financiamento</option>
+                        <option value="prolabore">Prolabore</option>
+                        <option value="pecas">Peças</option>
+                        <option value="manutencao">Manutenção</option>
+                        <option value="pneus">Pneus</option>
+                        <option value="pedagios">Pedágio</option>
+                        <option value="funcionario">Funcionário</option>
+                        <option value="frete">Frete</option>
+                        <option value="outros tipos de receitas">Outros tipos de receitas</option>
+                        <option value="cesta basica">Cesta básica</option>
+                        <option value="premiacao">Premiação</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição *</label>
+                    <input type="text" id="edit-trans-desc" class="w-full p-2.5 border rounded-lg text-sm bg-white font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
+                    <input type="number" step="0.01" id="edit-trans-valor" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-rose-600 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="bg-gray-50 p-4 flex justify-end gap-2 border-t">
+                <button onclick="fecharModalTransacao()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition">Cancelar</button>
+                <button onclick="salvarEdicaoTransacao()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-2 rounded-lg text-sm transition">💾 Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Container para Impressão -->
     <div id="print-container"></div>
 
@@ -744,6 +793,50 @@
             }
         }
 
+        function abrirModalEdicaoTransacao(id) {
+            const t = dadosTransacoes.find(item => item.id == id);
+            if (!t) return;
+
+            document.getElementById('edit-trans-id').value = t.id;
+            document.getElementById('edit-trans-tipo').value = t.tipo;
+            document.getElementById('edit-trans-categoria').value = t.categoria || 'outros tipos de receitas';
+            document.getElementById('edit-trans-desc').value = t.descricao;
+            document.getElementById('edit-trans-valor').value = t.valor;
+
+            document.getElementById('modal-editar-transacao').classList.remove('hidden');
+        }
+
+        function fecharModalTransacao() {
+            document.getElementById('modal-editar-transacao').classList.add('hidden');
+        }
+
+        async function salvarEdicaoTransacao() {
+            const id = document.getElementById('edit-trans-id').value;
+            const tipo = document.getElementById('edit-trans-tipo').value;
+            const categoria = document.getElementById('edit-trans-categoria').value;
+            const descricao = document.getElementById('edit-trans-desc').value.trim();
+            const valor = parseFloat(document.getElementById('edit-trans-valor').value);
+
+            if (!descricao || isNaN(valor) || valor <= 0) {
+                alert('Preencha a descrição e um valor válido.');
+                return;
+            }
+
+            const { error } = await supabaseClient.from('transacoes_financeiras').update({
+                tipo,
+                categoria,
+                descricao,
+                valor
+            }).eq('id', id);
+
+            if (error) {
+                alert('Erro ao atualizar lançamento: ' + error.message);
+            } else {
+                fecharModalTransacao();
+                await carregarDadosFinanceiros();
+            }
+        }
+
         async function excluirTransacaoManual(id) {
             if (!confirm('Tem certeza que deseja apagar este lançamento?')) return;
             const { error } = await supabaseClient.from('transacoes_financeiras').delete().eq('id', id);
@@ -863,7 +956,8 @@
                     <td class="p-3 font-semibold text-gray-700 capitalize">${escapeHtml(t.categoria || 'Geral')}</td>
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(t.descricao)}</td>
                     <td class="p-3 text-right font-bold ${t.tipo === 'Entrada' ? 'text-emerald-600' : 'text-rose-600'}">R$ ${val.toFixed(2)}</td>
-                    <td class="p-3 text-center">
+                    <td class="p-3 text-center space-x-1">
+                        <button onclick="abrirModalEdicaoTransacao(${t.id})" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">✏️ Editar</button>
                         <button onclick="excluirTransacaoManual(${t.id})" class="bg-red-100 hover:bg-red-200 text-red-700 px-2.5 py-1 rounded-lg text-xs font-bold transition">🗑️ Apagar</button>
                     </td>
                 `;
