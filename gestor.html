@@ -103,10 +103,14 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                         <div>
                             <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Valor Diária (R$) *</label>
                             <input type="number" step="0.01" id="mot-diaria-input" placeholder="Ex: 150.00" value="150.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
+                            <input type="number" step="0.01" id="mot-diaria-sabado-input" placeholder="Ex: 180.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-orange-600 uppercase mb-1">Pacote Shopee (R$) *</label>
@@ -132,6 +136,7 @@
                                 <th class="p-3">Veículo / Placa</th>
                                 <th class="p-3">🎂 Aniversário</th>
                                 <th class="p-3">Valor Diária</th>
+                                <th class="p-3">Diária Sábado</th>
                                 <th class="p-3">Pkt Shopee</th>
                                 <th class="p-3">Pkt ML</th>
                                 <th class="p-3 text-right">Ações</th>
@@ -202,7 +207,7 @@
                 <button onclick="gerarPDFComprovante()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovativo (PDF)</button>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
                     <select id="pag-motorista" onchange="aoSelecionarMotoristaFechamento()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
@@ -219,6 +224,10 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Diária (R$)</label>
                     <input type="number" id="pag-valor-diaria" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
+                    <input type="number" id="pag-valor-diaria-sabado" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -502,6 +511,30 @@
             return num.toLocaleString('pt-BR');
         }
 
+        function agregarDiasTrabalhados(registros) {
+            const diasMap = new Map();
+            registros.forEach(item => {
+                const d = new Date(item.created_at);
+                const chave = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+                if (!diasMap.has(chave)) {
+                    diasMap.set(chave, d.getDay() === 6);
+                }
+            });
+
+            let normais = 0;
+            let sabados = 0;
+            diasMap.forEach(isSabado => {
+                if (isSabado) sabados++;
+                else normais++;
+            });
+
+            return {
+                total: diasMap.size,
+                normais,
+                sabados
+            };
+        }
+
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -586,6 +619,10 @@
                 }
 
                 const badgeNiver = isAniversarianteMes ? `<span class="ml-1 bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-purple-300">🎁 Aniversariante!</span>` : '';
+                const vDiariaBase = parseFloat(mot.valor_diaria) || 0;
+                const vDiariaSab = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null && mot.valor_diaria_sabado !== '')
+                    ? parseFloat(mot.valor_diaria_sabado)
+                    : vDiariaBase;
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 border-b";
@@ -593,7 +630,8 @@
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)} ${badgeNiver}</td>
                     <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
                     <td class="p-3 font-bold text-purple-900">${niverTexto}</td>
-                    <td class="p-3 font-bold text-emerald-700">R$ ${formatarMoeda(parseFloat(mot.valor_diaria) || 0)}</td>
+                    <td class="p-3 font-bold text-emerald-700">R$ ${formatarMoeda(vDiariaBase)}</td>
+                    <td class="p-3 font-bold text-teal-700">R$ ${formatarMoeda(vDiariaSab)}</td>
                     <td class="p-3 font-bold text-orange-600">R$ ${formatarMoeda(parseFloat(mot.valor_shopee) || 0)}</td>
                     <td class="p-3 font-bold text-yellow-600">R$ ${formatarMoeda(parseFloat(mot.valor_ml) || 0)}</td>
                     <td class="p-3 text-right space-x-1">
@@ -694,7 +732,12 @@
             const mot = listaMotoristas.find(m => m.nome === motNome);
 
             if (mot) {
-                document.getElementById('pag-valor-diaria').value = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
+                const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
+                const vDiariaSab = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null && mot.valor_diaria_sabado !== '')
+                    ? mot.valor_diaria_sabado
+                    : vDiaria;
+                document.getElementById('pag-valor-diaria').value = vDiaria;
+                document.getElementById('pag-valor-diaria-sabado').value = vDiariaSab;
                 document.getElementById('pag-valor-shopee').value = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? mot.valor_shopee : 0.50;
                 document.getElementById('pag-valor-ml').value = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? mot.valor_ml : 0.50;
             }
@@ -771,10 +814,12 @@
             const data_nascimento = document.getElementById('mot-nascimento-input').value || null;
             
             const valDiariaInput = document.getElementById('mot-diaria-input').value;
+            const valDiariaSabadoInput = document.getElementById('mot-diaria-sabado-input').value;
             const valShopeeInput = document.getElementById('mot-shopee-input').value;
             const valMlInput = document.getElementById('mot-ml-input').value;
 
             const valor_diaria = valDiariaInput !== '' ? parseFloat(valDiariaInput) : 0.00;
+            const valor_diaria_sabado = valDiariaSabadoInput !== '' ? parseFloat(valDiariaSabadoInput) : null;
             const valor_shopee = valShopeeInput !== '' ? parseFloat(valShopeeInput) : 0.00;
             const valor_ml = valMlInput !== '' ? parseFloat(valMlInput) : 0.00;
 
@@ -783,7 +828,7 @@
                 return;
             }
 
-            const dadosSalvar = { nome, veiculo, data_nascimento, valor_diaria, valor_shopee, valor_ml };
+            const dadosSalvar = { nome, veiculo, data_nascimento, valor_diaria, valor_diaria_sabado, valor_shopee, valor_ml };
 
             if (idEdicao) {
                 const { error } = await supabaseClient.from('motoristas').update(dadosSalvar).eq('id', idEdicao);
@@ -805,6 +850,7 @@
                 document.getElementById('mot-veiculo-input').value = mot.veiculo;
                 document.getElementById('mot-nascimento-input').value = mot.data_nascimento || '';
                 document.getElementById('mot-diaria-input').value = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? mot.valor_diaria : 150.00;
+                document.getElementById('mot-diaria-sabado-input').value = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null) ? mot.valor_diaria_sabado : '';
                 document.getElementById('mot-shopee-input').value = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? mot.valor_shopee : 0.50;
                 document.getElementById('mot-ml-input').value = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? mot.valor_ml : 0.50;
 
@@ -820,6 +866,7 @@
             document.getElementById('mot-veiculo-input').value = '';
             document.getElementById('mot-nascimento-input').value = '';
             document.getElementById('mot-diaria-input').value = '150.00';
+            document.getElementById('mot-diaria-sabado-input').value = '';
             document.getElementById('mot-shopee-input').value = '0.50';
             document.getElementById('mot-ml-input').value = '0.50';
 
@@ -877,10 +924,12 @@
             const dataFimStr = document.getElementById('pag-data-fim').value;
 
             const valDiariaPag = document.getElementById('pag-valor-diaria').value;
+            const valDiariaSabadoPag = document.getElementById('pag-valor-diaria-sabado').value;
             const valShopeePag = document.getElementById('pag-valor-shopee').value;
             const valMlPag = document.getElementById('pag-valor-ml').value;
 
             const valorDiaria = valDiariaPag !== '' ? parseFloat(valDiariaPag) : 0;
+            const valorDiariaSabado = valDiariaSabadoPag !== '' ? parseFloat(valDiariaSabadoPag) : valorDiaria;
             const valorShopee = valShopeePag !== '' ? parseFloat(valShopeePag) : 0;
             const valorMl = valMlPag !== '' ? parseFloat(valMlPag) : 0;
 
@@ -897,27 +946,28 @@
                 return true;
             });
 
-            const diasUnicos = new Set();
+            const diasResumo = agregarDiasTrabalhados(dadosMotorista);
             let totalShopee = 0;
             let totalML = 0;
 
             dadosMotorista.forEach(item => {
-                const dataFmt = new Date(item.created_at).toDateString();
-                diasUnicos.add(dataFmt);
-
                 if (item.tipo === 'Coleta') {
                     if (item.plataforma === 'Shopee') totalShopee += (item.pacotes || 0);
                     if (item.plataforma === 'Mercado Livre') totalML += (item.pacotes || 0);
                 }
             });
 
-            const qtdDias = diasUnicos.size;
-            const subtotalDiarias = qtdDias * valorDiaria;
+            const qtdDias = diasResumo.total;
+            const subtotalDiarias = (diasResumo.normais * valorDiaria) + (diasResumo.sabados * valorDiariaSabado);
             const subtotalShopee = totalShopee * valorShopee;
             const subtotalML = totalML * valorMl;
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalML;
 
-            document.getElementById('resumo-dias-trabalhados').innerText = `${formatarInteiro(qtdDias)} Dias`;
+            const textoDias = diasResumo.sabados > 0
+                ? `${formatarInteiro(qtdDias)} Dias (${diasResumo.normais}N / ${diasResumo.sabados} Sáb)`
+                : `${formatarInteiro(qtdDias)} Dias`;
+
+            document.getElementById('resumo-dias-trabalhados').innerText = textoDias;
             document.getElementById('resumo-total-diarias').innerText = `R$ ${formatarMoeda(subtotalDiarias)}`;
 
             document.getElementById('resumo-pacotes-shopee').innerText = `${formatarInteiro(totalShopee)} Pkts`;
@@ -939,10 +989,12 @@
             const periodoTexto = `De ${inicioStr ? new Date(inicioStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--'} até ${fimStr ? new Date(fimStr + 'T23:59:59').toLocaleDateString('pt-BR') : '--'}`;
             
             const valDiariaPag = document.getElementById('pag-valor-diaria').value;
+            const valDiariaSabadoPag = document.getElementById('pag-valor-diaria-sabado').value;
             const valShopeePag = document.getElementById('pag-valor-shopee').value;
             const valMlPag = document.getElementById('pag-valor-ml').value;
 
             const valorDiaria = valDiariaPag !== '' ? parseFloat(valDiariaPag) : 0;
+            const valorDiariaSabado = valDiariaSabadoPag !== '' ? parseFloat(valDiariaSabadoPag) : valorDiaria;
             const valorShopee = valShopeePag !== '' ? parseFloat(valShopeePag) : 0;
             const valorMl = valMlPag !== '' ? parseFloat(valMlPag) : 0;
 
@@ -957,24 +1009,33 @@
                 return true;
             });
 
-            const diasUnicos = new Set();
+            const diasResumo = agregarDiasTrabalhados(dadosMotorista);
             let totalShopee = 0;
             let totalML = 0;
 
             dadosMotorista.forEach(item => {
-                diasUnicos.add(new Date(item.created_at).toDateString());
                 if (item.tipo === 'Coleta') {
                     if (item.plataforma === 'Shopee') totalShopee += (item.pacotes || 0);
                     if (item.plataforma === 'Mercado Livre') totalML += (item.pacotes || 0);
                 }
             });
 
-            const qtdDias = diasUnicos.size;
-            const subtotalDiarias = qtdDias * valorDiaria;
+            const subtotalDiariasNormais = diasResumo.normais * valorDiaria;
+            const subtotalDiariasSabado = diasResumo.sabados * valorDiariaSabado;
+            const subtotalDiarias = subtotalDiariasNormais + subtotalDiariasSabado;
             const subtotalShopee = totalShopee * valorShopee;
             const subtotalMl = totalML * valorMl;
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalMl;
             const dataEmissao = new Date().toLocaleString('pt-BR');
+
+            const linhaSabadoHtml = diasResumo.sabados > 0 ? `
+                                <tr>
+                                    <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas (Sábado)</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(diasResumo.sabados)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${formatarMoeda(valorDiariaSabado)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#0f766e;">R$ ${formatarMoeda(subtotalDiariasSabado)}</td>
+                                </tr>
+            ` : '';
 
             const container = document.getElementById('print-container');
             container.innerHTML = `
@@ -1018,11 +1079,12 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(qtdDias)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas${diasResumo.sabados > 0 ? ' (Seg–Sex)' : ''}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(diasResumo.sabados > 0 ? diasResumo.normais : diasResumo.total)}</td>
                                     <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${formatarMoeda(valorDiaria)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(subtotalDiarias)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(diasResumo.sabados > 0 ? subtotalDiariasNormais : subtotalDiarias)}</td>
                                 </tr>
+                                ${linhaSabadoHtml}
                                 <tr>
                                     <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
                                     <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(totalShopee)}</td>
@@ -1108,12 +1170,11 @@
 
             listaMotoristas.forEach(mot => {
                 const registrosMot = dadosFiltrados.filter(i => i.motorista === mot.nome);
-                const diasUnicos = new Set();
+                const diasResumo = agregarDiasTrabalhados(registrosMot);
                 let pacotesShopeeMot = 0;
                 let pacotesMlMot = 0;
 
                 registrosMot.forEach(i => {
-                    diasUnicos.add(new Date(i.created_at).toDateString());
                     if (i.tipo === 'Coleta') {
                         if (i.plataforma === 'Shopee') pacotesShopeeMot += (i.pacotes || 0);
                         if (i.plataforma === 'Mercado Livre') pacotesMlMot += (i.pacotes || 0);
@@ -1121,21 +1182,28 @@
                 });
 
                 const vDiariaMot = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vDiariaSabMot = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null && mot.valor_diaria_sabado !== '')
+                    ? parseFloat(mot.valor_diaria_sabado)
+                    : vDiariaMot;
                 const vShopeeMot = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
                 const vMlMot = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
 
-                const qtdDias = diasUnicos.size;
-                const totDiarias = qtdDias * vDiariaMot;
+                const qtdDias = diasResumo.total;
+                const totDiarias = (diasResumo.normais * vDiariaMot) + (diasResumo.sabados * vDiariaSabMot);
                 const totShopee = pacotesShopeeMot * vShopeeMot;
                 const totMl = pacotesMlMot * vMlMot;
                 const subtotalMot = totDiarias + totShopee + totMl;
                 totalPagoMotoristasGeral += subtotalMot;
 
+                const textoDiariasRel = diasResumo.sabados > 0
+                    ? `${formatarInteiro(qtdDias)} (${diasResumo.normais}N/${diasResumo.sabados}S)`
+                    : formatarInteiro(qtdDias);
+
                 linhasMotoristasHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
                         <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(mot.nome)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1;">${escapeHtml(mot.veiculo)}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(qtdDias)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${textoDiariasRel}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${formatarInteiro(pacotesShopeeMot)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${formatarInteiro(pacotesMlMot)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(subtotalMot)}</td>
