@@ -72,205 +72,19 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <!-- ================= GESTÃO DE MOTORISTAS E VEÍCULOS ================= -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
-            <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
-                <div>
-                    <h3 class="text-lg font-bold text-gb-navy flex items-center gap-2">🚚 Cadastro de Motoristas, Aniversários e Taxas Individuais</h3>
-                    <p class="text-xs text-gray-500">Cadastre motoristas com os respetivos aniversários, valores de diária e pacotes.</p>
-                </div>
-                <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
-            </div>
-
-            <div id="conteudo-gestao-motoristas" class="space-y-4 pt-2">
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
-                    <input type="hidden" id="mot-id-edicao" value="">
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
-                            <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
-                            <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-purple-700 uppercase mb-1">🎂 Data de Aniversário (Brinde)</label>
-                            <input type="date" id="mot-nascimento-input" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-purple-900 outline-none focus:ring-2 focus:ring-purple-500">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <div>
-                            <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Valor Diária (R$) *</label>
-                            <input type="number" step="0.01" id="mot-diaria-input" placeholder="Ex: 150.00" value="150.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
-                            <input type="number" step="0.01" id="mot-diaria-sabado-input" placeholder="Ex: 180.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-orange-600 uppercase mb-1">Pacote Shopee (R$) *</label>
-                            <input type="number" step="0.01" id="mot-shopee-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-orange-600 outline-none focus:ring-2 focus:ring-orange-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-yellow-600 uppercase mb-1">Pacote Mercado Livre (R$) *</label>
-                            <input type="number" step="0.01" id="mot-ml-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-yellow-500">
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end gap-2 pt-2">
-                        <button onclick="cancelarEdicaoMotorista()" id="btn-cancelar-mot" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2.5 rounded-lg text-sm hidden transition">Cancelar</button>
-                        <button onclick="salvarMotorista()" id="btn-salvar-mot" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition">➕ Cadastrar Motorista</button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
-                        <thead>
-                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                <th class="p-3">Motorista</th>
-                                <th class="p-3">Veículo / Placa</th>
-                                <th class="p-3">🎂 Aniversário</th>
-                                <th class="p-3">Valor Diária</th>
-                                <th class="p-3">Diária Sábado</th>
-                                <th class="p-3">Pkt Shopee</th>
-                                <th class="p-3">Pkt ML</th>
-                                <th class="p-3 text-right">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-motoristas" class="text-sm divide-y">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- Navegação por Abas -->
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 flex flex-wrap gap-2">
+            <button id="tab-btn-operacao" onclick="alternarAbaPrincipal('operacao')" class="px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm">
+                📋 Operação Diária
+            </button>
+            <button id="tab-btn-relatorios" onclick="alternarAbaPrincipal('relatorios')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
+                📊 Relatórios da Operação
+            </button>
         </div>
 
-        <!-- ================= MANUTENÇÃO POR VEÍCULO ================= -->
-        <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6 space-y-4">
-            <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoVeiculos()">
-                <div>
-                    <h3 class="text-lg font-bold text-rose-700 flex items-center gap-2">🔧 Histórico de Manutenção por Veículo</h3>
-                    <p class="text-xs text-gray-500">Selecione o veículo para analisar todos os custos de oficina e serviços realizados.</p>
-                </div>
-                <span id="icone-gestao-veic" class="text-gray-400 font-bold text-xl">▼</span>
-            </div>
-
-            <div id="conteudo-gestao-veiculos" class="space-y-6 hidden pt-2">
-                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
-                    <div class="w-full sm:w-1/2">
-                        <label class="block text-xs font-bold text-rose-800 uppercase mb-1">Selecione o Veículo / Placa:</label>
-                        <select id="select-veiculo-manutencao" onchange="renderizarManutencaoPorVeiculo()" class="w-full p-2.5 border rounded-xl bg-white text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500">
-                        </select>
-                    </div>
-                    <div class="flex gap-4 text-right w-full sm:w-auto justify-end">
-                        <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[130px]">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Qtd. Serviços</p>
-                            <p id="veic-qtd-servicos" class="text-xl font-black text-rose-600">0</p>
-                        </div>
-                        <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[150px]">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Total Gasto</p>
-                            <p id="veic-total-gasto" class="text-xl font-black text-rose-600">R$ 0,00</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
-                        <thead>
-                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
-                                <th class="p-3">Data / Hora</th>
-                                <th class="p-3">Motorista</th>
-                                <th class="p-3">Serviço / Peça</th>
-                                <th class="p-3">KM Atual</th>
-                                <th class="p-3">Valor (R$)</th>
-                                <th class="p-3 text-right">Comprovativo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabela-manutencao-veiculo" class="text-sm divide-y">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= FECHAMENTO COM CALENDÁRIO ================= -->
-        <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-6">
-            <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h3 class="text-xl font-bold text-gb-navy flex items-center gap-2">💰 Fechamento e Pagamento por Período</h3>
-                    <p class="text-xs text-gray-500 mt-1">Apuramento automático de diárias e entregas com base nas taxas do motorista.</p>
-                </div>
-                <button onclick="gerarPDFComprovante()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovativo (PDF)</button>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
-                    <select id="pag-motorista" onchange="aoSelecionarMotoristaFechamento()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Inicial</label>
-                    <input type="date" id="pag-data-inicio" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Final</label>
-                    <input type="date" id="pag-data-fim" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Diária (R$)</label>
-                    <input type="number" id="pag-valor-diaria" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
-                    <input type="number" id="pag-valor-diaria-sabado" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt Shopee</label>
-                        <input type="number" id="pag-valor-shopee" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-orange-600 outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt ML</label>
-                        <input type="number" id="pag-valor-ml" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">🗓️ Diárias Apuradas</p>
-                    <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-dias-trabalhados" class="text-xl font-extrabold text-gray-800">0 Dias</span>
-                        <span id="resumo-total-diarias" class="text-base font-bold text-emerald-600">R$ 0,00</span>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">🟠 Shopee</p>
-                    <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-pacotes-shopee" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
-                        <span id="resumo-total-shopee" class="text-base font-bold text-orange-600">R$ 0,00</span>
-                    </div>
-                </div>
-                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <p class="text-xs font-bold text-gray-500 uppercase">🤝 Mercado Livre</p>
-                    <div class="flex justify-between items-end mt-2">
-                        <span id="resumo-pacotes-ml" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
-                        <span id="resumo-total-ml" class="text-base font-bold text-yellow-600">R$ 0,00</span>
-                    </div>
-                </div>
-                <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                    <p class="text-xs font-bold text-gb-navy uppercase">💵 Total Geral a Pagar</p>
-                    <h3 id="resumo-total-pagamento" class="text-2xl font-black text-gb-navy mt-1">R$ 0,00</h3>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros do Histórico -->
+        <!-- Filtros Compartilhados (Operação e Relatórios) -->
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                 <div>
@@ -303,67 +117,339 @@
             </div>
         </div>
 
-        <!-- Métricas -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📦 Total de Pacotes</p>
-                <h3 id="metric-pacotes" class="text-3xl font-extrabold text-blue-600 mt-1">0</h3>
-                <div class="mt-2 text-xs text-gray-500 flex justify-between">
-                    <span>Shopee: <b id="sub-shopee" class="text-orange-600">0</b></span>
-                    <span>ML: <b id="sub-ml" class="text-yellow-600">0</b></span>
+        <!-- ================= ABA 1: OPERAÇÃO DIÁRIA ================= -->
+        <div id="aba-operacao" class="space-y-8">
+
+            <!-- ================= GESTÃO DE MOTORISTAS E VEÍCULOS ================= -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoMotoristas()">
+                    <div>
+                        <h3 class="text-lg font-bold text-gb-navy flex items-center gap-2">🚚 Cadastro de Motoristas, Aniversários e Taxas Individuais</h3>
+                        <p class="text-xs text-gray-500">Cadastre motoristas com os respetivos aniversários, valores de diária e pacotes.</p>
+                    </div>
+                    <span id="icone-gestao-mot" class="text-gray-400 font-bold text-xl">▼</span>
+                </div>
+
+                <div id="conteudo-gestao-motoristas" class="space-y-4 pt-2">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+                        <input type="hidden" id="mot-id-edicao" value="">
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nome do Motorista *</label>
+                                <input type="text" id="mot-nome-input" placeholder="Ex: João Silva" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Veículo / Placa *</label>
+                                <input type="text" id="mot-veiculo-input" placeholder="Ex: Fiorino - ABC-1234" class="w-full p-2.5 border rounded-lg text-sm bg-white outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-purple-700 uppercase mb-1">🎂 Data de Aniversário (Brinde)</label>
+                                <input type="date" id="mot-nascimento-input" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-purple-900 outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-700 uppercase mb-1">Valor Diária (R$) *</label>
+                                <input type="number" step="0.01" id="mot-diaria-input" placeholder="Ex: 150.00" value="150.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
+                                <input type="number" step="0.01" id="mot-diaria-sabado-input" placeholder="Ex: 180.00" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-orange-600 uppercase mb-1">Pacote Shopee (R$) *</label>
+                                <input type="number" step="0.01" id="mot-shopee-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-orange-600 outline-none focus:ring-2 focus:ring-orange-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-yellow-600 uppercase mb-1">Pacote Mercado Livre (R$) *</label>
+                                <input type="number" step="0.01" id="mot-ml-input" placeholder="Ex: 0.50" value="0.50" class="w-full p-2.5 border rounded-lg text-sm bg-white font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-yellow-500">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button onclick="cancelarEdicaoMotorista()" id="btn-cancelar-mot" class="bg-gray-400 hover:bg-gray-500 text-white font-bold px-4 py-2.5 rounded-lg text-sm hidden transition">Cancelar</button>
+                            <button onclick="salvarMotorista()" id="btn-salvar-mot" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-2.5 rounded-lg text-sm transition">➕ Cadastrar Motorista</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
+                            <thead>
+                                <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
+                                    <th class="p-3">Motorista</th>
+                                    <th class="p-3">Veículo / Placa</th>
+                                    <th class="p-3">🎂 Aniversário</th>
+                                    <th class="p-3">Valor Diária</th>
+                                    <th class="p-3">Diária Sábado</th>
+                                    <th class="p-3">Pkt Shopee</th>
+                                    <th class="p-3">Pkt ML</th>
+                                    <th class="p-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-motoristas" class="text-sm divide-y">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Gasto Combustível</p>
-                <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
-                <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0,0 L (R$ 0,00/L)</p>
+
+            <!-- ================= MANUTENÇÃO POR VEÍCULO ================= -->
+            <div class="bg-white rounded-2xl shadow-sm border border-rose-200 p-6 space-y-4">
+                <div class="flex justify-between items-center border-b pb-3 cursor-pointer" onclick="toggleGestaoVeiculos()">
+                    <div>
+                        <h3 class="text-lg font-bold text-rose-700 flex items-center gap-2">🔧 Histórico de Manutenção por Veículo</h3>
+                        <p class="text-xs text-gray-500">Selecione o veículo para analisar todos os custos de oficina e serviços realizados.</p>
+                    </div>
+                    <span id="icone-gestao-veic" class="text-gray-400 font-bold text-xl">▼</span>
+                </div>
+
+                <div id="conteudo-gestao-veiculos" class="space-y-6 hidden pt-2">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-rose-50/50 p-4 rounded-xl border border-rose-100">
+                        <div class="w-full sm:w-1/2">
+                            <label class="block text-xs font-bold text-rose-800 uppercase mb-1">Selecione o Veículo / Placa:</label>
+                            <select id="select-veiculo-manutencao" onchange="renderizarManutencaoPorVeiculo()" class="w-full p-2.5 border rounded-xl bg-white text-sm font-bold outline-none focus:ring-2 focus:ring-rose-500">
+                            </select>
+                        </div>
+                        <div class="flex gap-4 text-right w-full sm:w-auto justify-end">
+                            <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[130px]">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Qtd. Serviços</p>
+                                <p id="veic-qtd-servicos" class="text-xl font-black text-rose-600">0</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg border border-rose-200 shadow-sm text-center min-w-[150px]">
+                                <p class="text-[10px] font-bold text-gray-400 uppercase">Total Gasto</p>
+                                <p id="veic-total-gasto" class="text-xl font-black text-rose-600">R$ 0,00</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse border border-gray-100 rounded-lg">
+                            <thead>
+                                <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase">
+                                    <th class="p-3">Data / Hora</th>
+                                    <th class="p-3">Motorista</th>
+                                    <th class="p-3">Serviço / Peça</th>
+                                    <th class="p-3">KM Atual</th>
+                                    <th class="p-3">Valor (R$)</th>
+                                    <th class="p-3 text-right">Comprovativo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-manutencao-veiculo" class="text-sm divide-y">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
-                <h3 id="metric-manutencao" class="text-3xl font-extrabold text-rose-600 mt-1">R$ 0,00</h3>
-                <p id="sub-manutencao-qtd" class="mt-2 text-xs text-gray-500">0 serviço(s) registrado(s)</p>
+
+            <!-- ================= FECHAMENTO COM CALENDÁRIO ================= -->
+            <div class="bg-white rounded-2xl shadow-sm border border-blue-100 p-6 space-y-6">
+                <div class="border-b pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gb-navy flex items-center gap-2">💰 Fechamento e Pagamento por Período</h3>
+                        <p class="text-xs text-gray-500 mt-1">Apuramento automático de diárias e entregas com base nas taxas do motorista.</p>
+                    </div>
+                    <button onclick="gerarPDFComprovante()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2 text-sm">📄 Baixar Comprovativo (PDF)</button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Motorista</label>
+                        <select id="pag-motorista" onchange="aoSelecionarMotoristaFechamento()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Inicial</label>
+                        <input type="date" id="pag-data-inicio" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Final</label>
+                        <input type="date" id="pag-data-fim" onchange="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor Diária (R$)</label>
+                        <input type="number" id="pag-valor-diaria" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-teal-700 uppercase mb-1">Diária Sábado (R$)</label>
+                        <input type="number" id="pag-valor-diaria-sabado" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-teal-700 outline-none focus:ring-2 focus:ring-teal-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt Shopee</label>
+                            <input type="number" id="pag-valor-shopee" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-orange-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Pkt ML</label>
+                            <input type="number" id="pag-valor-ml" step="0.01" oninput="calcularFechamentoSemanal()" class="w-full p-2.5 border rounded-xl bg-gray-50 text-sm font-bold text-yellow-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <p class="text-xs font-bold text-gray-500 uppercase">🗓️ Diárias Apuradas</p>
+                        <div class="flex justify-between items-end mt-2">
+                            <span id="resumo-dias-trabalhados" class="text-xl font-extrabold text-gray-800">0 Dias</span>
+                            <span id="resumo-total-diarias" class="text-base font-bold text-emerald-600">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <p class="text-xs font-bold text-gray-500 uppercase">🟠 Shopee</p>
+                        <div class="flex justify-between items-end mt-2">
+                            <span id="resumo-pacotes-shopee" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
+                            <span id="resumo-total-shopee" class="text-base font-bold text-orange-600">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <p class="text-xs font-bold text-gray-500 uppercase">🤝 Mercado Livre</p>
+                        <div class="flex justify-between items-end mt-2">
+                            <span id="resumo-pacotes-ml" class="text-xl font-extrabold text-gray-800">0 Pkts</span>
+                            <span id="resumo-total-ml" class="text-base font-bold text-yellow-600">R$ 0,00</span>
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-200">
+                        <p class="text-xs font-bold text-gb-navy uppercase">💵 Total Geral a Pagar</p>
+                        <h3 id="resumo-total-pagamento" class="text-2xl font-black text-gb-navy mt-1">R$ 0,00</h3>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📋 Lançamentos</p>
-                <h3 id="metric-total-registros" class="text-3xl font-extrabold text-purple-600 mt-1">0</h3>
-                <p class="mt-2 text-xs text-gray-500">Registos no período</p>
+
+            <!-- Métricas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📦 Total de Pacotes</p>
+                    <h3 id="metric-pacotes" class="text-3xl font-extrabold text-blue-600 mt-1">0</h3>
+                    <div class="mt-2 text-xs text-gray-500 flex justify-between">
+                        <span>Shopee: <b id="sub-shopee" class="text-orange-600">0</b></span>
+                        <span>ML: <b id="sub-ml" class="text-yellow-600">0</b></span>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Gasto Combustível</p>
+                    <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0,0 L (R$ 0,00/L)</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
+                    <h3 id="metric-manutencao" class="text-3xl font-extrabold text-rose-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-manutencao-qtd" class="mt-2 text-xs text-gray-500">0 serviço(s) registrado(s)</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">📋 Lançamentos</p>
+                    <h3 id="metric-total-registros" class="text-3xl font-extrabold text-purple-600 mt-1">0</h3>
+                    <p class="mt-2 text-xs text-gray-500">Registos no período</p>
+                </div>
             </div>
+
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
+                    <div class="h-64"><canvas id="chartMotoristas"></canvas></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">🎯 Shopee vs Mercado Livre</h3>
+                    <div class="h-64 flex items-center justify-center"><canvas id="chartPlataformas"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Tabela do Histórico Geral -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-lg text-gray-800">📋 Histórico Geral de Lançamentos</h3>
+                    <span id="contador-tabela" class="text-xs text-gray-500 font-medium">A mostrar 0 registos</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b bg-gray-50 text-xs font-bold text-gray-500 uppercase">
+                                <th class="p-3">Data / Hora</th>
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Tipo</th>
+                                <th class="p-3">Detalhes</th>
+                                <th class="p-3">Fotos / Comprovantes</th>
+                                <th class="p-3 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-registros" class="text-sm divide-y">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Gráficos -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">📊 Pacotes Recolhidos por Motorista</h3>
-                <div class="h-64"><canvas id="chartMotoristas"></canvas></div>
-            </div>
-            <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-                <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">🎯 Shopee vs Mercado Livre</h3>
-                <div class="h-64 flex items-center justify-center"><canvas id="chartPlataformas"></canvas></div>
-            </div>
-        </div>
+        <!-- ================= ABA 2: RELATÓRIOS DA OPERAÇÃO ================= -->
+        <div id="aba-relatorios" class="space-y-6 hidden">
 
-        <!-- Tabela do Histórico Geral -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="font-bold text-lg text-gray-800">📋 Histórico Geral de Lançamentos</h3>
-                <span id="contador-tabela" class="text-xs text-gray-500 font-medium">A mostrar 0 registos</span>
+            <!-- Barra de Seleção do Relatório -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                    <button id="rel-btn-frota" onclick="selecionarRelatorio('frota')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gb-navy text-white">
+                        ⛽ Frota, KM e Combustível
+                    </button>
+                    <button id="rel-btn-coletas" onclick="selecionarRelatorio('coletas')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        📦 Coletas e Produtividade
+                    </button>
+                    <button id="rel-btn-fechamento" onclick="selecionarRelatorio('fechamento')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        💵 Fechamento da Equipe
+                    </button>
+                    <button id="rel-btn-rotas" onclick="selecionarRelatorio('rotas')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🗺️ Rotas / Observações
+                    </button>
+                    <button id="rel-btn-auditoria" onclick="selecionarRelatorio('auditoria')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🕵️ Auditoria e Aniversários
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportarRelatorioAtivoCSV()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">
+                        📄 Exportar Relatório (CSV)
+                    </button>
+                    <button onclick="gerarPDFRelatorioGeral()" class="bg-purple-700 hover:bg-purple-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">
+                        🖨️ Imprimir / PDF
+                    </button>
+                </div>
             </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50 text-xs font-bold text-gray-500 uppercase">
-                            <th class="p-3">Data / Hora</th>
-                            <th class="p-3">Motorista</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Detalhes</th>
-                            <th class="p-3">Fotos / Comprovantes</th>
-                            <th class="p-3 text-right">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-registros" class="text-sm divide-y">
-                    </tbody>
-                </table>
+
+            <!-- Cards de KPIs do Relatório -->
+            <div id="rel-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+            <!-- Gráfico do Relatório (quando aplicável) -->
+            <div id="rel-grafico-box" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h3 id="rel-grafico-titulo" class="font-bold text-gray-800 mb-3">📈 Evolução Operacional</h3>
+                <div class="h-64"><canvas id="chartRelatorioOperacao"></canvas></div>
             </div>
+
+            <!-- Tabela Principal do Relatório -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                    <div>
+                        <h3 id="rel-titulo" class="text-lg font-black text-gb-navy">Relatório Operacional</h3>
+                        <p id="rel-subtitulo" class="text-xs text-gray-500">Indicadores calculados com base no filtro ativo.</p>
+                    </div>
+                    <span id="rel-contador" class="text-xs font-bold text-gray-500">0 linha(s)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead id="rel-thead" class="bg-gray-50 text-xs font-bold text-gray-500 uppercase border-b"></thead>
+                        <tbody id="rel-tbody" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bloco Secundário (usado em Auditoria para Aniversariantes) -->
+            <div id="rel-extra-box" class="bg-white rounded-2xl shadow-sm border border-purple-100 p-6 space-y-4 hidden">
+                <h3 id="rel-extra-titulo" class="text-lg font-black text-purple-900">🎂 Calendário de Aniversariantes</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead id="rel-extra-thead" class="bg-purple-50 text-xs font-bold text-purple-800 uppercase border-b"></thead>
+                        <tbody id="rel-extra-tbody" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -485,6 +571,10 @@
         let listaMotoristas = [];
         let chartMotoristasInstance = null;
         let chartPlataformasInstance = null;
+        let chartRelatorioInstance = null;
+        let abaAtiva = 'operacao';
+        let relatorioAtivo = 'frota';
+        let ultimoRelatorioCSV = { nome: 'relatorio.csv', linhas: [] };
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -533,6 +623,688 @@
                 normais,
                 sabados
             };
+        }
+
+        function alternarAbaPrincipal(aba) {
+            abaAtiva = aba;
+            const elOp = document.getElementById('aba-operacao');
+            const elRel = document.getElementById('aba-relatorios');
+            const btnOp = document.getElementById('tab-btn-operacao');
+            const btnRel = document.getElementById('tab-btn-relatorios');
+
+            if (aba === 'relatorios') {
+                elOp.classList.add('hidden');
+                elRel.classList.remove('hidden');
+                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+                btnOp.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                renderizarRelatorioAtivo();
+            } else {
+                elRel.classList.add('hidden');
+                elOp.classList.remove('hidden');
+                btnOp.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+            }
+        }
+
+        function selecionarRelatorio(tipo) {
+            relatorioAtivo = tipo;
+            const botoes = {
+                frota: 'rel-btn-frota',
+                coletas: 'rel-btn-coletas',
+                fechamento: 'rel-btn-fechamento',
+                rotas: 'rel-btn-rotas',
+                auditoria: 'rel-btn-auditoria'
+            };
+
+            Object.entries(botoes).forEach(([chave, id]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                if (chave === tipo) {
+                    el.className = 'px-4 py-2 rounded-xl text-xs font-black transition bg-gb-navy text-white';
+                } else {
+                    el.className = 'px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+                }
+            });
+
+            renderizarRelatorioAtivo();
+        }
+
+        function calcularPagamentoMotorista(mot, registrosMot) {
+            const diasResumo = agregarDiasTrabalhados(registrosMot);
+            let pacotesShopee = 0;
+            let pacotesML = 0;
+
+            registrosMot.forEach(item => {
+                if (item.tipo === 'Coleta') {
+                    if (item.plataforma === 'Shopee') pacotesShopee += (item.pacotes || 0);
+                    if (item.plataforma === 'Mercado Livre') pacotesML += (item.pacotes || 0);
+                }
+            });
+
+            const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+            const vDiariaSab = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null && mot.valor_diaria_sabado !== '')
+                ? parseFloat(mot.valor_diaria_sabado)
+                : vDiaria;
+            const vShopee = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
+            const vMl = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
+
+            const totalDiarias = (diasResumo.normais * vDiaria) + (diasResumo.sabados * vDiariaSab);
+            const totalShopee = pacotesShopee * vShopee;
+            const totalML = pacotesML * vMl;
+            const totalPagar = totalDiarias + totalShopee + totalML;
+
+            return {
+                diasNormais: diasResumo.normais,
+                diasSabado: diasResumo.sabados,
+                totalDias: diasResumo.total,
+                pacotesShopee,
+                pacotesML,
+                totalPacotes: pacotesShopee + pacotesML,
+                totalDiarias,
+                totalShopee,
+                totalML,
+                totalPagar
+            };
+        }
+
+        function renderizarKPIsRelatorio(cards) {
+            const container = document.getElementById('rel-kpis');
+            container.innerHTML = cards.map(c => `
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 ${c.borda}">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">${escapeHtml(c.titulo)}</p>
+                    <h3 class="text-2xl font-extrabold ${c.cor} mt-1">${escapeHtml(c.valor)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">${escapeHtml(c.sub)}</p>
+                </div>
+            `).join('');
+        }
+
+        function atualizarGraficoRelatorio(titulo, tipoChart, labels, datasets) {
+            const box = document.getElementById('rel-grafico-box');
+            if (!labels || labels.length === 0) {
+                box.classList.add('hidden');
+                if (chartRelatorioInstance) {
+                    chartRelatorioInstance.destroy();
+                    chartRelatorioInstance = null;
+                }
+                return;
+            }
+
+            box.classList.remove('hidden');
+            document.getElementById('rel-grafico-titulo').innerText = titulo;
+
+            const ctx = document.getElementById('chartRelatorioOperacao').getContext('2d');
+            if (chartRelatorioInstance) chartRelatorioInstance.destroy();
+
+            chartRelatorioInstance = new Chart(ctx, {
+                type: tipoChart,
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: tipoChart === 'bar' || tipoChart === 'line' ? { y: { beginAtZero: true } } : {}
+                }
+            });
+        }
+
+        function renderizarRelatorioAtivo() {
+            const dados = obterDadosFiltradosAtuais();
+            const extraBox = document.getElementById('rel-extra-box');
+            extraBox.classList.add('hidden');
+
+            if (relatorioAtivo === 'frota') {
+                renderizarRelatorioFrota(dados);
+            } else if (relatorioAtivo === 'coletas') {
+                renderizarRelatorioColetas(dados);
+            } else if (relatorioAtivo === 'fechamento') {
+                renderizarRelatorioFechamento(dados);
+            } else if (relatorioAtivo === 'rotas') {
+                renderizarRelatorioRotas(dados);
+            } else if (relatorioAtivo === 'auditoria') {
+                renderizarRelatorioAuditoria(dados);
+            }
+        }
+
+        function renderizarRelatorioFrota(dados) {
+            document.getElementById('rel-titulo').innerText = '⛽ Relatório de Frota, KM e Combustível';
+            document.getElementById('rel-subtitulo').innerText = 'Consumo médio (KM/L), KM rodados, abastecimentos e custos de manutenção por veículo.';
+
+            const veiculosMap = new Map();
+            listaMotoristas.forEach(m => {
+                if (m.veiculo && !veiculosMap.has(m.veiculo)) {
+                    veiculosMap.set(m.veiculo, {
+                        veiculo: m.veiculo,
+                        motoristas: [m.nome],
+                        litros: 0,
+                        gastoCombustivel: 0,
+                        gastoManutencao: 0,
+                        qtdServicos: 0,
+                        leiturasKm: []
+                    });
+                } else if (m.veiculo) {
+                    veiculosMap.get(m.veiculo).motoristas.push(m.nome);
+                }
+            });
+
+            const motoristaParaVeiculo = {};
+            listaMotoristas.forEach(m => {
+                if (m.nome && m.veiculo) motoristaParaVeiculo[m.nome] = m.veiculo;
+            });
+
+            dados.forEach(item => {
+                const veic = motoristaParaVeiculo[item.motorista] || `Sem Veículo (${item.motorista})`;
+                if (!veiculosMap.has(veic)) {
+                    veiculosMap.set(veic, {
+                        veiculo: veic,
+                        motoristas: [item.motorista],
+                        litros: 0,
+                        gastoCombustivel: 0,
+                        gastoManutencao: 0,
+                        qtdServicos: 0,
+                        leiturasKm: []
+                    });
+                }
+
+                const entry = veiculosMap.get(veic);
+                if (item.tipo === 'Abastecimento') {
+                    entry.litros += Number(item.litros) || 0;
+                    entry.gastoCombustivel += Number(item.valor_abastecimento) || 0;
+                }
+                if (item.tipo === 'Manutenção') {
+                    entry.gastoManutencao += Number(item.valor_abastecimento) || 0;
+                    entry.qtdServicos++;
+                }
+                if (item.km && Number(item.km) > 0) {
+                    entry.leiturasKm.push({ km: Number(item.km), data: new Date(item.created_at) });
+                }
+            });
+
+            let totalLitros = 0;
+            let totalComb = 0;
+            let totalManut = 0;
+            let totalKmRodado = 0;
+            const linhas = [];
+
+            veiculosMap.forEach(v => {
+                v.leiturasKm.sort((a, b) => a.data - b.data);
+                let kmRodado = 0;
+                if (v.leiturasKm.length >= 2) {
+                    const delta = v.leiturasKm[v.leiturasKm.length - 1].km - v.leiturasKm[0].km;
+                    kmRodado = delta > 0 ? delta : 0;
+                }
+                const kmPorLitro = v.litros > 0 && kmRodado > 0 ? kmRodado / v.litros : 0;
+                const custoTotal = v.gastoCombustivel + v.gastoManutencao;
+                const custoPorKm = kmRodado > 0 ? custoTotal / kmRodado : 0;
+
+                totalLitros += v.litros;
+                totalComb += v.gastoCombustivel;
+                totalManut += v.gastoManutencao;
+                totalKmRodado += kmRodado;
+
+                linhas.push({
+                    veiculo: v.veiculo,
+                    motoristas: [...new Set(v.motoristas)].join(', '),
+                    kmRodado,
+                    litros: v.litros,
+                    kmPorLitro,
+                    gastoCombustivel: v.gastoCombustivel,
+                    gastoManutencao: v.gastoManutencao,
+                    custoPorKm
+                });
+            });
+
+            const consumoGeral = totalLitros > 0 && totalKmRodado > 0 ? totalKmRodado / totalLitros : 0;
+            const custoTotalGeral = totalComb + totalManut;
+            const custoKmGeral = totalKmRodado > 0 ? custoTotalGeral / totalKmRodado : 0;
+
+            renderizarKPIsRelatorio([
+                { titulo: 'KM Rodados (Leituras)', valor: `${formatarInteiro(totalKmRodado)} KM`, sub: 'Diferença entre primeira e última leitura', cor: 'text-blue-600', borda: 'border-l-blue-500' },
+                { titulo: 'Consumo Médio Frota', valor: consumoGeral > 0 ? `${formatarNumero(consumoGeral, 2)} KM/L` : '--', sub: `${formatarNumero(totalLitros, 1)} L abastecidos`, cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Custo Combustível + Oficina', valor: `R$ ${formatarMoeda(custoTotalGeral)}`, sub: `Comb: R$ ${formatarMoeda(totalComb)} | Ofic: R$ ${formatarMoeda(totalManut)}`, cor: 'text-rose-600', borda: 'border-l-rose-500' },
+                { titulo: 'Custo por KM Rodado', valor: custoKmGeral > 0 ? `R$ ${formatarMoeda(custoKmGeral)}/KM` : '--', sub: 'Considera combustível e manutenção', cor: 'text-purple-600', borda: 'border-l-purple-500' }
+            ]);
+
+            atualizarGraficoRelatorio(
+                '⛽ Gasto de Combustível vs. Manutenção por Veículo (R$)',
+                'bar',
+                linhas.map(l => l.veiculo),
+                [
+                    { label: 'Combustível (R$)', data: linhas.map(l => l.gastoCombustivel), backgroundColor: '#10b981', borderRadius: 6 },
+                    { label: 'Manutenção (R$)', data: linhas.map(l => l.gastoManutencao), backgroundColor: '#e11d48', borderRadius: 6 }
+                ]
+            );
+
+            document.getElementById('rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Veículo / Placa</th>
+                    <th class="p-3">Motoristas</th>
+                    <th class="p-3 text-right">KM Rodado</th>
+                    <th class="p-3 text-right">Litros</th>
+                    <th class="p-3 text-right">Média KM/L</th>
+                    <th class="p-3 text-right">Combustível</th>
+                    <th class="p-3 text-right">Manutenção</th>
+                    <th class="p-3 text-right">Custo / KM</th>
+                </tr>
+            `;
+
+            document.getElementById('rel-tbody').innerHTML = linhas.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-gray-800">${escapeHtml(l.veiculo)}</td>
+                    <td class="p-3 text-xs text-gray-600">${escapeHtml(l.motoristas)}</td>
+                    <td class="p-3 text-right font-semibold">${formatarInteiro(l.kmRodado)} KM</td>
+                    <td class="p-3 text-right">${formatarNumero(l.litros, 1)} L</td>
+                    <td class="p-3 text-right font-bold text-emerald-700">${l.kmPorLitro > 0 ? formatarNumero(l.kmPorLitro, 2) + ' KM/L' : '--'}</td>
+                    <td class="p-3 text-right text-emerald-700 font-semibold">R$ ${formatarMoeda(l.gastoCombustivel)}</td>
+                    <td class="p-3 text-right text-rose-600 font-semibold">R$ ${formatarMoeda(l.gastoManutencao)}</td>
+                    <td class="p-3 text-right font-bold text-purple-700">${l.custoPorKm > 0 ? 'R$ ' + formatarMoeda(l.custoPorKm) : '--'}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rel-contador').innerText = `${formatarInteiro(linhas.length)} veículo(s)`;
+            ultimoRelatorioCSV = {
+                nome: 'relatorio_frota_combustivel.csv',
+                linhas: [
+                    ['Veiculo', 'Motoristas', 'KM_Rodado', 'Litros', 'Media_KM_L', 'Gasto_Combustivel', 'Gasto_Manutencao', 'Custo_Por_KM'],
+                    ...linhas.map(l => [l.veiculo, l.motoristas, l.kmRodado, l.litros.toFixed(1), l.kmPorLitro.toFixed(2), l.gastoCombustivel.toFixed(2), l.gastoManutencao.toFixed(2), l.custoPorKm.toFixed(2)])
+                ]
+            };
+        }
+
+        function renderizarRelatorioColetas(dados) {
+            document.getElementById('rel-titulo').innerText = '📦 Relatório de Coletas e Produtividade';
+            document.getElementById('rel-subtitulo').innerText = 'Volume diário e por motorista entre Shopee e Mercado Livre, média por dia e custo por pacote.';
+
+            const coletas = dados.filter(d => d.tipo === 'Coleta');
+            let totalShopee = 0;
+            let totalML = 0;
+            const porDia = new Map();
+            const porMotorista = new Map();
+
+            coletas.forEach(item => {
+                const pkts = Number(item.pacotes) || 0;
+                if (item.plataforma === 'Shopee') totalShopee += pkts;
+                if (item.plataforma === 'Mercado Livre') totalML += pkts;
+
+                const dt = new Date(item.created_at);
+                const chaveDia = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+                if (!porDia.has(chaveDia)) {
+                    porDia.set(chaveDia, { label: dt.toLocaleDateString('pt-BR'), shopee: 0, ml: 0 });
+                }
+                const dObj = porDia.get(chaveDia);
+                if (item.plataforma === 'Shopee') dObj.shopee += pkts;
+                if (item.plataforma === 'Mercado Livre') dObj.ml += pkts;
+
+                if (!porMotorista.has(item.motorista)) {
+                    porMotorista.set(item.motorista, { motorista: item.motorista, shopee: 0, ml: 0, total: 0, dias: new Set() });
+                }
+                const mObj = porMotorista.get(item.motorista);
+                if (item.plataforma === 'Shopee') mObj.shopee += pkts;
+                if (item.plataforma === 'Mercado Livre') mObj.ml += pkts;
+                mObj.total += pkts;
+                mObj.dias.add(dt.toDateString());
+            });
+
+            const totalPacotes = totalShopee + totalML;
+            const qtdDiasAtivos = porDia.size;
+            const mediaPorDia = qtdDiasAtivos > 0 ? totalPacotes / qtdDiasAtivos : 0;
+
+            let custoOperacional = 0;
+            dados.forEach(i => {
+                if (i.tipo === 'Abastecimento' || i.tipo === 'Manutenção') {
+                    custoOperacional += Number(i.valor_abastecimento) || 0;
+                }
+            });
+            listaMotoristas.forEach(m => {
+                const regMot = dados.filter(i => i.motorista === m.nome);
+                custoOperacional += calcularPagamentoMotorista(m, regMot).totalPagar;
+            });
+            const custoPorPacote = totalPacotes > 0 ? custoOperacional / totalPacotes : 0;
+
+            renderizarKPIsRelatorio([
+                { titulo: 'Total de Pacotes', valor: formatarInteiro(totalPacotes), sub: `Shopee: ${formatarInteiro(totalShopee)} | ML: ${formatarInteiro(totalML)}`, cor: 'text-blue-600', borda: 'border-l-blue-500' },
+                { titulo: 'Média por Dia Ativo', valor: `${formatarNumero(mediaPorDia, 1)} pkts`, sub: `Em ${formatarInteiro(qtdDiasAtivos)} dia(s) com coleta`, cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Participação Shopee', valor: totalPacotes > 0 ? `${formatarNumero((totalShopee / totalPacotes) * 100, 1)}%` : '0,0%', sub: `ML: ${totalPacotes > 0 ? formatarNumero((totalML / totalPacotes) * 100, 1) : '0,0'}%`, cor: 'text-orange-600', borda: 'border-l-orange-500' },
+                { titulo: 'Custo Médio / Pacote', valor: totalPacotes > 0 ? `R$ ${formatarMoeda(custoPorPacote)}` : '--', sub: 'Base: diárias + pkts + frota', cor: 'text-purple-600', borda: 'border-l-purple-500' }
+            ]);
+
+            const diasOrdenados = Array.from(porDia.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+            atualizarGraficoRelatorio(
+                '📦 Evolução Diária de Pacotes (Shopee vs. Mercado Livre)',
+                'line',
+                diasOrdenados.map(([, v]) => v.label),
+                [
+                    { label: 'Shopee', data: diasOrdenados.map(([, v]) => v.shopee), borderColor: '#f26522', backgroundColor: 'rgba(242, 101, 34, 0.15)', tension: 0.3, fill: true },
+                    { label: 'Mercado Livre', data: diasOrdenados.map(([, v]) => v.ml), borderColor: '#eab308', backgroundColor: 'rgba(234, 179, 8, 0.15)', tension: 0.3, fill: true }
+                ]
+            );
+
+            const linhasMot = Array.from(porMotorista.values()).sort((a, b) => b.total - a.total);
+            document.getElementById('rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Motorista</th>
+                    <th class="p-3 text-center">Dias Coleta</th>
+                    <th class="p-3 text-right">Shopee</th>
+                    <th class="p-3 text-right">Mercado Livre</th>
+                    <th class="p-3 text-right">Total Pacotes</th>
+                    <th class="p-3 text-right">Média / Dia</th>
+                    <th class="p-3 text-right">% do Volume</th>
+                </tr>
+            `;
+
+            document.getElementById('rel-tbody').innerHTML = linhasMot.map(m => {
+                const mediaMot = m.dias.size > 0 ? m.total / m.dias.size : 0;
+                const perc = totalPacotes > 0 ? (m.total / totalPacotes) * 100 : 0;
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(m.motorista)}</td>
+                        <td class="p-3 text-center">${formatarInteiro(m.dias.size)}</td>
+                        <td class="p-3 text-right font-semibold text-orange-600">${formatarInteiro(m.shopee)}</td>
+                        <td class="p-3 text-right font-semibold text-yellow-600">${formatarInteiro(m.ml)}</td>
+                        <td class="p-3 text-right font-extrabold text-blue-700">${formatarInteiro(m.total)}</td>
+                        <td class="p-3 text-right font-semibold">${formatarNumero(mediaMot, 1)}</td>
+                        <td class="p-3 text-right font-bold text-gray-700">${formatarNumero(perc, 1)}%</td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('rel-contador').innerText = `${formatarInteiro(linhasMot.length)} motorista(s)`;
+            ultimoRelatorioCSV = {
+                nome: 'relatorio_coletas_produtividade.csv',
+                linhas: [
+                    ['Motorista', 'Dias_Coleta', 'Shopee', 'Mercado_Livre', 'Total_Pacotes', 'Media_Por_Dia', 'Percentual_Volume'],
+                    ...linhasMot.map(m => [
+                        m.motorista,
+                        m.dias.size,
+                        m.shopee,
+                        m.ml,
+                        m.total,
+                        (m.dias.size > 0 ? m.total / m.dias.size : 0).toFixed(1),
+                        (totalPacotes > 0 ? (m.total / totalPacotes) * 100 : 0).toFixed(1)
+                    ])
+                ]
+            };
+        }
+
+        function renderizarRelatorioFechamento(dados) {
+            document.getElementById('rel-titulo').innerText = '💵 Relatório Consolidado de Fechamento da Equipe';
+            document.getElementById('rel-subtitulo').innerText = 'Apuração de diárias normais, diárias de sábado, comissões por pacote e total a pagar por motorista no período.';
+
+            const linhas = listaMotoristas.map(mot => {
+                const regMot = dados.filter(i => i.motorista === mot.nome);
+                const calc = calcularPagamentoMotorista(mot, regMot);
+                return { mot, calc };
+            });
+
+            const somaDiarias = linhas.reduce((acc, l) => acc + l.calc.totalDiarias, 0);
+            const somaComissoes = linhas.reduce((acc, l) => acc + l.calc.totalShopee + l.calc.totalML, 0);
+            const somaGeral = linhas.reduce((acc, l) => acc + l.calc.totalPagar, 0);
+            const somaDias = linhas.reduce((acc, l) => acc + l.calc.totalDias, 0);
+
+            renderizarKPIsRelatorio([
+                { titulo: 'Total Geral a Pagar', valor: `R$ ${formatarMoeda(somaGeral)}`, sub: 'Diárias + pacotes no período', cor: 'text-gb-navy', borda: 'border-l-blue-600' },
+                { titulo: 'Total em Diárias', valor: `R$ ${formatarMoeda(somaDiarias)}`, sub: `${formatarInteiro(somaDias)} dia(s) trabalhado(s)`, cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Comissões Shopee + ML', valor: `R$ ${formatarMoeda(somaComissoes)}`, sub: 'Pacotes recolhidos no período', cor: 'text-orange-600', borda: 'border-l-orange-500' },
+                { titulo: 'Motoristas na Equipe', valor: formatarInteiro(linhas.length), sub: 'Cadastrados no painel', cor: 'text-purple-600', borda: 'border-l-purple-500' }
+            ]);
+
+            atualizarGraficoRelatorio(
+                '💵 Total a Pagar por Motorista (R$)',
+                'bar',
+                linhas.map(l => l.mot.nome),
+                [{ label: 'Total a Pagar (R$)', data: linhas.map(l => l.calc.totalPagar), backgroundColor: '#0d2847', borderRadius: 6 }]
+            );
+
+            document.getElementById('rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Motorista</th>
+                    <th class="p-3">Veículo</th>
+                    <th class="p-3 text-center">Dias (Seg–Sex)</th>
+                    <th class="p-3 text-center">Sábados</th>
+                    <th class="p-3 text-right">Shopee</th>
+                    <th class="p-3 text-right">Merc. Livre</th>
+                    <th class="p-3 text-right">Total Diárias</th>
+                    <th class="p-3 text-right">Total a Pagar</th>
+                </tr>
+            `;
+
+            document.getElementById('rel-tbody').innerHTML = linhas.map(({ mot, calc }) => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-gray-800">${escapeHtml(mot.nome)}</td>
+                    <td class="p-3 text-xs text-gray-600">${escapeHtml(mot.veiculo)}</td>
+                    <td class="p-3 text-center">${formatarInteiro(calc.diasNormais)}</td>
+                    <td class="p-3 text-center font-semibold text-teal-700">${formatarInteiro(calc.diasSabado)}</td>
+                    <td class="p-3 text-right text-orange-600 font-semibold">${formatarInteiro(calc.pacotesShopee)}</td>
+                    <td class="p-3 text-right text-yellow-600 font-semibold">${formatarInteiro(calc.pacotesML)}</td>
+                    <td class="p-3 text-right text-emerald-700 font-semibold">R$ ${formatarMoeda(calc.totalDiarias)}</td>
+                    <td class="p-3 text-right font-black text-gb-navy">R$ ${formatarMoeda(calc.totalPagar)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rel-contador').innerText = `${formatarInteiro(linhas.length)} motorista(s)`;
+            ultimoRelatorioCSV = {
+                nome: 'relatorio_fechamento_equipe.csv',
+                linhas: [
+                    ['Motorista', 'Veiculo', 'Dias_Normais', 'Sabados', 'Pacotes_Shopee', 'Pacotes_ML', 'Total_Diarias', 'Total_A_Pagar'],
+                    ...linhas.map(({ mot, calc }) => [
+                        mot.nome,
+                        mot.veiculo,
+                        calc.diasNormais,
+                        calc.diasSabado,
+                        calc.pacotesShopee,
+                        calc.pacotesML,
+                        calc.totalDiarias.toFixed(2),
+                        calc.totalPagar.toFixed(2)
+                    ])
+                ]
+            };
+        }
+
+        function renderizarRelatorioRotas(dados) {
+            document.getElementById('rel-titulo').innerText = '🗺️ Relatório de Observações, Rotas e Serviços';
+            document.getElementById('rel-subtitulo').innerText = 'Agrupamento por observação registrada nos lançamentos (rotas, regiões, peças ou serviços).';
+
+            const mapaObs = new Map();
+            dados.forEach(item => {
+                const chave = (item.observacao && item.observacao.trim()) ? item.observacao.trim() : 'Sem observação informada';
+                if (!mapaObs.has(chave)) {
+                    mapaObs.set(chave, { obs: chave, qtd: 0, pacotes: 0, valor: 0, tipos: new Set() });
+                }
+                const o = mapaObs.get(chave);
+                o.qtd++;
+                o.pacotes += Number(item.pacotes) || 0;
+                o.valor += Number(item.valor_abastecimento) || 0;
+                o.tipos.add(item.tipo);
+            });
+
+            const linhas = Array.from(mapaObs.values()).sort((a, b) => b.qtd - a.qtd);
+            const totalValor = linhas.reduce((acc, l) => acc + l.valor, 0);
+            const totalPkts = linhas.reduce((acc, l) => acc + l.pacotes, 0);
+
+            renderizarKPIsRelatorio([
+                { titulo: 'Grupos / Observações', valor: formatarInteiro(linhas.length), sub: 'No período filtrado', cor: 'text-blue-600', borda: 'border-l-blue-500' },
+                { titulo: 'Total de Ocorrências', valor: formatarInteiro(dados.length), sub: 'Lançamentos agrupados', cor: 'text-purple-600', borda: 'border-l-purple-500' },
+                { titulo: 'Pacotes Vinculados', valor: formatarInteiro(totalPkts), sub: 'Em coletas com observação', cor: 'text-orange-600', borda: 'border-l-orange-500' },
+                { titulo: 'Valores Vinculados', valor: `R$ ${formatarMoeda(totalValor)}`, sub: 'Abastecimentos e manutenções', cor: 'text-rose-600', borda: 'border-l-rose-500' }
+            ]);
+
+            atualizarGraficoRelatorio(
+                '🗺️ Top 8 Observações / Rotas por Quantidade de Lançamentos',
+                'bar',
+                linhas.slice(0, 8).map(l => l.obs),
+                [{ label: 'Lançamentos', data: linhas.slice(0, 8).map(l => l.qtd), backgroundColor: '#f26522', borderRadius: 6 }]
+            );
+
+            document.getElementById('rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Observação / Rota / Serviço</th>
+                    <th class="p-3">Tipos</th>
+                    <th class="p-3 text-right">Lançamentos</th>
+                    <th class="p-3 text-right">Pacotes</th>
+                    <th class="p-3 text-right">Valor (R$)</th>
+                </tr>
+            `;
+
+            document.getElementById('rel-tbody').innerHTML = linhas.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-gray-800">${escapeHtml(l.obs)}</td>
+                    <td class="p-3 text-xs text-gray-600">${escapeHtml(Array.from(l.tipos).join(', '))}</td>
+                    <td class="p-3 text-right font-bold">${formatarInteiro(l.qtd)}</td>
+                    <td class="p-3 text-right font-semibold text-blue-700">${formatarInteiro(l.pacotes)}</td>
+                    <td class="p-3 text-right font-semibold text-emerald-700">R$ ${formatarMoeda(l.valor)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('rel-contador').innerText = `${formatarInteiro(linhas.length)} grupo(s)`;
+            ultimoRelatorioCSV = {
+                nome: 'relatorio_rotas_observacoes.csv',
+                linhas: [
+                    ['Observacao', 'Tipos', 'Lancamentos', 'Pacotes', 'Valor'],
+                    ...linhas.map(l => [l.obs, Array.from(l.tipos).join(' | '), l.qtd, l.pacotes, l.valor.toFixed(2)])
+                ]
+            };
+        }
+
+        function renderizarRelatorioAuditoria(dados) {
+            document.getElementById('rel-titulo').innerText = '🕵️ Auditoria de Lançamentos e Comprovantes';
+            document.getElementById('rel-subtitulo').innerText = 'Identifica lançamentos sem foto/comprovante ou com valores/KM zerados para conferência.';
+
+            const inconsistencias = [];
+            dados.forEach(item => {
+                const temFoto = Boolean(item.foto_comprovante || item.foto_km || item.foto_abastecimento);
+                const motivos = [];
+
+                if (!temFoto) motivos.push('Sem foto/comprovante');
+                if ((item.tipo === 'Abastecimento' || item.tipo === 'Manutenção') && (!item.valor_abastecimento || Number(item.valor_abastecimento) <= 0)) {
+                    motivos.push('Valor zerado');
+                }
+                if (item.tipo === 'Abastecimento' && (!item.litros || Number(item.litros) <= 0)) {
+                    motivos.push('Litros zerados');
+                }
+                if (item.tipo === 'KM' && (!item.km || Number(item.km) <= 0)) {
+                    motivos.push('KM não informado');
+                }
+                if (item.tipo === 'Coleta' && (!item.pacotes || Number(item.pacotes) <= 0)) {
+                    motivos.push('Sem pacotes');
+                }
+
+                if (motivos.length > 0) {
+                    inconsistencias.push({ item, motivos });
+                }
+            });
+
+            const semFotoQtd = inconsistencias.filter(x => x.motivos.includes('Sem foto/comprovante')).length;
+            const hoje = new Date();
+            const mesAtual = hoje.getMonth() + 1;
+            const aniversariantesMes = listaMotoristas.filter(m => {
+                if (!m.data_nascimento) return false;
+                const partes = m.data_nascimento.split('-');
+                return partes.length === 3 && parseInt(partes[1], 10) === mesAtual;
+            });
+
+            renderizarKPIsRelatorio([
+                { titulo: 'Itens para Conferência', valor: formatarInteiro(inconsistencias.length), sub: `De ${formatarInteiro(dados.length)} lançamento(s) filtrados`, cor: 'text-rose-600', borda: 'border-l-rose-500' },
+                { titulo: 'Sem Foto / Comprovante', valor: formatarInteiro(semFotoQtd), sub: 'Verifique recibos e painéis', cor: 'text-amber-600', borda: 'border-l-amber-500' },
+                { titulo: 'Aniversariantes do Mês', valor: formatarInteiro(aniversariantesMes.length), sub: `Mês ${String(mesAtual).padStart(2, '0')}`, cor: 'text-purple-700', borda: 'border-l-purple-500' },
+                { titulo: 'Cobertura de Fotos', valor: dados.length > 0 ? `${formatarNumero(((dados.length - semFotoQtd) / dados.length) * 100, 1)}%` : '0,0%', sub: 'Lançamentos com anexo', cor: 'text-emerald-600', borda: 'border-l-emerald-500' }
+            ]);
+
+            atualizarGraficoRelatorio(null, 'bar', [], []);
+
+            document.getElementById('rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Data / Hora</th>
+                    <th class="p-3">Motorista</th>
+                    <th class="p-3">Tipo</th>
+                    <th class="p-3">Observação</th>
+                    <th class="p-3">Alerta</th>
+                    <th class="p-3 text-right">Ação</th>
+                </tr>
+            `;
+
+            document.getElementById('rel-tbody').innerHTML = inconsistencias.length > 0
+                ? inconsistencias.map(({ item, motivos }) => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 text-xs text-gray-500">${escapeHtml(new Date(item.created_at).toLocaleString('pt-BR'))}</td>
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(item.motorista)}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100">${escapeHtml(item.tipo)}</span></td>
+                        <td class="p-3 text-xs text-gray-600">${escapeHtml(item.observacao || '--')}</td>
+                        <td class="p-3 text-xs font-bold text-rose-600">${escapeHtml(motivos.join(' • '))}</td>
+                        <td class="p-3 text-right">
+                            <button onclick="abrirModalEdicaoLancamento(${item.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 px-2.5 py-1 rounded">Editar</button>
+                        </td>
+                    </tr>
+                `).join('')
+                : `<tr><td colspan="6" class="p-6 text-center text-gray-500 text-sm">Nenhuma pendência encontrada nos lançamentos filtrados.</td></tr>`;
+
+            document.getElementById('rel-contador').innerText = `${formatarInteiro(inconsistencias.length)} ocorrência(s)`;
+
+            const extraBox = document.getElementById('rel-extra-box');
+            extraBox.classList.remove('hidden');
+            document.getElementById('rel-extra-titulo').innerText = '🎂 Calendário de Aniversariantes da Equipe';
+            document.getElementById('rel-extra-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Motorista</th>
+                    <th class="p-3">Veículo / Placa</th>
+                    <th class="p-3">Data de Nascimento</th>
+                    <th class="p-3">Status</th>
+                </tr>
+            `;
+            document.getElementById('rel-extra-tbody').innerHTML = listaMotoristas.map(m => {
+                let dataFmt = 'Não informada';
+                let statusBadge = `<span class="text-xs text-gray-400">--</span>`;
+                if (m.data_nascimento) {
+                    const p = m.data_nascimento.split('-');
+                    if (p.length === 3) {
+                        dataFmt = `${p[2]}/${p[1]}/${p[0]}`;
+                        if (parseInt(p[1], 10) === mesAtual) {
+                            statusBadge = `<span class="bg-purple-100 text-purple-800 text-xs font-black px-2.5 py-0.5 rounded-full border border-purple-300">🎁 Aniversariante do Mês!</span>`;
+                        }
+                    }
+                }
+                return `
+                    <tr class="hover:bg-purple-50/40">
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(m.nome)}</td>
+                        <td class="p-3 text-gray-600">${escapeHtml(m.veiculo)}</td>
+                        <td class="p-3 font-bold text-purple-900">${escapeHtml(dataFmt)}</td>
+                        <td class="p-3">${statusBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            ultimoRelatorioCSV = {
+                nome: 'relatorio_auditoria_lancamentos.csv',
+                linhas: [
+                    ['DataHora', 'Motorista', 'Tipo', 'Observacao', 'Alertas'],
+                    ...inconsistencias.map(({ item, motivos }) => [
+                        new Date(item.created_at).toLocaleString('pt-BR'),
+                        item.motorista,
+                        item.tipo,
+                        item.observacao || '',
+                        motivos.join(' | ')
+                    ])
+                ]
+            };
+        }
+
+        function exportarRelatorioAtivoCSV() {
+            if (!ultimoRelatorioCSV.linhas || ultimoRelatorioCSV.linhas.length <= 1) {
+                alert('Não há dados no relatório ativo para exportar.');
+                return;
+            }
+
+            const csvString = ultimoRelatorioCSV.linhas
+                .map(row => row.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(';'))
+                .join('\n');
+
+            const blob = new Blob(['\ufeff' + csvString], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', ultimoRelatorioCSV.nome);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
 
         async function verificarAutenticacao() {
@@ -1170,33 +1942,12 @@
 
             listaMotoristas.forEach(mot => {
                 const registrosMot = dadosFiltrados.filter(i => i.motorista === mot.nome);
-                const diasResumo = agregarDiasTrabalhados(registrosMot);
-                let pacotesShopeeMot = 0;
-                let pacotesMlMot = 0;
+                const calc = calcularPagamentoMotorista(mot, registrosMot);
+                const qtdDias = calc.totalDias;
+                totalPagoMotoristasGeral += calc.totalPagar;
 
-                registrosMot.forEach(i => {
-                    if (i.tipo === 'Coleta') {
-                        if (i.plataforma === 'Shopee') pacotesShopeeMot += (i.pacotes || 0);
-                        if (i.plataforma === 'Mercado Livre') pacotesMlMot += (i.pacotes || 0);
-                    }
-                });
-
-                const vDiariaMot = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
-                const vDiariaSabMot = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null && mot.valor_diaria_sabado !== '')
-                    ? parseFloat(mot.valor_diaria_sabado)
-                    : vDiariaMot;
-                const vShopeeMot = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
-                const vMlMot = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
-
-                const qtdDias = diasResumo.total;
-                const totDiarias = (diasResumo.normais * vDiariaMot) + (diasResumo.sabados * vDiariaSabMot);
-                const totShopee = pacotesShopeeMot * vShopeeMot;
-                const totMl = pacotesMlMot * vMlMot;
-                const subtotalMot = totDiarias + totShopee + totMl;
-                totalPagoMotoristasGeral += subtotalMot;
-
-                const textoDiariasRel = diasResumo.sabados > 0
-                    ? `${formatarInteiro(qtdDias)} (${diasResumo.normais}N/${diasResumo.sabados}S)`
+                const textoDiariasRel = calc.diasSabado > 0
+                    ? `${formatarInteiro(qtdDias)} (${calc.diasNormais}N/${calc.diasSabado}S)`
                     : formatarInteiro(qtdDias);
 
                 linhasMotoristasHTML += `
@@ -1204,9 +1955,9 @@
                         <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(mot.nome)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1;">${escapeHtml(mot.veiculo)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${textoDiariasRel}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${formatarInteiro(pacotesShopeeMot)}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${formatarInteiro(pacotesMlMot)}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(subtotalMot)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${formatarInteiro(calc.pacotesShopee)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${formatarInteiro(calc.pacotesML)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(calc.totalPagar)}</td>
                     </tr>
                 `;
             });
@@ -1431,6 +2182,9 @@
         function aplicarFiltros() {
             const dadosFiltrados = obterDadosFiltradosAtuais();
             renderizarDashboard(dadosFiltrados);
+            if (abaAtiva === 'relatorios') {
+                renderizarRelatorioAtivo();
+            }
         }
 
         function renderizarDashboard(dados) {
