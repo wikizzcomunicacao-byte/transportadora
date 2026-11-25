@@ -1037,13 +1037,17 @@
 
             listaMotoristas.forEach(mot => {
                 const registrosMot = dadosReg.filter(i => i.motorista === mot.nome);
-                const diasUnicos = new Set();
+                const diasUnicosMap = new Map();
                 let shopeeMot = 0;
                 let mlMot = 0;
                 let combustivelMot = 0;
 
                 registrosMot.forEach(i => {
-                    diasUnicos.add(new Date(i.created_at).toDateString());
+                    const dataReg = new Date(i.created_at);
+                    const chaveDia = `${dataReg.getFullYear()}-${dataReg.getMonth()}-${dataReg.getDate()}`;
+                    if (!diasUnicosMap.has(chaveDia)) {
+                        diasUnicosMap.set(chaveDia, dataReg.getDay() === 6);
+                    }
                     if (i.tipo === 'Coleta') {
                         if (i.plataforma === 'Shopee') shopeeMot += (i.pacotes || 0);
                         if (i.plataforma === 'Mercado Livre') mlMot += (i.pacotes || 0);
@@ -1054,11 +1058,19 @@
                 });
 
                 const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vDiariaSabado = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null) ? parseFloat(mot.valor_diaria_sabado) : vDiaria;
                 const vShopee = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
                 const vMl = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
 
-                const qtdDias = diasUnicos.size;
-                const totDiariaMot = qtdDias * vDiaria;
+                let qtdDiasNormais = 0;
+                let qtdDiasSabado = 0;
+                diasUnicosMap.forEach(isSabado => {
+                    if (isSabado) qtdDiasSabado++;
+                    else qtdDiasNormais++;
+                });
+
+                const qtdDias = diasUnicosMap.size;
+                const totDiariaMot = (qtdDiasNormais * vDiaria) + (qtdDiasSabado * vDiariaSabado);
                 const totPacotesMot = (shopeeMot * vShopee) + (mlMot * vMl);
                 const custoMotTotal = totDiariaMot + totPacotesMot;
 
@@ -1066,13 +1078,16 @@
                 custoTotalPacotes += totPacotesMot;
 
                 const custoGeralMot = custoMotTotal + combustivelMot;
+                const textoDiarias = qtdDiasSabado > 0
+                    ? `${qtdDias} dias (${qtdDiasNormais}N / ${qtdDiasSabado}S)`
+                    : `${qtdDias} dias`;
 
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-gray-50 border-b";
                 tr.innerHTML = `
                     <td class="p-3 font-bold text-gray-800">${escapeHtml(mot.nome)}</td>
                     <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
-                    <td class="p-3 text-center font-semibold">${qtdDias} dias</td>
+                    <td class="p-3 text-center font-semibold">${textoDiarias}</td>
                     <td class="p-3 text-center text-orange-600 font-bold">${shopeeMot.toLocaleString('pt-BR')}</td>
                     <td class="p-3 text-center text-yellow-600 font-bold">${mlMot.toLocaleString('pt-BR')}</td>
                     <td class="p-3 text-right font-bold text-orange-600">R$ ${formatarMoeda(custoMotTotal)}</td>
