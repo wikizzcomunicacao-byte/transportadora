@@ -302,24 +302,52 @@
                             <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Peças, Manutenção & Pneus</span>
-                            <span id="dre-custo-pecas-pneus" class="text-red-600">R$ 0,00</span>
+                            <span>(-) Peças</span>
+                            <span id="dre-custo-pecas" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Funcionários, Cesta Básica & Premiação</span>
-                            <span id="dre-custo-funcionarios" class="text-red-600">R$ 0,00</span>
+                            <span>(-) Manutenção (Manual)</span>
+                            <span id="dre-custo-manutencao-manual" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Impostos & Pedágios</span>
-                            <span id="dre-custo-impostos" class="text-red-600">R$ 0,00</span>
+                            <span>(-) Pneus</span>
+                            <span id="dre-custo-pneus" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Parcelas / Financiamentos & Prolabore</span>
-                            <span id="dre-custo-parcelas-prolabore" class="text-red-600">R$ 0,00</span>
+                            <span>(-) Funcionários</span>
+                            <span id="dre-custo-funcionario" class="text-red-600">R$ 0,00</span>
                         </div>
                         <div class="flex justify-between text-gray-600">
-                            <span>(-) Outras Saídas / Custos Avulsos / Boletos Pagos</span>
-                            <span id="dre-custo-extras" class="text-red-600">R$ 0,00</span>
+                            <span>(-) Cesta Básica</span>
+                            <span id="dre-custo-cesta-basica" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Premiação</span>
+                            <span id="dre-custo-premiacao" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Impostos</span>
+                            <span id="dre-custo-imposto" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Pedágios</span>
+                            <span id="dre-custo-pedagios" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Parcelas / Financiamentos</span>
+                            <span id="dre-custo-parcelas" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Prolabore</span>
+                            <span id="dre-custo-prolabore" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Outras Saídas / Custos Avulsos</span>
+                            <span id="dre-custo-outras-saidas" class="text-red-600">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-600">
+                            <span>(-) Boletos Pagos</span>
+                            <span id="dre-custo-boletos-pagos" class="text-red-600">R$ 0,00</span>
                         </div>
                     </div>
 
@@ -927,10 +955,16 @@
             let totalSaidasManuais = 0;
             let totalBoletosPagosValor = boletosPagosPeriodo.reduce((acc, b) => acc + Number(b.valor), 0);
 
-            let catPecasPneus = 0;
-            let catFuncionarios = 0;
-            let catImpostos = 0;
-            let catParcelasProlabore = 0;
+            let catPecas = 0;
+            let catManutencaoManual = 0;
+            let catPneus = 0;
+            let catFuncionario = 0;
+            let catCestaBasica = 0;
+            let catPremiacao = 0;
+            let catImposto = 0;
+            let catPedagios = 0;
+            let catParcelas = 0;
+            let catProlabore = 0;
             let catOutrasSaidas = 0;
             let catOutrasReceitas = 0;
 
@@ -949,14 +983,26 @@
                     }
                 } else if (t.tipo === 'Saida') {
                     totalSaidasManuais += val;
-                    if (cat === 'pecas' || cat === 'manutencao' || cat === 'pneus') {
-                        catPecasPneus += val;
-                    } else if (cat === 'funcionario' || cat === 'cesta basica' || cat === 'premiacao') {
-                        catFuncionarios += val;
-                    } else if (cat === 'imposto' || cat === 'pedagios') {
-                        catImpostos += val;
-                    } else if (cat === 'parcela/financiamento' || cat === 'prolabore') {
-                        catParcelasProlabore += val;
+                    if (cat === 'pecas') {
+                        catPecas += val;
+                    } else if (cat === 'manutencao') {
+                        catManutencaoManual += val;
+                    } else if (cat === 'pneus') {
+                        catPneus += val;
+                    } else if (cat === 'funcionario') {
+                        catFuncionario += val;
+                    } else if (cat === 'cesta basica') {
+                        catCestaBasica += val;
+                    } else if (cat === 'premiacao') {
+                        catPremiacao += val;
+                    } else if (cat === 'imposto') {
+                        catImposto += val;
+                    } else if (cat === 'pedagios') {
+                        catPedagios += val;
+                    } else if (cat === 'parcela/financiamento') {
+                        catParcelas += val;
+                    } else if (cat === 'prolabore') {
+                        catProlabore += val;
                     } else {
                         catOutrasSaidas += val;
                     }
@@ -1066,18 +1112,25 @@
             document.getElementById('dre-custo-pacotes').innerText = `- R$ ${formatarMoeda(custoTotalPacotes)}`;
             document.getElementById('dre-custo-combustivel').innerText = `- R$ ${formatarMoeda(totalCombustivel)}`;
             document.getElementById('dre-custo-oficina').innerText = `- R$ ${formatarMoeda(totalManutencao)}`;
-            document.getElementById('dre-custo-pecas-pneus').innerText = `- R$ ${formatarMoeda(catPecasPneus)}`;
-            document.getElementById('dre-custo-funcionarios').innerText = `- R$ ${formatarMoeda(catFuncionarios)}`;
-            document.getElementById('dre-custo-impostos').innerText = `- R$ ${formatarMoeda(catImpostos)}`;
-            document.getElementById('dre-custo-parcelas-prolabore').innerText = `- R$ ${formatarMoeda(catParcelasProlabore)}`;
-            document.getElementById('dre-custo-extras').innerText = `- R$ ${formatarMoeda(catOutrasSaidas + totalBoletosPagosValor)}`;
+            document.getElementById('dre-custo-pecas').innerText = `- R$ ${formatarMoeda(catPecas)}`;
+            document.getElementById('dre-custo-manutencao-manual').innerText = `- R$ ${formatarMoeda(catManutencaoManual)}`;
+            document.getElementById('dre-custo-pneus').innerText = `- R$ ${formatarMoeda(catPneus)}`;
+            document.getElementById('dre-custo-funcionario').innerText = `- R$ ${formatarMoeda(catFuncionario)}`;
+            document.getElementById('dre-custo-cesta-basica').innerText = `- R$ ${formatarMoeda(catCestaBasica)}`;
+            document.getElementById('dre-custo-premiacao').innerText = `- R$ ${formatarMoeda(catPremiacao)}`;
+            document.getElementById('dre-custo-imposto').innerText = `- R$ ${formatarMoeda(catImposto)}`;
+            document.getElementById('dre-custo-pedagios').innerText = `- R$ ${formatarMoeda(catPedagios)}`;
+            document.getElementById('dre-custo-parcelas').innerText = `- R$ ${formatarMoeda(catParcelas)}`;
+            document.getElementById('dre-custo-prolabore').innerText = `- R$ ${formatarMoeda(catProlabore)}`;
+            document.getElementById('dre-custo-outras-saidas').innerText = `- R$ ${formatarMoeda(catOutrasSaidas)}`;
+            document.getElementById('dre-custo-boletos-pagos').innerText = `- R$ ${formatarMoeda(totalBoletosPagosValor)}`;
             document.getElementById('dre-total-despesas').innerText = `- R$ ${formatarMoeda(totalDespesas)}`;
 
             const elResultado = document.getElementById('dre-resultado-liquido');
             elResultado.innerText = `R$ ${formatarMoeda(resultadoLiquido)}`;
             elResultado.className = resultadoLiquido >= 0 ? 'text-emerald-400 font-black' : 'text-red-400 font-black';
 
-            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, catPecasPneus + catFuncionarios + catImpostos + catParcelasProlabore + catOutrasSaidas + totalBoletosPagosValor);
+            atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, catPecas + catManutencaoManual + catPneus + catFuncionario + catCestaBasica + catPremiacao + catImposto + catPedagios + catParcelas + catProlabore + catOutrasSaidas + totalBoletosPagosValor);
         }
 
         function atualizarGraficoCustos(motoristas, combustivel, oficina, extras) {
@@ -1110,11 +1163,18 @@
             const custoPacotes = document.getElementById('dre-custo-pacotes').innerText;
             const custoCombustivel = document.getElementById('dre-custo-combustivel').innerText;
             const custoOficina = document.getElementById('dre-custo-oficina').innerText;
-            const custoPecasPneus = document.getElementById('dre-custo-pecas-pneus').innerText;
-            const custoFuncionarios = document.getElementById('dre-custo-funcionarios').innerText;
-            const custoImpostos = document.getElementById('dre-custo-impostos').innerText;
-            const custoParcelasProlabore = document.getElementById('dre-custo-parcelas-prolabore').innerText;
-            const custoExtras = document.getElementById('dre-custo-extras').innerText;
+            const custoPecas = document.getElementById('dre-custo-pecas').innerText;
+            const custoManutencaoManual = document.getElementById('dre-custo-manutencao-manual').innerText;
+            const custoPneus = document.getElementById('dre-custo-pneus').innerText;
+            const custoFuncionario = document.getElementById('dre-custo-funcionario').innerText;
+            const custoCestaBasica = document.getElementById('dre-custo-cesta-basica').innerText;
+            const custoPremiacao = document.getElementById('dre-custo-premiacao').innerText;
+            const custoImposto = document.getElementById('dre-custo-imposto').innerText;
+            const custoPedagios = document.getElementById('dre-custo-pedagios').innerText;
+            const custoParcelas = document.getElementById('dre-custo-parcelas').innerText;
+            const custoProlabore = document.getElementById('dre-custo-prolabore').innerText;
+            const custoOutrasSaidas = document.getElementById('dre-custo-outras-saidas').innerText;
+            const custoBoletosPagos = document.getElementById('dre-custo-boletos-pagos').innerText;
             const totalDespesas = document.getElementById('dre-total-despesas').innerText;
             const resultadoLiquido = document.getElementById('dre-resultado-liquido').innerText;
             const margem = document.getElementById('card-margem-porcentagem').innerText;
@@ -1161,24 +1221,52 @@
                                 <td style="padding:8px; text-align:right; color:#dc2626;">${custoOficina}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Peças, Manutenção & Pneus</td>
-                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPecasPneus}</td>
+                                <td style="padding:8px; color:#475569;">(-) Peças</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPecas}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Funcionários, Cesta Básica & Premiação</td>
-                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoFuncionarios}</td>
+                                <td style="padding:8px; color:#475569;">(-) Manutenção (Manual)</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoManutencaoManual}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Impostos & Pedágios</td>
-                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoImpostos}</td>
+                                <td style="padding:8px; color:#475569;">(-) Pneus</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPneus}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Parcelas / Financiamentos & Prolabore</td>
-                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoParcelasProlabore}</td>
+                                <td style="padding:8px; color:#475569;">(-) Funcionários</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoFuncionario}</td>
                             </tr>
                             <tr style="border:1px solid #cbd5e1;">
-                                <td style="padding:8px; color:#475569;">(-) Outras Saídas / Custos Extras</td>
-                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoExtras}</td>
+                                <td style="padding:8px; color:#475569;">(-) Cesta Básica</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoCestaBasica}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Premiação</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPremiacao}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Impostos</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoImposto}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Pedágios</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoPedagios}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Parcelas / Financiamentos</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoParcelas}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Prolabore</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoProlabore}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Outras Saídas / Custos Avulsos</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoOutrasSaidas}</td>
+                            </tr>
+                            <tr style="border:1px solid #cbd5e1;">
+                                <td style="padding:8px; color:#475569;">(-) Boletos Pagos</td>
+                                <td style="padding:8px; text-align:right; color:#dc2626;">${custoBoletosPagos}</td>
                             </tr>
                             <tr style="background:#fff1f2; border:1px solid #cbd5e1;">
                                 <td style="padding:10px; font-weight:bold; color:#9f1239;">(=) Total de Despesas Operacionais</td>
