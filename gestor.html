@@ -307,7 +307,7 @@
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Gasto Combustível</p>
                 <h3 id="metric-gasto" class="text-3xl font-extrabold text-emerald-600 mt-1">R$ 0,00</h3>
-                <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0 L (R$ 0.00/L)</p>
+                <p id="sub-litros" class="mt-2 text-xs text-gray-500">Total: 0,0 L (R$ 0,00/L)</p>
             </div>
             <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
                 <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Manutenção Veicular</p>
@@ -487,6 +487,21 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function formatarMoeda(valor) {
+            const num = Number(valor) || 0;
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatarNumero(valor, decimais = 1) {
+            const num = Number(valor) || 0;
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: decimais, maximumFractionDigits: decimais });
+        }
+
+        function formatarInteiro(valor) {
+            const num = Number(valor) || 0;
+            return num.toLocaleString('pt-BR');
+        }
+
         async function verificarAutenticacao() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             
@@ -578,9 +593,9 @@
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(mot.nome)} ${badgeNiver}</td>
                     <td class="p-3 text-gray-600">${escapeHtml(mot.veiculo)}</td>
                     <td class="p-3 font-bold text-purple-900">${niverTexto}</td>
-                    <td class="p-3 font-bold text-emerald-700">R$ ${(parseFloat(mot.valor_diaria) || 0).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-orange-600">R$ ${(parseFloat(mot.valor_shopee) || 0).toFixed(2)}</td>
-                    <td class="p-3 font-bold text-yellow-600">R$ ${(parseFloat(mot.valor_ml) || 0).toFixed(2)}</td>
+                    <td class="p-3 font-bold text-emerald-700">R$ ${formatarMoeda(parseFloat(mot.valor_diaria) || 0)}</td>
+                    <td class="p-3 font-bold text-orange-600">R$ ${formatarMoeda(parseFloat(mot.valor_shopee) || 0)}</td>
+                    <td class="p-3 font-bold text-yellow-600">R$ ${formatarMoeda(parseFloat(mot.valor_ml) || 0)}</td>
                     <td class="p-3 text-right space-x-1">
                         <button onclick="abrirModalCredenciais(${mot.id}, '${escapeHtml(mot.nome)}')" class="text-purple-600 hover:text-purple-800 text-xs font-bold bg-purple-50 hover:bg-purple-100 px-2.5 py-1 rounded transition">🔑 Acesso</button>
                         <button onclick="editarMotorista(${mot.id})" class="text-blue-600 hover:text-blue-800 text-xs font-bold bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded transition">Editar</button>
@@ -738,15 +753,15 @@
                     <td class="p-3 text-gray-500 text-xs">${escapeHtml(new Date(item.created_at).toLocaleString('pt-BR'))}</td>
                     <td class="p-3 font-semibold text-gray-700">${escapeHtml(item.motorista)}</td>
                     <td class="p-3 text-gray-800 font-medium">${escapeHtml(item.observacao || 'Manutenção Geral')}</td>
-                    <td class="p-3 font-semibold text-amber-700">${item.km ? escapeHtml(item.km) + ' KM' : '--'}</td>
-                    <td class="p-3 font-extrabold text-rose-600">R$ ${val.toFixed(2)}</td>
+                    <td class="p-3 font-semibold text-amber-700">${item.km ? formatarInteiro(item.km) + ' KM' : '--'}</td>
+                    <td class="p-3 font-extrabold text-rose-600">R$ ${formatarMoeda(val)}</td>
                     <td class="p-3 text-right">${linkFoto}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('veic-qtd-servicos').innerText = qtdServicos;
-            document.getElementById('veic-total-gasto').innerText = `R$ ${totalGasto.toFixed(2)}`;
+            document.getElementById('veic-qtd-servicos').innerText = formatarInteiro(qtdServicos);
+            document.getElementById('veic-total-gasto').innerText = `R$ ${formatarMoeda(totalGasto)}`;
         }
 
         async function salvarMotorista() {
@@ -902,16 +917,16 @@
             const subtotalML = totalML * valorMl;
             const totalGeral = subtotalDiarias + subtotalShopee + subtotalML;
 
-            document.getElementById('resumo-dias-trabalhados').innerText = `${qtdDias} Dias`;
-            document.getElementById('resumo-total-diarias').innerText = `R$ ${subtotalDiarias.toFixed(2)}`;
+            document.getElementById('resumo-dias-trabalhados').innerText = `${formatarInteiro(qtdDias)} Dias`;
+            document.getElementById('resumo-total-diarias').innerText = `R$ ${formatarMoeda(subtotalDiarias)}`;
 
-            document.getElementById('resumo-pacotes-shopee').innerText = `${totalShopee} Pkts`;
-            document.getElementById('resumo-total-shopee').innerText = `R$ ${subtotalShopee.toFixed(2)}`;
+            document.getElementById('resumo-pacotes-shopee').innerText = `${formatarInteiro(totalShopee)} Pkts`;
+            document.getElementById('resumo-total-shopee').innerText = `R$ ${formatarMoeda(subtotalShopee)}`;
 
-            document.getElementById('resumo-pacotes-ml').innerText = `${totalML} Pkts`;
-            document.getElementById('resumo-total-ml').innerText = `R$ ${subtotalML.toFixed(2)}`;
+            document.getElementById('resumo-pacotes-ml').innerText = `${formatarInteiro(totalML)} Pkts`;
+            document.getElementById('resumo-total-ml').innerText = `R$ ${formatarMoeda(subtotalML)}`;
 
-            document.getElementById('resumo-total-pagamento').innerText = `R$ ${totalGeral.toFixed(2)}`;
+            document.getElementById('resumo-total-pagamento').innerText = `R$ ${formatarMoeda(totalGeral)}`;
         }
 
         function gerarPDFComprovante() {
@@ -1004,21 +1019,21 @@
                             <tbody>
                                 <tr>
                                     <td style="padding:10px; border:1px solid #cbd5e1;">Diárias Trabalhadas</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorDiaria.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalDiarias.toFixed(2)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(qtdDias)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${formatarMoeda(valorDiaria)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(subtotalDiarias)}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Shopee</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalShopee}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorShopee.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ ${subtotalShopee.toFixed(2)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(totalShopee)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${formatarMoeda(valorShopee)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#c2410c;">R$ ${formatarMoeda(subtotalShopee)}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:10px; border:1px solid #cbd5e1;">Pacotes Mercado Livre</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${totalML}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${valorMl.toFixed(2)}</td>
-                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ ${subtotalMl.toFixed(2)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(totalML)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right;">R$ ${formatarMoeda(valorMl)}</td>
+                                    <td style="padding:10px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#b45309;">R$ ${formatarMoeda(subtotalMl)}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1029,7 +1044,7 @@
                             <td style="text-align:right;">
                                 <div style="display:inline-block; background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:8px; text-align:right; width:280px;">
                                     <p style="font-size:11px; font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">VALOR TOTAL LÍQUIDO A PAGAR</p>
-                                    <h2 style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ ${totalGeral.toFixed(2)}</h2>
+                                    <h2 style="font-size:22px; font-weight:900; color:#0d2847; margin:0;">R$ ${formatarMoeda(totalGeral)}</h2>
                                 </div>
                             </td>
                         </tr>
@@ -1086,7 +1101,7 @@
                 }
             });
 
-            const medioLitro = totalLitros > 0 ? (totalCombustivel / totalLitros).toFixed(2) : '0.00';
+            const medioLitro = totalLitros > 0 ? formatarMoeda(totalCombustivel / totalLitros) : '0,00';
 
             let linhasMotoristasHTML = '';
             let totalPagoMotoristasGeral = 0;
@@ -1120,10 +1135,10 @@
                     <tr style="border-bottom: 1px solid #cbd5e1;">
                         <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(mot.nome)}</td>
                         <td style="padding:6px; border:1px solid #cbd5e1;">${escapeHtml(mot.veiculo)}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${qtdDias}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${pacotesShopeeMot}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${pacotesMlMot}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${subtotalMot.toFixed(2)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(qtdDias)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#c2410c; font-weight:bold;">${formatarInteiro(pacotesShopeeMot)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; color:#b45309; font-weight:bold;">${formatarInteiro(pacotesMlMot)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#047857;">R$ ${formatarMoeda(subtotalMot)}</td>
                     </tr>
                 `;
             });
@@ -1144,8 +1159,8 @@
                 linhasVeiculosHTML += `
                     <tr style="border-bottom: 1px solid #cbd5e1;">
                         <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">${escapeHtml(veic)}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${manutencaoVeic.length}</td>
-                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${totGastoVeic.toFixed(2)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">${formatarInteiro(manutencaoVeic.length)}</td>
+                        <td style="padding:6px; border:1px solid #cbd5e1; text-align:right; font-weight:bold; color:#be123c;">R$ ${formatarMoeda(totGastoVeic)}</td>
                     </tr>
                 `;
             });
@@ -1156,17 +1171,17 @@
                 let valorKM = '--';
 
                 if (item.tipo === 'Coleta') {
-                    detalhe = `${escapeHtml(item.plataforma)} (${item.pacotes} pacotes) ${item.observacao ? '- ' + escapeHtml(item.observacao) : ''}`;
-                    valorKM = `${item.pacotes} pkts`;
+                    detalhe = `${escapeHtml(item.plataforma)} (${formatarInteiro(item.pacotes)} pacotes) ${item.observacao ? '- ' + escapeHtml(item.observacao) : ''}`;
+                    valorKM = `${formatarInteiro(item.pacotes)} pkts`;
                 } else if (item.tipo === 'Abastecimento') {
-                    detalhe = `Abastecimento de Combustível (${item.litros || 0} L)`;
-                    valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
+                    detalhe = `Abastecimento de Combustível (${formatarNumero(item.litros || 0, 1)} L)`;
+                    valorKM = `R$ ${formatarMoeda(item.valor_abastecimento || 0)}`;
                 } else if (item.tipo === 'Manutenção') {
-                    detalhe = `${escapeHtml(item.observacao || 'Manutenção Geral')} ${item.km ? '(' + escapeHtml(item.km) + ' KM)' : ''}`;
-                    valorKM = `R$ ${(item.valor_abastecimento || 0).toFixed(2)}`;
+                    detalhe = `${escapeHtml(item.observacao || 'Manutenção Geral')} ${item.km ? '(' + formatarInteiro(item.km) + ' KM)' : ''}`;
+                    valorKM = `R$ ${formatarMoeda(item.valor_abastecimento || 0)}`;
                 } else if (item.tipo === 'KM') {
                     detalhe = `Registro de Quilometragem`;
-                    valorKM = `${escapeHtml(item.km || 0)} KM`;
+                    valorKM = `${formatarInteiro(item.km || 0)} KM`;
                 }
 
                 linhasHistoricoHTML += `
@@ -1203,22 +1218,22 @@
                             <tr>
                                 <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
                                     <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Pacotes Totais</p>
-                                    <p style="font-size:16px; font-weight:900; color:#1d4ed8; margin:0 0 3px 0;">${totalPacotes}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">Shopee: ${totalShopee} | ML: ${totalML}</p>
+                                    <p style="font-size:16px; font-weight:900; color:#1d4ed8; margin:0 0 3px 0;">${formatarInteiro(totalPacotes)}</p>
+                                    <p style="font-size:9px; color:#64748b; margin:0;">Shopee: ${formatarInteiro(totalShopee)} | ML: ${formatarInteiro(totalML)}</p>
                                 </td>
                                 <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
                                     <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Combustível</p>
-                                    <p style="font-size:16px; font-weight:900; color:#047857; margin:0 0 3px 0;">R$ ${totalCombustivel.toFixed(2)}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">${totalLitros.toFixed(1)} L (Média R$ ${medioLitro}/L)</p>
+                                    <p style="font-size:16px; font-weight:900; color:#047857; margin:0 0 3px 0;">R$ ${formatarMoeda(totalCombustivel)}</p>
+                                    <p style="font-size:9px; color:#64748b; margin:0;">${formatarNumero(totalLitros, 1)} L (Média R$ ${medioLitro}/L)</p>
                                 </td>
                                 <td style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; width:25%;">
                                     <p style="font-weight:bold; color:#64748b; text-transform:uppercase; margin:0 0 5px 0;">Gasto Manutenção</p>
-                                    <p style="font-size:16px; font-weight:900; color:#be123c; margin:0 0 3px 0;">R$ ${totalManutencao.toFixed(2)}</p>
-                                    <p style="font-size:9px; color:#64748b; margin:0;">${qtdManutencoes} serviço(s)</p>
+                                    <p style="font-size:16px; font-weight:900; color:#be123c; margin:0 0 3px 0;">R$ ${formatarMoeda(totalManutencao)}</p>
+                                    <p style="font-size:9px; color:#64748b; margin:0;">${formatarInteiro(qtdManutencoes)} serviço(s)</p>
                                 </td>
                                 <td style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px; width:25%;">
                                     <p style="font-weight:bold; color:#0d2847; text-transform:uppercase; margin:0 0 5px 0;">Custo Geral Total</p>
-                                    <p style="font-size:16px; font-weight:900; color:#0d2847; margin:0 0 3px 0;">R$ ${custoGeralOp.toFixed(2)}</p>
+                                    <p style="font-size:16px; font-weight:900; color:#0d2847; margin:0 0 3px 0;">R$ ${formatarMoeda(custoGeralOp)}</p>
                                     <p style="font-size:9px; color:#2563eb; margin:0;">Operação + Frota</p>
                                 </td>
                             </tr>
@@ -1390,13 +1405,13 @@
                 let detalheTexto = '';
                 if (item.tipo === 'Coleta') {
                     const obsFmt = item.observacao ? ` (${escapeHtml(item.observacao)})` : '';
-                    detalheTexto = `${escapeHtml(item.plataforma)} - ${item.pacotes} pacotes${obsFmt}`;
+                    detalheTexto = `${escapeHtml(item.plataforma)} - ${formatarInteiro(item.pacotes)} pacotes${obsFmt}`;
                 }
-                if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${(item.valor_abastecimento || 0).toFixed(2)} (${item.litros || 0} L)`;
+                if (item.tipo === 'Abastecimento') detalheTexto = `R$ ${formatarMoeda(item.valor_abastecimento || 0)} (${formatarNumero(item.litros || 0, 1)} L)`;
                 if (item.tipo === 'Manutenção') {
                     const servico = escapeHtml(item.observacao || 'Serviço Geral');
-                    const val = (item.valor_abastecimento || 0).toFixed(2);
-                    const kmFmt = item.km ? ` (${escapeHtml(item.km)} KM)` : '';
+                    const val = formatarMoeda(item.valor_abastecimento || 0);
+                    const kmFmt = item.km ? ` (${formatarInteiro(item.km)} KM)` : '';
                     detalheTexto = `${servico} - R$ ${val}${kmFmt}`;
                 }
 
@@ -1435,19 +1450,19 @@
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('metric-pacotes').innerText = totalPacotes;
-            document.getElementById('sub-shopee').innerText = totalShopee;
-            document.getElementById('sub-ml').innerText = totalML;
+            document.getElementById('metric-pacotes').innerText = formatarInteiro(totalPacotes);
+            document.getElementById('sub-shopee').innerText = formatarInteiro(totalShopee);
+            document.getElementById('sub-ml').innerText = formatarInteiro(totalML);
 
-            document.getElementById('metric-gasto').innerText = `R$ ${totalGasto.toFixed(2)}`;
-            const precoMedio = totalLitros > 0 ? (totalGasto / totalLitros).toFixed(2) : '0.00';
-            document.getElementById('sub-litros').innerText = `Total: ${totalLitros.toFixed(1)} L (R$ ${precoMedio}/L)`;
+            document.getElementById('metric-gasto').innerText = `R$ ${formatarMoeda(totalGasto)}`;
+            const precoMedio = totalLitros > 0 ? formatarMoeda(totalGasto / totalLitros) : '0,00';
+            document.getElementById('sub-litros').innerText = `Total: ${formatarNumero(totalLitros, 1)} L (R$ ${precoMedio}/L)`;
 
-            document.getElementById('metric-manutencao').innerText = `R$ ${totalManutencao.toFixed(2)}`;
-            document.getElementById('sub-manutencao-qtd').innerText = `${qtdManutencoes} serviço(s) registrado(s)`;
+            document.getElementById('metric-manutencao').innerText = `R$ ${formatarMoeda(totalManutencao)}`;
+            document.getElementById('sub-manutencao-qtd').innerText = `${formatarInteiro(qtdManutencoes)} serviço(s) registrado(s)`;
 
-            document.getElementById('metric-total-registros').innerText = dados.length;
-            document.getElementById('contador-tabela').innerText = `A mostrar ${dados.length} registos`;
+            document.getElementById('metric-total-registros').innerText = formatarInteiro(dados.length);
+            document.getElementById('contador-tabela').innerText = `A mostrar ${formatarInteiro(dados.length)} registos`;
 
             atualizarGraficos(pacotesPorMotorista, totalShopee, totalML);
         }
