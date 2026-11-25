@@ -79,6 +79,9 @@
             <button id="tab-fin-relatorios" onclick="alternarAbaFinanceira('relatorios')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
                 📑 Relatórios Financeiros
             </button>
+            <button id="tab-fin-diagnostico" onclick="alternarAbaFinanceira('diagnostico')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
+                🧭 Diagnóstico & Pontos de Atenção
+            </button>
         </div>
 
         <!-- ALERTA DE BOLETOS VENCENDO HOJE -->
@@ -487,6 +490,60 @@
 
         </div>
 
+        <!-- ================= ABA 3: DIAGNÓSTICO & PONTOS DE ATENÇÃO ================= -->
+        <div id="aba-fin-diagnostico" class="space-y-6 hidden">
+
+            <!-- KPIs de Saúde e Eficiência -->
+            <div id="diag-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+            <!-- Vantagens vs. Desvantagens / Pontos de Atenção -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Coluna Vantagens / Pontos Fortes -->
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6 space-y-4">
+                    <div class="border-b border-emerald-100 pb-3 flex items-center justify-between">
+                        <h3 class="font-black text-lg text-emerald-800 flex items-center gap-2">✅ Vantagens & Pontos Fortes</h3>
+                        <span id="diag-qtd-vantagens" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">0</span>
+                    </div>
+                    <div id="diag-lista-vantagens" class="space-y-3 text-sm"></div>
+                </div>
+
+                <!-- Coluna Desvantagens / Pontos de Atenção -->
+                <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-6 space-y-4">
+                    <div class="border-b border-amber-100 pb-3 flex items-center justify-between">
+                        <h3 class="font-black text-lg text-amber-900 flex items-center gap-2">⚠️ Desvantagens & Pontos de Atenção</h3>
+                        <span id="diag-qtd-atencao" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900">0</span>
+                    </div>
+                    <div id="diag-lista-atencao" class="space-y-3 text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Tabela de Avaliação por Motorista (Custo por Pacote) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <div class="border-b pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="font-black text-lg text-gb-navy">🚚 Avaliação de Eficiência por Motorista</h3>
+                        <p class="text-xs text-gray-500">Cruza custo operacional (motorista + combustível) com volume de pacotes no período.</p>
+                    </div>
+                    <span id="diag-resumo-pacotes" class="text-xs font-bold text-gray-500">0 pacotes no período</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3 text-center">Pacotes</th>
+                                <th class="p-3 text-right">Custo Op. (Mot + Comb.)</th>
+                                <th class="p-3 text-right">Custo / Pacote</th>
+                                <th class="p-3 text-center">Leitura</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diag-tabela-motoristas" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
     <!-- MODAL DE EDIÇÃO DE BOLETO -->
@@ -619,21 +676,301 @@
             abaFinAtiva = aba;
             const elGeral = document.getElementById('aba-fin-geral');
             const elRel = document.getElementById('aba-fin-relatorios');
+            const elDiag = document.getElementById('aba-fin-diagnostico');
             const btnGeral = document.getElementById('tab-fin-geral');
             const btnRel = document.getElementById('tab-fin-relatorios');
+            const btnDiag = document.getElementById('tab-fin-diagnostico');
+
+            const estiloAtivo = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+            const estiloInativo = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+
+            elGeral.classList.add('hidden');
+            elRel.classList.add('hidden');
+            elDiag.classList.add('hidden');
+            btnGeral.className = estiloInativo;
+            btnRel.className = estiloInativo;
+            btnDiag.className = estiloInativo;
 
             if (aba === 'relatorios') {
-                elGeral.classList.add('hidden');
                 elRel.classList.remove('hidden');
-                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
-                btnGeral.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                btnRel.className = estiloAtivo;
                 renderizarRelatorioFinanceiroAtivo();
+            } else if (aba === 'diagnostico') {
+                elDiag.classList.remove('hidden');
+                btnDiag.className = estiloAtivo;
+                renderizarDiagnosticoFinanceiro();
             } else {
-                elRel.classList.add('hidden');
                 elGeral.classList.remove('hidden');
-                btnGeral.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
-                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                btnGeral.className = estiloAtivo;
             }
+        }
+
+        function renderizarDiagnosticoFinanceiro() {
+            const dadosReg = filtrarPorPeriodo(dadosRegistros);
+            const dadosTrans = filtrarPorPeriodo(dadosTransacoes);
+            const boletosPagosPeriodo = filtrarPorPeriodo(dadosBoletos.filter(b => b.status === 'Pago'));
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const daqui7Dias = new Date(hoje);
+            daqui7Dias.setDate(hoje.getDate() + 7);
+
+            let totalBoletosVencidos = 0;
+            let qtdBoletosVencidos = 0;
+            let totalBoletosProx7d = 0;
+            let qtdBoletosProx7d = 0;
+            let totalBoletosPendentes = 0;
+
+            dadosBoletos.forEach(b => {
+                if (b.status === 'Pago') return;
+                const val = Number(b.valor) || 0;
+                totalBoletosPendentes += val;
+                if (!b.data_vencimento) return;
+                const dVenc = new Date(b.data_vencimento.substring(0, 10) + 'T00:00:00');
+                if (dVenc < hoje) {
+                    totalBoletosVencidos += val;
+                    qtdBoletosVencidos++;
+                } else if (dVenc <= daqui7Dias) {
+                    totalBoletosProx7d += val;
+                    qtdBoletosProx7d++;
+                }
+            });
+
+            let totalPacotes = 0;
+            let totalCombustivel = 0;
+            let totalManutencao = 0;
+            let qtdManutencoes = 0;
+
+            dadosReg.forEach(item => {
+                if (item.tipo === 'Coleta') totalPacotes += (item.pacotes || 0);
+                if (item.tipo === 'Abastecimento') totalCombustivel += (item.valor_abastecimento || 0);
+                if (item.tipo === 'Manutenção') {
+                    totalManutencao += (item.valor_abastecimento || 0);
+                    qtdManutencoes++;
+                }
+            });
+
+            let totalEntradas = 0;
+            let totalSaidasManuais = 0;
+            let custoFrotaExtra = 0;
+
+            dadosTrans.forEach(t => {
+                const val = Number(t.valor) || 0;
+                if (t.tipo === 'Entrada') {
+                    totalEntradas += val;
+                } else if (t.tipo === 'Saida') {
+                    totalSaidasManuais += val;
+                    if (['pecas', 'manutencao', 'pneus'].includes(t.categoria || '')) {
+                        custoFrotaExtra += val;
+                    }
+                }
+            });
+
+            let custoMotoristas = 0;
+            const linhasMot = listaMotoristas.map(mot => {
+                const registrosMot = dadosReg.filter(i => i.motorista === mot.nome);
+                const diasUnicosMap = new Map();
+                let shopeeMot = 0;
+                let mlMot = 0;
+                let combustivelMot = 0;
+                let pacotesMot = 0;
+
+                registrosMot.forEach(i => {
+                    const dataReg = new Date(i.created_at);
+                    const chaveDia = `${dataReg.getFullYear()}-${dataReg.getMonth()}-${dataReg.getDate()}`;
+                    if (!diasUnicosMap.has(chaveDia)) {
+                        diasUnicosMap.set(chaveDia, dataReg.getDay() === 6);
+                    }
+                    if (i.tipo === 'Coleta') {
+                        const pkts = i.pacotes || 0;
+                        pacotesMot += pkts;
+                        if (i.plataforma === 'Shopee') shopeeMot += pkts;
+                        if (i.plataforma === 'Mercado Livre') mlMot += pkts;
+                    }
+                    if (i.tipo === 'Abastecimento') {
+                        combustivelMot += (i.valor_abastecimento || 0);
+                    }
+                });
+
+                const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vDiariaSabado = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null) ? parseFloat(mot.valor_diaria_sabado) : vDiaria;
+                const vShopee = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
+                const vMl = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
+
+                let normais = 0;
+                let sabados = 0;
+                diasUnicosMap.forEach(isSab => { if (isSab) sabados++; else normais++; });
+
+                const custoMot = ((normais * vDiaria) + (sabados * vDiariaSabado)) + (shopeeMot * vShopee) + (mlMot * vMl);
+                custoMotoristas += custoMot;
+                const custoOpMot = custoMot + combustivelMot;
+                const custoPorPacote = pacotesMot > 0 ? (custoOpMot / pacotesMot) : 0;
+
+                return {
+                    nome: mot.nome,
+                    pacotes: pacotesMot,
+                    custoOp: custoOpMot,
+                    custoPorPacote
+                };
+            });
+
+            const totalBoletosPagos = boletosPagosPeriodo.reduce((acc, b) => acc + (Number(b.valor) || 0), 0);
+            const totalDespesas = custoMotoristas + totalCombustivel + totalManutencao + totalSaidasManuais + totalBoletosPagos;
+            const resultadoLiquido = totalEntradas - totalDespesas;
+            const margemNum = totalEntradas > 0 ? ((resultadoLiquido / totalEntradas) * 100) : 0;
+            const custoOpTotal = custoMotoristas + totalCombustivel;
+            const custoMedioPacote = totalPacotes > 0 ? (custoOpTotal / totalPacotes) : 0;
+            const custoFrotaTotal = totalManutencao + custoFrotaExtra;
+
+            document.getElementById('diag-kpis').innerHTML = `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 ${resultadoLiquido >= 0 ? 'border-l-emerald-500' : 'border-l-rose-500'}">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Resultado Líquido</p>
+                    <h3 class="text-2xl font-black ${resultadoLiquido >= 0 ? 'text-emerald-600' : 'text-rose-600'} mt-1">R$ ${formatarMoeda(resultadoLiquido)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">Margem: ${formatarNumero(margemNum, 1)}%</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Custo / Pacote (Op.)</p>
+                    <h3 class="text-2xl font-black text-gb-navy mt-1">R$ ${formatarMoeda(custoMedioPacote)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">${totalPacotes.toLocaleString('pt-BR')} pacotes no período</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Vencendo em 7 Dias</p>
+                    <h3 class="text-2xl font-black text-amber-600 mt-1">R$ ${formatarMoeda(totalBoletosProx7d)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">${qtdBoletosProx7d} boleto(s) no radar</p>
+                </div>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Boletos Vencidos</p>
+                    <h3 class="text-2xl font-black text-rose-600 mt-1">R$ ${formatarMoeda(totalBoletosVencidos)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">${qtdBoletosVencidos} em atraso</p>
+                </div>
+            `;
+
+            const vantagens = [];
+            const atencoes = [];
+
+            if (resultadoLiquido > 0) {
+                vantagens.push({
+                    titulo: 'Resultado Operacional Positivo',
+                    desc: `O período fecha com sobra de R$ ${formatarMoeda(resultadoLiquido)} (${formatarNumero(margemNum, 1)}% de margem líquida).`
+                });
+            } else if (totalEntradas > 0 || totalDespesas > 0) {
+                atencoes.push({
+                    titulo: 'Resultado Operacional Negativo',
+                    desc: `As despesas (R$ ${formatarMoeda(totalDespesas)}) superaram as entradas (R$ ${formatarMoeda(totalEntradas)}) em R$ ${formatarMoeda(Math.abs(resultadoLiquido))}.`
+                });
+            }
+
+            if (qtdBoletosVencidos === 0 && dadosBoletos.length > 0) {
+                vantagens.push({
+                    titulo: 'Zero Boletos Vencidos',
+                    desc: 'Não há contas pendentes em atraso na base de boletos.'
+                });
+            } else if (qtdBoletosVencidos > 0) {
+                atencoes.push({
+                    titulo: `${qtdBoletosVencidos} Boleto(s) em Atraso`,
+                    desc: `Há R$ ${formatarMoeda(totalBoletosVencidos)} vencidos pendentes de pagamento ou regularização.`
+                });
+            }
+
+            if (totalBoletosProx7d > 0) {
+                atencoes.push({
+                    titulo: 'Compromissos nos Próximos 7 Dias',
+                    desc: `Total de R$ ${formatarMoeda(totalBoletosProx7d)} em boletos vence na próxima semana; vale conferir previsão de caixa.`
+                });
+            }
+
+            if (totalBoletosPendentes > Math.max(resultadoLiquido, 0) && totalBoletosPendentes > 0) {
+                atencoes.push({
+                    titulo: 'Boletos Pendentes Acima do Saldo do Período',
+                    desc: `Boletos pendentes somam R$ ${formatarMoeda(totalBoletosPendentes)} contra R$ ${formatarMoeda(Math.max(resultadoLiquido, 0))} de resultado líquido apurado.`
+                });
+            }
+
+            if (totalPacotes > 0 && totalEntradas === 0) {
+                atencoes.push({
+                    titulo: 'Coletas Sem Receita Lançada no Período',
+                    desc: `Foram registrados ${totalPacotes.toLocaleString('pt-BR')} pacotes, mas nenhuma entrada de receita foi lançada neste filtro.`
+                });
+            }
+
+            if (totalDespesas > 0 && (custoFrotaTotal / totalDespesas) > 0.25) {
+                atencoes.push({
+                    titulo: 'Peso Elevado de Oficina / Frota',
+                    desc: `Manutenção, peças e pneus representam ${formatarNumero((custoFrotaTotal / totalDespesas) * 100, 1)}% das despesas (R$ ${formatarMoeda(custoFrotaTotal)}).`
+                });
+            } else if (qtdManutencoes === 0 && custoFrotaExtra === 0 && totalDespesas > 0) {
+                vantagens.push({
+                    titulo: 'Sem Custos de Oficina no Período',
+                    desc: 'Nenhum gasto de manutenção ou oficina foi registrado neste intervalo.'
+                });
+            }
+
+            const comPacotes = linhasMot.filter(m => m.pacotes > 0).sort((a, b) => a.custoPorPacote - b.custoPorPacote);
+            if (comPacotes.length > 0) {
+                const melhor = comPacotes[0];
+                vantagens.push({
+                    titulo: `Menor Custo por Pacote: ${melhor.nome}`,
+                    desc: `Custo operacional de R$ ${formatarMoeda(melhor.custoPorPacote)} por pacote em ${melhor.pacotes.toLocaleString('pt-BR')} pacotes.`
+                });
+                if (comPacotes.length > 1) {
+                    const pior = comPacotes[comPacotes.length - 1];
+                    if (pior.custoPorPacote > melhor.custoPorPacote * 1.35) {
+                        atencoes.push({
+                            titulo: `Custo por Pacote Alto: ${pior.nome}`,
+                            desc: `Em R$ ${formatarMoeda(pior.custoPorPacote)}/pkt (${pior.pacotes.toLocaleString('pt-BR')} pkts) vs. R$ ${formatarMoeda(melhor.custoPorPacote)}/pkt de ${melhor.nome}.`
+                        });
+                    }
+                }
+            }
+
+            if (vantagens.length === 0) {
+                vantagens.push({
+                    titulo: 'Aguardando Mais Dados no Período',
+                    desc: 'Ajuste o período ou registre novas movimentações para destacar pontos fortes.'
+                });
+            }
+            if (atencoes.length === 0) {
+                atencoes.push({
+                    titulo: 'Sem Alertas Críticos no Período',
+                    desc: 'Nenhum gargalo financeiro ou vencimento crítico identificado com os critérios atuais.'
+                });
+            }
+
+            document.getElementById('diag-qtd-vantagens').innerText = vantagens.length;
+            document.getElementById('diag-qtd-atencao').innerText = atencoes.length;
+
+            document.getElementById('diag-lista-vantagens').innerHTML = vantagens.map(v => `
+                <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                    <p class="font-black text-emerald-900">${escapeHtml(v.titulo)}</p>
+                    <p class="text-xs text-emerald-800 mt-1">${escapeHtml(v.desc)}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('diag-lista-atencao').innerHTML = atencoes.map(a => `
+                <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200">
+                    <p class="font-black text-amber-950">${escapeHtml(a.titulo)}</p>
+                    <p class="text-xs text-amber-800 mt-1">${escapeHtml(a.desc)}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('diag-resumo-pacotes').innerText = `${totalPacotes.toLocaleString('pt-BR')} pacotes no período`;
+
+            document.getElementById('diag-tabela-motoristas').innerHTML = linhasMot.map(m => {
+                const leitura = m.pacotes === 0
+                    ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">Sem pacotes</span>'
+                    : (comPacotes.length > 0 && m.nome === comPacotes[0].nome
+                        ? '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Melhor eficiência</span>'
+                        : '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">Acompanhar</span>');
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(m.nome)}</td>
+                        <td class="p-3 text-center font-semibold">${m.pacotes.toLocaleString('pt-BR')}</td>
+                        <td class="p-3 text-right font-bold text-gray-700">R$ ${formatarMoeda(m.custoOp)}</td>
+                        <td class="p-3 text-right font-black text-gb-navy">${m.pacotes > 0 ? `R$ ${formatarMoeda(m.custoPorPacote)}` : '--'}</td>
+                        <td class="p-3 text-center">${leitura}</td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="5" class="p-4 text-center text-gray-400">Nenhum motorista cadastrado.</td></tr>`;
         }
 
         function selecionarRelatorioFinanceiro(tipo) {
@@ -1577,6 +1914,8 @@
 
             if (abaFinAtiva === 'relatorios') {
                 renderizarRelatorioFinanceiroAtivo();
+            } else if (abaFinAtiva === 'diagnostico') {
+                renderizarDiagnosticoFinanceiro();
             }
         }
 
