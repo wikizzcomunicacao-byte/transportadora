@@ -82,9 +82,12 @@
             <button id="tab-btn-relatorios" onclick="alternarAbaPrincipal('relatorios')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
                 📊 Relatórios da Operação
             </button>
+            <button id="tab-btn-radar" onclick="alternarAbaPrincipal('radar')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
+                🧭 Radar & Pontos de Atenção
+            </button>
         </div>
 
-        <!-- Filtros Compartilhados (Operação e Relatórios) -->
+        <!-- Filtros Compartilhados (Operação, Relatórios e Radar) -->
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-col lg:flex-row items-center justify-between gap-4">
             <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
                 <div>
@@ -452,6 +455,60 @@
 
         </div>
 
+        <!-- ================= ABA 3: RADAR & PONTOS DE ATENÇÃO ================= -->
+        <div id="aba-radar" class="space-y-6 hidden">
+
+            <!-- KPIs Operacionais do Radar -->
+            <div id="radar-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+            <!-- Vantagens / Destaques vs. Desvantagens / Pontos de Atenção -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-emerald-200 p-6 space-y-4">
+                    <div class="border-b border-emerald-100 pb-3 flex items-center justify-between">
+                        <h3 class="font-black text-lg text-emerald-800 flex items-center gap-2">✅ Vantagens & Destaques Positivos</h3>
+                        <span id="radar-qtd-vantagens" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">0</span>
+                    </div>
+                    <div id="radar-lista-vantagens" class="space-y-3 text-sm"></div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-amber-200 p-6 space-y-4">
+                    <div class="border-b border-amber-100 pb-3 flex items-center justify-between">
+                        <h3 class="font-black text-lg text-amber-900 flex items-center gap-2">⚠️ Desvantagens & Pontos de Atenção</h3>
+                        <span id="radar-qtd-atencao" class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900">0</span>
+                    </div>
+                    <div id="radar-lista-atencao" class="space-y-3 text-sm"></div>
+                </div>
+            </div>
+
+            <!-- Diagnóstico Operacional por Motorista -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <div class="border-b pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                        <h3 class="font-black text-lg text-gb-navy">🚚 Eficiência Operacional por Motorista</h3>
+                        <p class="text-xs text-gray-500">Compara pacotes, dias trabalhados, média diária e custo operacional (pagamento + combustível) por pacote.</p>
+                    </div>
+                    <span id="radar-resumo-pacotes" class="text-xs font-bold text-gray-500">0 pacotes</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3 text-center">Pacotes</th>
+                                <th class="p-3 text-center">Dias</th>
+                                <th class="p-3 text-right">Média / Dia</th>
+                                <th class="p-3 text-right">Custo Op.</th>
+                                <th class="p-3 text-right">Custo / Pkt</th>
+                                <th class="p-3 text-center">Leitura</th>
+                            </tr>
+                        </thead>
+                        <tbody id="radar-tabela-motoristas" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
     </main>
 
     <!-- Modal Edição Lançamento -->
@@ -629,21 +686,251 @@
             abaAtiva = aba;
             const elOp = document.getElementById('aba-operacao');
             const elRel = document.getElementById('aba-relatorios');
+            const elRadar = document.getElementById('aba-radar');
             const btnOp = document.getElementById('tab-btn-operacao');
             const btnRel = document.getElementById('tab-btn-relatorios');
+            const btnRadar = document.getElementById('tab-btn-radar');
+
+            const estiloAtivo = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+            const estiloInativo = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+
+            elOp.classList.add('hidden');
+            elRel.classList.add('hidden');
+            elRadar.classList.add('hidden');
+            btnOp.className = estiloInativo;
+            btnRel.className = estiloInativo;
+            btnRadar.className = estiloInativo;
 
             if (aba === 'relatorios') {
-                elOp.classList.add('hidden');
                 elRel.classList.remove('hidden');
-                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
-                btnOp.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                btnRel.className = estiloAtivo;
                 renderizarRelatorioAtivo();
+            } else if (aba === 'radar') {
+                elRadar.classList.remove('hidden');
+                btnRadar.className = estiloAtivo;
+                renderizarRadarOperacao();
             } else {
-                elRel.classList.add('hidden');
                 elOp.classList.remove('hidden');
-                btnOp.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
-                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                btnOp.className = estiloAtivo;
             }
+        }
+
+        function renderizarRadarOperacao() {
+            const dados = obterDadosFiltradosAtuais();
+            const filtroMot = document.getElementById('filtro-motorista').value;
+            const motoristasAlvo = filtroMot === 'TODOS'
+                ? listaMotoristas
+                : listaMotoristas.filter(m => m.nome === filtroMot);
+
+            const motoristaParaVeiculo = {};
+            const servicosPorVeiculo = new Map();
+            listaMotoristas.forEach(m => {
+                if (m.nome && m.veiculo) motoristaParaVeiculo[m.nome] = m.veiculo;
+                if (m.veiculo && !servicosPorVeiculo.has(m.veiculo)) {
+                    servicosPorVeiculo.set(m.veiculo, { veiculo: m.veiculo, qtd: 0, gasto: 0 });
+                }
+            });
+
+            let totalPacotes = 0;
+            let totalShopee = 0;
+            let totalML = 0;
+            let totalCombustivel = 0;
+            let totalManutencao = 0;
+            const diasAtivosSet = new Set();
+
+            dados.forEach(item => {
+                const dt = new Date(item.created_at);
+                diasAtivosSet.add(`${dt.getFullYear()}-${dt.getMonth()}-${dt.getDate()}`);
+
+                if (item.tipo === 'Coleta') {
+                    const pkts = Number(item.pacotes) || 0;
+                    totalPacotes += pkts;
+                    if (item.plataforma === 'Shopee') totalShopee += pkts;
+                    if (item.plataforma === 'Mercado Livre') totalML += pkts;
+                }
+                if (item.tipo === 'Abastecimento') {
+                    totalCombustivel += Number(item.valor_abastecimento) || 0;
+                }
+                if (item.tipo === 'Manutenção') {
+                    const val = Number(item.valor_abastecimento) || 0;
+                    totalManutencao += val;
+                    const veic = motoristaParaVeiculo[item.motorista] || `Sem Veículo (${item.motorista})`;
+                    if (!servicosPorVeiculo.has(veic)) {
+                        servicosPorVeiculo.set(veic, { veiculo: veic, qtd: 0, gasto: 0 });
+                    }
+                    const s = servicosPorVeiculo.get(veic);
+                    s.qtd++;
+                    s.gasto += val;
+                }
+            });
+
+            let totalPagamentos = 0;
+            const linhasMot = motoristasAlvo.map(mot => {
+                const regMot = dados.filter(i => i.motorista === mot.nome);
+                const calc = calcularPagamentoMotorista(mot, regMot);
+                let combMot = 0;
+                regMot.forEach(i => {
+                    if (i.tipo === 'Abastecimento') combMot += Number(i.valor_abastecimento) || 0;
+                });
+                totalPagamentos += calc.totalPagar;
+                const custoOp = calc.totalPagar + combMot;
+                const mediaDia = calc.totalDias > 0 ? calc.totalPacotes / calc.totalDias : 0;
+                const custoPorPkt = calc.totalPacotes > 0 ? custoOp / calc.totalPacotes : 0;
+
+                return {
+                    nome: mot.nome,
+                    pacotes: calc.totalPacotes,
+                    dias: calc.totalDias,
+                    mediaDia,
+                    custoOp,
+                    custoPorPkt
+                };
+            });
+
+            const custoOpTotal = totalPagamentos + totalCombustivel;
+            const custoMedioPacote = totalPacotes > 0 ? custoOpTotal / totalPacotes : 0;
+            const mediaPacotesDia = diasAtivosSet.size > 0 ? totalPacotes / diasAtivosSet.size : 0;
+            const veiculosReincidentes = Array.from(servicosPorVeiculo.values()).filter(v => v.qtd > 1);
+
+            document.getElementById('radar-kpis').innerHTML = `
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Custo Médio / Pacote</p>
+                    <h3 class="text-2xl font-extrabold text-gb-navy mt-1">${totalPacotes > 0 ? 'R$ ' + formatarMoeda(custoMedioPacote) : '--'}</h3>
+                    <p class="mt-2 text-xs text-gray-500">Pagamentos + combustível / pacotes</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Média Pacotes / Dia</p>
+                    <h3 class="text-2xl font-extrabold text-emerald-600 mt-1">${formatarNumero(mediaPacotesDia, 1)} pkts</h3>
+                    <p class="mt-2 text-xs text-gray-500">Em ${formatarInteiro(diasAtivosSet.size)} dia(s) ativo(s)</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Reincidência Oficina</p>
+                    <h3 class="text-2xl font-extrabold text-rose-600 mt-1">${formatarInteiro(veiculosReincidentes.length)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">Veículo(s) com 2+ serviços no filtro</p>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-purple-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Custo Op. (Mot + Comb)</p>
+                    <h3 class="text-2xl font-extrabold text-purple-600 mt-1">R$ ${formatarMoeda(custoOpTotal)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">Oficina adicional: R$ ${formatarMoeda(totalManutencao)}</p>
+                </div>
+            `;
+
+            const vantagens = [];
+            const atencoes = [];
+
+            const comPacotes = linhasMot.filter(m => m.pacotes > 0).sort((a, b) => a.custoPorPkt - b.custoPorPkt);
+            if (comPacotes.length > 0) {
+                const melhorCusto = comPacotes[0];
+                vantagens.push({
+                    titulo: `Menor Custo por Pacote: ${melhorCusto.nome}`,
+                    desc: `R$ ${formatarMoeda(melhorCusto.custoPorPkt)}/pkt em ${formatarInteiro(melhorCusto.pacotes)} pacotes recolhidos.`
+                });
+
+                const maiorVolume = [...comPacotes].sort((a, b) => b.pacotes - a.pacotes)[0];
+                if (maiorVolume.nome !== melhorCusto.nome) {
+                    vantagens.push({
+                        titulo: `Maior Volume de Coleta: ${maiorVolume.nome}`,
+                        desc: `${formatarInteiro(maiorVolume.pacotes)} pacotes (${formatarNumero(maiorVolume.mediaDia, 1)} pkts/dia em ${formatarInteiro(maiorVolume.dias)} dia(s)).`
+                    });
+                }
+
+                if (comPacotes.length > 1) {
+                    const piorCusto = comPacotes[comPacotes.length - 1];
+                    if (piorCusto.custoPorPkt > melhorCusto.custoPorPkt * 1.35) {
+                        atencoes.push({
+                            titulo: `Custo por Pacote Elevado: ${piorCusto.nome}`,
+                            desc: `R$ ${formatarMoeda(piorCusto.custoPorPkt)}/pkt (${formatarInteiro(piorCusto.pacotes)} pkts) vs. R$ ${formatarMoeda(melhorCusto.custoPorPkt)}/pkt de ${melhorCusto.nome}.`
+                        });
+                    }
+                }
+            }
+
+            if (veiculosReincidentes.length === 0 && dados.length > 0) {
+                vantagens.push({
+                    titulo: 'Sem Reincidência de Oficina',
+                    desc: 'Nenhum veículo acumulou mais de um serviço de manutenção no período filtrado.'
+                });
+            } else {
+                veiculosReincidentes.forEach(v => {
+                    atencoes.push({
+                        titulo: `Reincidência de Manutenção: ${v.veiculo}`,
+                        desc: `${formatarInteiro(v.qtd)} serviços somando R$ ${formatarMoeda(v.gasto)} no período.`
+                    });
+                });
+            }
+
+            if (totalPacotes > 0) {
+                const percShopee = (totalShopee / totalPacotes) * 100;
+                if (percShopee >= 80 || percShopee <= 20) {
+                    atencoes.push({
+                        titulo: 'Concentração Forte em Uma Plataforma',
+                        desc: `Shopee representa ${formatarNumero(percShopee, 1)}% e Mercado Livre ${formatarNumero(100 - percShopee, 1)}% dos pacotes.`
+                    });
+                }
+            }
+
+            const semFoto = dados.filter(i => !(i.foto_comprovante || i.foto_km || i.foto_abastecimento)).length;
+            if (semFoto > 0) {
+                atencoes.push({
+                    titulo: `${formatarInteiro(semFoto)} Lançamento(s) Sem Foto/Comprovante`,
+                    desc: 'Há registros no filtro atual sem anexo de painel, coleta ou recibo para conferência.'
+                });
+            }
+
+            if (vantagens.length === 0) {
+                vantagens.push({
+                    titulo: 'Sem Destaques Calculados Ainda',
+                    desc: 'Ajuste o filtro ou registre coletas para comparar desempenho da equipe.'
+                });
+            }
+            if (atencoes.length === 0) {
+                atencoes.push({
+                    titulo: 'Operação Dentro do Padrão',
+                    desc: 'Nenhum desvio crítico identificado nos indicadores atuais do filtro.'
+                });
+            }
+
+            document.getElementById('radar-qtd-vantagens').innerText = formatarInteiro(vantagens.length);
+            document.getElementById('radar-qtd-atencao').innerText = formatarInteiro(atencoes.length);
+
+            document.getElementById('radar-lista-vantagens').innerHTML = vantagens.map(v => `
+                <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                    <p class="font-black text-emerald-900">${escapeHtml(v.titulo)}</p>
+                    <p class="text-xs text-emerald-800 mt-1">${escapeHtml(v.desc)}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('radar-lista-atencao').innerHTML = atencoes.map(a => `
+                <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200">
+                    <p class="font-black text-amber-950">${escapeHtml(a.titulo)}</p>
+                    <p class="text-xs text-amber-800 mt-1">${escapeHtml(a.desc)}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('radar-resumo-pacotes').innerText = `${formatarInteiro(totalPacotes)} pacotes no filtro`;
+
+            document.getElementById('radar-tabela-motoristas').innerHTML = linhasMot.map(m => {
+                let badge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">Normal</span>';
+                if (m.pacotes === 0) {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500">Sem coleta</span>';
+                } else if (comPacotes.length > 0 && m.nome === comPacotes[0].nome) {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Destaque</span>';
+                } else if (comPacotes.length > 1 && m.nome === comPacotes[comPacotes.length - 1].nome && m.custoPorPkt > comPacotes[0].custoPorPkt * 1.35) {
+                    badge = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900">Atenção</span>';
+                }
+
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(m.nome)}</td>
+                        <td class="p-3 text-center font-semibold">${formatarInteiro(m.pacotes)}</td>
+                        <td class="p-3 text-center">${formatarInteiro(m.dias)}</td>
+                        <td class="p-3 text-right font-semibold">${m.dias > 0 ? formatarNumero(m.mediaDia, 1) : '--'}</td>
+                        <td class="p-3 text-right font-bold text-gray-700">R$ ${formatarMoeda(m.custoOp)}</td>
+                        <td class="p-3 text-right font-black text-gb-navy">${m.pacotes > 0 ? 'R$ ' + formatarMoeda(m.custoPorPkt) : '--'}</td>
+                        <td class="p-3 text-center">${badge}</td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="7" class="p-4 text-center text-gray-400">Nenhum motorista encontrado.</td></tr>`;
         }
 
         function selecionarRelatorio(tipo) {
@@ -2184,6 +2471,8 @@
             renderizarDashboard(dadosFiltrados);
             if (abaAtiva === 'relatorios') {
                 renderizarRelatorioAtivo();
+            } else if (abaAtiva === 'radar') {
+                renderizarRadarOperacao();
             }
         }
 
