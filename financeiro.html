@@ -69,14 +69,24 @@
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+    <main class="max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
 
-        <!-- ALERTA DE BOLETOS VENCENDO HOJE / VENCIDOS -->
+        <!-- Navegação por Abas (igual ao gestor.html) -->
+        <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-200 flex flex-wrap gap-2">
+            <button id="tab-fin-geral" onclick="alternarAbaFinanceira('geral')" class="px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm">
+                📊 Visão Geral & DRE
+            </button>
+            <button id="tab-fin-relatorios" onclick="alternarAbaFinanceira('relatorios')" class="px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100">
+                📑 Relatórios Financeiros
+            </button>
+        </div>
+
+        <!-- ALERTA DE BOLETOS VENCENDO HOJE -->
         <div id="secao-alerta-vencimentos" class="hidden bg-amber-50 border-2 border-amber-300 p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
                 <span class="text-3xl">⚠️</span>
                 <div>
-                    <h4 class="font-black text-amber-900 text-sm uppercase">Atenção: Contas / Boletos Pendentes de Atenção!</h4>
+                    <h4 class="font-black text-amber-900 text-sm uppercase">Atenção: Contas / Boletos a Vencer!</h4>
                     <p id="texto-alerta-vencimentos" class="text-xs font-semibold text-amber-700">Existem boletos vencendo hoje.</p>
                 </div>
             </div>
@@ -107,351 +117,374 @@
                     <input type="date" id="fin-data-fim" onchange="aplicarFiltroDataManual()" class="p-2.5 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
-            <div class="flex items-center gap-3 w-full md:w-auto justify-end flex-wrap">
-                <div class="bg-amber-50/70 p-3 rounded-xl border border-amber-200 text-right">
-                    <span class="text-[10px] text-amber-800 font-bold uppercase block">Boletos Pendentes</span>
-                    <span id="card-boletos-pendentes" class="text-base font-black text-amber-900">R$ 0,00</span>
-                </div>
-                <div class="bg-gray-50 p-3 rounded-xl border text-right">
-                    <span class="text-[10px] text-gray-500 font-bold uppercase block">Margem Operacional Líquida</span>
-                    <span id="card-margem-porcentagem" class="text-xl font-black text-emerald-600">0,0%</span>
-                </div>
+            <div class="text-right w-full md:w-auto bg-gray-50 p-3 rounded-xl border">
+                <span class="text-xs text-gray-500 font-bold uppercase block">Margem Operacional Líquida</span>
+                <span id="card-margem-porcentagem" class="text-xl font-black text-emerald-600">0,0%</span>
             </div>
         </div>
 
-        <!-- Cards de Métricas Financeiras -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">💰 Receita Bruta Realizada</p>
-                <h3 id="card-receita-bruta" class="text-2xl font-black text-blue-600 mt-1">R$ 0,00</h3>
-                <p id="sub-receita-pacotes" class="mt-2 text-xs text-gray-500">Entradas: R$ 0,00</p>
-            </div>
+        <!-- ================= ABA 1: VISÃO GERAL & DRE ================= -->
+        <div id="aba-fin-geral" class="space-y-8">
 
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🚚 Custos com Motoristas</p>
-                <h3 id="card-custo-motoristas" class="text-2xl font-black text-orange-600 mt-1">R$ 0,00</h3>
-                <p id="sub-diarias-pagas" class="mt-2 text-xs text-gray-500">Diárias + Taxas de Pacotes</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Custos com Combustível</p>
-                <h3 id="card-custo-combustivel" class="text-2xl font-black text-emerald-600 mt-1">R$ 0,00</h3>
-                <p id="sub-combustivel-litros" class="mt-2 text-xs text-gray-500">0,0 L (Média R$ 0,00/L)</p>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
-                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Custos Manutenção & Extras</p>
-                <h3 id="card-custo-manutencao" class="text-2xl font-black text-rose-600 mt-1">R$ 0,00</h3>
-                <p id="sub-qtd-manutencoes" class="mt-2 text-xs text-gray-500">Oficina + Saídas avulsas</p>
-            </div>
-        </div>
-
-        <!-- PROJEÇÃO DE RECEITA POR PACOTE & PONTO DE EQUILÍBRIO -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-blue-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-            <div class="space-y-1">
-                <h4 class="text-sm font-black text-gb-navy uppercase flex items-center gap-2">📈 Projeção de Faturamento por Coleta & Ponto de Equilíbrio</h4>
-                <p id="texto-projecao-coletas" class="text-xs text-gray-600">0 pacotes Shopee + 0 pacotes ML no período = R$ 0,00 estimado em coletas.</p>
-                <p id="texto-ponto-equilibrio" class="text-xs font-semibold text-blue-800">Ponto de equilíbrio operacional do período: R$ 0,00 em receitas necessárias.</p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3">
-                <div>
-                    <label class="block text-[10px] font-bold text-orange-700 uppercase mb-1">Tarifa Shopee (R$/pkt)</label>
-                    <input type="number" step="0.01" id="tarifa-receita-shopee" oninput="salvarTarifasReceita()" class="w-28 p-2 border rounded-xl text-xs font-bold text-orange-700 bg-orange-50/40 outline-none focus:ring-2 focus:ring-orange-500">
+            <!-- Cards de Métricas Financeiras -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">💰 Receita Bruta Total</p>
+                    <h3 id="card-receita-bruta" class="text-2xl font-black text-blue-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-receita-pacotes" class="mt-2 text-xs text-gray-500">Operacional + Extras</p>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-bold text-yellow-700 uppercase mb-1">Tarifa ML (R$/pkt)</label>
-                    <input type="number" step="0.01" id="tarifa-receita-ml" oninput="salvarTarifasReceita()" class="w-28 p-2 border rounded-xl text-xs font-bold text-yellow-700 bg-yellow-50/40 outline-none focus:ring-2 focus:ring-yellow-500">
-                </div>
-                <div class="bg-blue-50 p-3 rounded-xl border border-blue-200 text-right min-w-[155px]">
-                    <span class="text-[10px] font-bold text-blue-800 uppercase block">Receita Coletas Est.</span>
-                    <span id="valor-receita-coletas-est" class="text-base font-black text-gb-navy">R$ 0,00</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- GESTÃO DE BOLETOS E CONTAS A PAGAR -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
-                <div>
-                    <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📑 Contas a Pagar / Gestão de Boletos (Parcelamento Inteligente)</h3>
-                    <p class="text-xs text-gray-500">Cadastre boletos únicos ou parcelados (ex: mecânica em 3x) para controlo de vencimentos.</p>
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🚚 Custos com Motoristas</p>
+                    <h3 id="card-custo-motoristas" class="text-2xl font-black text-orange-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-diarias-pagas" class="mt-2 text-xs text-gray-500">Diárias + Taxas de Pacotes</p>
                 </div>
-                <div class="flex items-center gap-2 w-full sm:w-auto flex-wrap">
-                    <!-- Botão Excluir Selecionados -->
-                    <button onclick="excluirBoletosSelecionados()" id="btn-excluir-lote" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
-                        🗑️ Excluir Selecionados (<span id="contador-selecionados">0</span>)
-                    </button>
-                    <!-- Filtro de Status -->
-                    <select id="filtro-status-boleto" onchange="renderizarBoletos()" class="p-2 border rounded-xl text-xs font-bold bg-gray-50 text-gray-700 outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="TODOS_STATUS">Todos os Status</option>
-                        <option value="URGENTES">⚠️ Vencidos / Próximos 3d</option>
-                        <option value="Pendente">Pendentes</option>
-                        <option value="Pago">Pagos</option>
-                    </select>
-                    <!-- Checkbox Mostrar Todos -->
-                    <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-gray-700 hover:text-gb-navy transition bg-gray-50 px-3 py-2 rounded-xl border">
-                        <input type="checkbox" id="chk-mostrar-todos-boletos" onchange="renderizarBoletos()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
-                        Mostrar todos
-                    </label>
-                    <input type="date" id="filtro-vencimento-data" onchange="renderizarBoletos()" class="p-2 border rounded-xl text-xs font-semibold bg-gray-50">
-                    <button onclick="renderizarBoletos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition">🔄 Filtrar Data</button>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">⛽ Custos com Combustível</p>
+                    <h3 id="card-custo-combustivel" class="text-2xl font-black text-emerald-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-combustivel-litros" class="mt-2 text-xs text-gray-500">0,0 L (Média R$ 0,00/L)</p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-rose-500">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">🔧 Custos Manutenção & Extras</p>
+                    <h3 id="card-custo-manutencao" class="text-2xl font-black text-rose-600 mt-1">R$ 0,00</h3>
+                    <p id="sub-qtd-manutencoes" class="mt-2 text-xs text-gray-500">Oficina + Saídas avulsas</p>
                 </div>
             </div>
 
-            <!-- Formulário Cadastro de Boleto -->
-            <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
-                <h4 class="text-xs font-bold text-gray-600 uppercase">Novo Registo de Boleto / Conta</h4>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                    <div class="lg:col-span-2">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição / Fornecedor *</label>
-                        <input type="text" id="boleto-desc" placeholder="Ex: Peças Oficina / Pneu / IPVA..." class="w-full p-2.5 border rounded-xl text-sm bg-white font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+            <!-- GESTÃO DE BOLETOS E CONTAS A PAGAR -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
                     <div>
-                        <!-- Checkbox Valor Fixo logo acima do input de valor -->
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <input type="checkbox" id="boleto-chk-valor-fixo" class="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
-                            <label for="boleto-chk-valor-fixo" class="text-[10px] font-bold text-gray-600 cursor-pointer">Valor fixo</label>
-                        </div>
-                        <input type="number" step="0.01" id="boleto-valor-total" placeholder="Ex: 119.80" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold text-rose-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📑 Contas a Pagar / Gestão de Boletos (Parcelamento Inteligente)</h3>
+                        <p class="text-xs text-gray-500">Cadastre boletos únicos ou parcelados (ex: mecânica em 3x) para controlo de vencimentos.</p>
                     </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Qtd. Parcelas *</label>
-                        <input type="number" id="boleto-parcelas" value="1" min="1" max="200" placeholder="Ex: 3" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">1º Vencimento *</label>
-                        <input type="date" id="boleto-vencimento" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    <div class="flex items-center gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
+                        <!-- Botão Excluir Selecionados -->
+                        <button onclick="excluirBoletosSelecionados()" id="btn-excluir-lote" class="hidden bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition shadow flex items-center gap-1.5">
+                            🗑️ Excluir Selecionados (<span id="contador-selecionados">0</span>)
+                        </button>
+                        <!-- Checkbox Mostrar Todos -->
+                        <label class="flex items-center gap-1.5 cursor-pointer text-xs font-bold text-gray-700 hover:text-gb-navy transition bg-gray-50 px-3 py-2 rounded-xl border">
+                            <input type="checkbox" id="chk-mostrar-todos-boletos" onchange="renderizarBoletos()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            Mostrar todos
+                        </label>
+                        <input type="date" id="filtro-vencimento-data" onchange="renderizarBoletos()" class="p-2 border rounded-xl text-xs font-semibold bg-gray-50">
+                        <button onclick="renderizarBoletos()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-2 rounded-xl text-xs font-bold transition">🔄 Filtrar Data</button>
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-1">
-                    <button onclick="cadastrarBoleto()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow">
-                        ➕ Gerar e Cadastrar Boletos
-                    </button>
+                <!-- Formulário Cadastro de Boleto -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-3">
+                    <h4 class="text-xs font-bold text-gray-600 uppercase">Novo Registo de Boleto / Conta</h4>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Descrição / Fornecedor *</label>
+                            <input type="text" id="boleto-desc" placeholder="Ex: Peças Oficina / Pneu / IPVA..." class="w-full p-2.5 border rounded-xl text-sm bg-white font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <!-- Checkbox Valor Fixo logo acima do input de valor -->
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <input type="checkbox" id="boleto-chk-valor-fixo" class="w-3.5 h-3.5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                                <label for="boleto-chk-valor-fixo" class="text-[10px] font-bold text-gray-600 cursor-pointer">Valor fixo</label>
+                            </div>
+                            <input type="number" step="0.01" id="boleto-valor-total" placeholder="Ex: 119.80" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold text-rose-600 outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Qtd. Parcelas *</label>
+                            <input type="number" id="boleto-parcelas" value="1" min="1" max="200" placeholder="Ex: 3" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">1º Vencimento *</label>
+                            <input type="date" id="boleto-vencimento" class="w-full p-2.5 border rounded-xl text-sm bg-white font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-1">
+                        <button onclick="cadastrarBoleto()" class="bg-gb-navy hover:bg-slate-900 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition shadow">
+                            ➕ Gerar e Cadastrar Boletos
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Barra de Pesquisa Rápida de Boletos -->
+                <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border">
+                    <span class="text-sm">🔍</span>
+                    <input type="text" id="input-pesquisa-boleto" oninput="renderizarBoletos()" placeholder="Pesquisar boleto específico por descrição ou fornecedor (ex: Rastreador, Ford, Acelo)..." class="w-full bg-transparent text-sm font-semibold outline-none text-gray-700">
+                </div>
+
+                <!-- Tabela de Boletos a Pagar -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                                <th class="p-3 text-center w-10">
+                                    <input type="checkbox" id="chk-selecionar-todos" onchange="alternarSelecionarTodos(this)" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
+                                </th>
+                                <th class="p-3">Descrição / Fornecedor</th>
+                                <th class="p-3 text-center">Parcela</th>
+                                <th class="p-3 text-center">Vencimento</th>
+                                <th class="p-3 text-right">Valor (R$)</th>
+                                <th class="p-3 text-center">Status</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-boletos" class="text-sm divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- Barra de Pesquisa Rápida de Boletos -->
-            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border">
-                <span class="text-sm">🔍</span>
-                <input type="text" id="input-pesquisa-boleto" oninput="renderizarBoletos()" placeholder="Pesquisar boleto específico por descrição ou fornecedor (ex: Rastreador, Ford, Acelo)..." class="w-full bg-transparent text-sm font-semibold outline-none text-gray-700">
-            </div>
-
-            <!-- Tabela de Boletos a Pagar -->
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
-                            <th class="p-3 text-center w-10">
-                                <input type="checkbox" id="chk-selecionar-todos" onchange="alternarSelecionarTodos(this)" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
-                            </th>
-                            <th class="p-3">Descrição / Fornecedor</th>
-                            <th class="p-3 text-center">Parcela</th>
-                            <th class="p-3 text-center">Vencimento</th>
-                            <th class="p-3 text-right">Valor (R$)</th>
-                            <th class="p-3 text-center">Status</th>
-                            <th class="p-3 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-boletos" class="text-sm divide-y">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Seção Novo Lançamento Manual (Entrada / Saída Extra) -->
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-            <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">➕ Registrar Entrada ou Saída Avulsa (Notas / Reparos / Outros)</h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
-                    <select id="form-trans-tipo" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="Entrada">🟢 Entrada (Receita Extra)</option>
-                        <option value="Saida">🔴 Saída (Custo / Reparo)</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria *</label>
-                    <select id="form-trans-categoria" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="imposto">Imposto</option>
-                        <option value="parcela/financiamento">Parcela / Financiamento</option>
-                        <option value="prolabore">Prolabore</option>
-                        <option value="pecas">Peças</option>
-                        <option value="manutencao">Manutenção</option>
-                        <option value="pneus">Pneus</option>
-                        <option value="pedagios">Pedágio</option>
-                        <option value="funcionario">Funcionário</option>
-                        <option value="frete">Frete</option>
-                        <option value="outros tipos de receitas">Outros tipos de receitas</option>
-                        <option value="cesta basica">Cesta básica</option>
-                        <option value="premiacao">Premiação</option>
-                    </select>
-                </div>
-                <div class="lg:col-span-2">
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição do Lançamento *</label>
-                    <input type="text" id="form-trans-desc" placeholder="Ex: Nota de reparo oficina externa, Frete avulso..." class="w-full p-3 border rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
-                    <input type="number" step="0.01" id="form-trans-valor" placeholder="Ex: 350.00" class="w-full p-3 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-                <div class="flex items-end">
-                    <button onclick="salvarTransacaoManual()" class="w-full bg-gb-navy hover:bg-slate-900 text-white font-bold p-3 rounded-xl text-sm transition shadow-sm">
-                        💾 Salvar Lançamento
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Seção Principal DRE e Gráfico de Composição -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            <!-- Tabela DRE (Demonstrativo do Resultado) -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 space-y-4">
-                <div class="border-b pb-3 flex justify-between items-center">
-                    <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📊 Demonstrativo do Resultado (DRE Operacional)</h3>
-                    <span class="text-xs font-bold text-gray-400 uppercase">Valores em R$</span>
-                </div>
-
-                <div class="space-y-3 text-sm font-semibold">
-                    <div class="flex justify-between p-3 bg-blue-50/50 rounded-xl text-blue-900 font-bold border border-blue-100">
-                        <span>(+) Receita Operacional Bruta (Pacotes + Extras)</span>
-                        <span id="dre-receita-bruta" class="text-base">R$ 0,00</span>
-                    </div>
-
-                    <div class="pl-4 space-y-2 border-l-2 border-gray-200">
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Custos de Diárias dos Motoristas</span>
-                            <span id="dre-custo-diarias" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Pagamentos por Pacote (Shopee / ML)</span>
-                            <span id="dre-custo-pacotes" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Abastecimento de Combustível</span>
-                            <span id="dre-custo-combustivel" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Manutenção da Frota & Oficina (Sistema)</span>
-                            <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Peças</span>
-                            <span id="dre-custo-pecas" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Manutenção (Manual)</span>
-                            <span id="dre-custo-manutencao-manual" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Pneus</span>
-                            <span id="dre-custo-pneus" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Funcionários</span>
-                            <span id="dre-custo-funcionario" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Cesta Básica</span>
-                            <span id="dre-custo-cesta-basica" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Premiação</span>
-                            <span id="dre-custo-premiacao" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Impostos</span>
-                            <span id="dre-custo-imposto" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Pedágios</span>
-                            <span id="dre-custo-pedagios" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Parcelas / Financiamentos</span>
-                            <span id="dre-custo-parcelas" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Prolabore</span>
-                            <span id="dre-custo-prolabore" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Outras Saídas / Custos Avulsos</span>
-                            <span id="dre-custo-outras-saidas" class="text-red-600">R$ 0,00</span>
-                        </div>
-                        <div class="flex justify-between text-gray-600">
-                            <span>(-) Boletos Pagos</span>
-                            <span id="dre-custo-boletos-pagos" class="text-red-600">R$ 0,00</span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-between p-3 bg-rose-50/50 rounded-xl text-rose-900 font-bold border border-rose-100">
-                        <span>(=) Total de Despesas Operacionais</span>
-                        <span id="dre-total-despesas" class="text-base text-rose-700">R$ 0,00</span>
-                    </div>
-
-                    <div class="flex justify-between p-4 bg-gb-navy text-white rounded-xl font-black text-lg shadow-md">
-                        <span>(=) RESULTADO OPERACIONAL LÍQUIDO</span>
-                        <span id="dre-resultado-liquido" class="text-emerald-400">R$ 0,00</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Gráfico de Composição de Despesas -->
+            <!-- Seção Novo Lançamento Manual (Entrada / Saída Extra) -->
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
-                <h3 class="font-bold text-gray-700 mb-2">🍰 Distribuição dos Custos</h3>
-                <div class="h-64 flex items-center justify-center">
-                    <canvas id="chartComposicaoCustos"></canvas>
+                <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">➕ Registrar Entrada ou Saída Avulsa (Notas / Reparos / Outros)</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tipo *</label>
+                        <select id="form-trans-tipo" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Entrada">🟢 Entrada (Receita Extra)</option>
+                            <option value="Saida">🔴 Saída (Custo / Reparo)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Categoria *</label>
+                        <select id="form-trans-categoria" class="w-full p-3 border rounded-xl bg-gray-50 text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="imposto">Imposto</option>
+                            <option value="parcela/financiamento">Parcela / Financiamento</option>
+                            <option value="prolabore">Prolabore</option>
+                            <option value="pecas">Peças</option>
+                            <option value="manutencao">Manutenção</option>
+                            <option value="pneus">Pneus</option>
+                            <option value="pedagios">Pedágio</option>
+                            <option value="funcionario">Funcionário</option>
+                            <option value="frete">Frete</option>
+                            <option value="outros tipos de receitas">Outros tipos de receitas</option>
+                            <option value="cesta basica">Cesta básica</option>
+                            <option value="premiacao">Premiação</option>
+                        </select>
+                    </div>
+                    <div class="lg:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição do Lançamento *</label>
+                        <input type="text" id="form-trans-desc" placeholder="Ex: Nota de reparo oficina externa, Frete avulso..." class="w-full p-3 border rounded-xl text-sm font-semibold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Valor (R$) *</label>
+                        <input type="number" step="0.01" id="form-trans-valor" placeholder="Ex: 350.00" class="w-full p-3 border rounded-xl text-sm font-bold outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="salvarTransacaoManual()" class="w-full bg-gb-navy hover:bg-slate-900 text-white font-bold p-3 rounded-xl text-sm transition shadow-sm">
+                            💾 Salvar Lançamento
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            <!-- Seção Principal DRE e Gráfico de Composição -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Tabela DRE (Demonstrativo do Resultado) -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 lg:col-span-2 space-y-4">
+                    <div class="border-b pb-3 flex justify-between items-center">
+                        <h3 class="font-black text-lg text-gb-navy flex items-center gap-2">📊 Demonstrativo do Resultado (DRE Operacional)</h3>
+                        <span class="text-xs font-bold text-gray-400 uppercase">Valores em R$</span>
+                    </div>
+
+                    <div class="space-y-3 text-sm font-semibold">
+                        <div class="flex justify-between p-3 bg-blue-50/50 rounded-xl text-blue-900 font-bold border border-blue-100">
+                            <span>(+) Receita Operacional Bruta (Pacotes + Extras)</span>
+                            <span id="dre-receita-bruta" class="text-base">R$ 0,00</span>
+                        </div>
+
+                        <div class="pl-4 space-y-2 border-l-2 border-gray-200">
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Custos de Diárias dos Motoristas</span>
+                                <span id="dre-custo-diarias" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Pagamentos por Pacote (Shopee / ML)</span>
+                                <span id="dre-custo-pacotes" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Abastecimento de Combustível</span>
+                                <span id="dre-custo-combustivel" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Manutenção da Frota & Oficina (Sistema)</span>
+                                <span id="dre-custo-oficina" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Peças</span>
+                                <span id="dre-custo-pecas" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Manutenção (Manual)</span>
+                                <span id="dre-custo-manutencao-manual" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Pneus</span>
+                                <span id="dre-custo-pneus" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Funcionários</span>
+                                <span id="dre-custo-funcionario" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Cesta Básica</span>
+                                <span id="dre-custo-cesta-basica" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Premiação</span>
+                                <span id="dre-custo-premiacao" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Impostos</span>
+                                <span id="dre-custo-imposto" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Pedágios</span>
+                                <span id="dre-custo-pedagios" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Parcelas / Financiamentos</span>
+                                <span id="dre-custo-parcelas" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Prolabore</span>
+                                <span id="dre-custo-prolabore" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Outras Saídas / Custos Avulsos</span>
+                                <span id="dre-custo-outras-saidas" class="text-red-600">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>(-) Boletos Pagos</span>
+                                <span id="dre-custo-boletos-pagos" class="text-red-600">R$ 0,00</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between p-3 bg-rose-50/50 rounded-xl text-rose-900 font-bold border border-rose-100">
+                            <span>(=) Total de Despesas Operacionais</span>
+                            <span id="dre-total-despesas" class="text-base text-rose-700">R$ 0,00</span>
+                        </div>
+
+                        <div class="flex justify-between p-4 bg-gb-navy text-white rounded-xl font-black text-lg shadow-md">
+                            <span>(=) RESULTADO OPERACIONAL LÍQUIDO</span>
+                            <span id="dre-resultado-liquido" class="text-emerald-400">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Composição de Despesas -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 space-y-4">
+                    <h3 class="font-bold text-gray-700 mb-2">🍰 Distribuição dos Custos</h3>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="chartComposicaoCustos"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada por Motorista -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <h3 class="font-bold text-lg text-gb-navy">🚚 Balanço de Custos por Motorista / Veículo</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                                <th class="p-3">Motorista</th>
+                                <th class="p-3">Veículo</th>
+                                <th class="p-3 text-center">Diárias</th>
+                                <th class="p-3 text-center">Shopee (Pkts)</th>
+                                <th class="p-3 text-center">ML (Pkts)</th>
+                                <th class="p-3 text-right">Custo Motorista</th>
+                                <th class="p-3 text-right">Combustível</th>
+                                <th class="p-3 text-right">Custo Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-balanco-motoristas" class="text-sm divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Histórico de Lançamentos Manuais Avulsos -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <h3 class="font-bold text-lg text-gb-navy">📋 Histórico de Entradas e Saídas Manuais</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
+                                <th class="p-3">Data / Hora</th>
+                                <th class="p-3">Tipo</th>
+                                <th class="p-3">Categoria</th>
+                                <th class="p-3">Descrição</th>
+                                <th class="p-3 text-right">Valor</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-transacoes-manuais" class="text-sm divide-y">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Tabela Detalhada por Motorista -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <h3 class="font-bold text-lg text-gb-navy">🚚 Balanço de Custos por Motorista / Veículo</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
-                            <th class="p-3">Motorista</th>
-                            <th class="p-3">Veículo</th>
-                            <th class="p-3 text-center">Diárias</th>
-                            <th class="p-3 text-center">Shopee (Pkts)</th>
-                            <th class="p-3 text-center">ML (Pkts)</th>
-                            <th class="p-3 text-right">Custo Motorista</th>
-                            <th class="p-3 text-right">Combustível</th>
-                            <th class="p-3 text-right">Custo Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-balanco-motoristas" class="text-sm divide-y">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <!-- ================= ABA 2: RELATÓRIOS FINANCEIROS ================= -->
+        <div id="aba-fin-relatorios" class="space-y-6 hidden">
 
-        <!-- Histórico de Lançamentos Manuais Avulsos -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-            <h3 class="font-bold text-lg text-gb-navy">📋 Histórico de Entradas e Saídas Manuais</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-100 text-xs font-bold text-gray-500 uppercase border-b">
-                            <th class="p-3">Data / Hora</th>
-                            <th class="p-3">Tipo</th>
-                            <th class="p-3">Categoria</th>
-                            <th class="p-3">Descrição</th>
-                            <th class="p-3 text-right">Valor</th>
-                            <th class="p-3 text-center">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-transacoes-manuais" class="text-sm divide-y">
-                        <!-- Preenchido via JS -->
-                    </tbody>
-                </table>
+            <!-- Seletor de Sub-Relatórios Financeiros -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex flex-wrap gap-2">
+                    <button id="fin-rel-btn-boletos" onclick="selecionarRelatorioFinanceiro('boletos')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gb-navy text-white">
+                        📑 Boletos & Vencimentos
+                    </button>
+                    <button id="fin-rel-btn-categorias" onclick="selecionarRelatorioFinanceiro('categorias')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        📂 Despesas por Categoria
+                    </button>
+                    <button id="fin-rel-btn-motoristas" onclick="selecionarRelatorioFinanceiro('motoristas')" class="px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200">
+                        🚚 Balanço por Motorista
+                    </button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="exportarRelatorioFinanceiroCSV()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">
+                        📄 Exportar Relatório (CSV)
+                    </button>
+                    <button onclick="imprimirDRE()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap">
+                        🖨️ Imprimir DRE
+                    </button>
+                </div>
             </div>
+
+            <!-- Cards KPI do Relatório Financeiro -->
+            <div id="fin-rel-kpis" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+            <!-- Gráfico do Relatório Financeiro -->
+            <div id="fin-rel-grafico-box" class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
+                <h3 id="fin-rel-grafico-titulo" class="font-bold text-gray-800 mb-3">📈 Gráfico Financeiro</h3>
+                <div class="h-64"><canvas id="chartRelatorioFinanceiro"></canvas></div>
+            </div>
+
+            <!-- Tabela do Relatório Financeiro -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-3">
+                    <div>
+                        <h3 id="fin-rel-titulo" class="text-lg font-black text-gb-navy">Relatório Financeiro</h3>
+                        <p id="fin-rel-subtitulo" class="text-xs text-gray-500">Resumo detalhado conforme o período selecionado.</p>
+                    </div>
+                    <span id="fin-rel-contador" class="text-xs font-bold text-gray-500">0 linha(s)</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead id="fin-rel-thead" class="bg-gray-50 text-xs font-bold text-gray-500 uppercase border-b"></thead>
+                        <tbody id="fin-rel-tbody" class="text-sm divide-y"></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
     </main>
@@ -557,13 +590,15 @@
             `guilherme@${DOMINIO_INTERNO}`
         ];
 
-        const STORAGE_KEY_TARIFAS = 'gb_fin_tarifas_receita_v1';
-
         let dadosRegistros = [];
         let listaMotoristas = [];
         let dadosTransacoes = [];
         let dadosBoletos = [];
         let chartCustosInstance = null;
+        let chartRelatorioFinInstance = null;
+        let abaFinAtiva = 'geral';
+        let relatorioFinAtivo = 'boletos';
+        let ultimoCSVFin = { nome: 'relatorio_financeiro.csv', linhas: [] };
 
         function escapeHtml(str) {
             if (!str) return '';
@@ -580,48 +615,359 @@
             return num.toLocaleString('pt-BR', { minimumFractionDigits: decimais, maximumFractionDigits: decimais });
         }
 
-        function carregarTarifasReceita() {
-            let tarifas = { shopee: 0, ml: 0 };
-            try {
-                const salvo = JSON.parse(localStorage.getItem(STORAGE_KEY_TARIFAS) || '{}');
-                tarifas.shopee = Number(salvo.shopee) || 0;
-                tarifas.ml = Number(salvo.ml) || 0;
-            } catch (_) {}
-            document.getElementById('tarifa-receita-shopee').value = tarifas.shopee > 0 ? tarifas.shopee : '';
-            document.getElementById('tarifa-receita-ml').value = tarifas.ml > 0 ? tarifas.ml : '';
-            return tarifas;
+        function alternarAbaFinanceira(aba) {
+            abaFinAtiva = aba;
+            const elGeral = document.getElementById('aba-fin-geral');
+            const elRel = document.getElementById('aba-fin-relatorios');
+            const btnGeral = document.getElementById('tab-fin-geral');
+            const btnRel = document.getElementById('tab-fin-relatorios');
+
+            if (aba === 'relatorios') {
+                elGeral.classList.add('hidden');
+                elRel.classList.remove('hidden');
+                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+                btnGeral.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+                renderizarRelatorioFinanceiroAtivo();
+            } else {
+                elRel.classList.add('hidden');
+                elGeral.classList.remove('hidden');
+                btnGeral.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition bg-gb-navy text-white shadow-sm';
+                btnRel.className = 'px-5 py-2.5 rounded-xl text-sm font-black transition text-gray-600 hover:bg-gray-100';
+            }
         }
 
-        function salvarTarifasReceita() {
-            const shopee = parseFloat(document.getElementById('tarifa-receita-shopee').value) || 0;
-            const ml = parseFloat(document.getElementById('tarifa-receita-ml').value) || 0;
-            try {
-                localStorage.setItem(STORAGE_KEY_TARIFAS, JSON.stringify({ shopee, ml }));
-            } catch (_) {}
-            calcularFinanceiro();
+        function selecionarRelatorioFinanceiro(tipo) {
+            relatorioFinAtivo = tipo;
+            const mapa = {
+                boletos: 'fin-rel-btn-boletos',
+                categorias: 'fin-rel-btn-categorias',
+                motoristas: 'fin-rel-btn-motoristas'
+            };
+            Object.entries(mapa).forEach(([chave, id]) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.className = chave === tipo
+                    ? 'px-4 py-2 rounded-xl text-xs font-black transition bg-gb-navy text-white'
+                    : 'px-4 py-2 rounded-xl text-xs font-black transition bg-gray-100 text-gray-700 hover:bg-gray-200';
+            });
+            renderizarRelatorioFinanceiroAtivo();
         }
 
-        function obterSituacaoVencimento(boleto) {
-            if (boleto.status === 'Pago') {
-                return { codigo: 'Pago', label: 'Pago', classe: 'bg-emerald-100 text-emerald-800' };
-            }
-            if (!boleto.data_vencimento) {
-                return { codigo: 'Pendente', label: 'Pendente', classe: 'bg-amber-100 text-amber-800' };
-            }
+        function renderizarKPIsFinRel(cards) {
+            document.getElementById('fin-rel-kpis').innerHTML = cards.map(c => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 border-l-4 ${c.borda}">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">${escapeHtml(c.titulo)}</p>
+                    <h3 class="text-2xl font-black ${c.cor} mt-1">${escapeHtml(c.valor)}</h3>
+                    <p class="mt-2 text-xs text-gray-500">${escapeHtml(c.sub)}</p>
+                </div>
+            `).join('');
+        }
 
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            const venc = new Date(boleto.data_vencimento.substring(0, 10) + 'T00:00:00');
-            const diffDias = Math.round((venc - hoje) / (1000 * 60 * 60 * 24));
+        function atualizarGraficoFinRel(titulo, tipoChart, labels, datasets) {
+            const box = document.getElementById('fin-rel-grafico-box');
+            if (!labels || labels.length === 0) {
+                box.classList.add('hidden');
+                if (chartRelatorioFinInstance) {
+                    chartRelatorioFinInstance.destroy();
+                    chartRelatorioFinInstance = null;
+                }
+                return;
+            }
+            box.classList.remove('hidden');
+            document.getElementById('fin-rel-grafico-titulo').innerText = titulo;
+            const ctx = document.getElementById('chartRelatorioFinanceiro').getContext('2d');
+            if (chartRelatorioFinInstance) chartRelatorioFinInstance.destroy();
+            chartRelatorioFinInstance = new Chart(ctx, {
+                type: tipoChart,
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: tipoChart === 'bar' ? { y: { beginAtZero: true } } : {}
+                }
+            });
+        }
 
-            if (diffDias < 0) {
-                return { codigo: 'Vencido', label: `Vencido (${Math.abs(diffDias)}d)`, classe: 'bg-red-100 text-red-800 border border-red-300' };
+        function renderizarRelatorioFinanceiroAtivo() {
+            const dadosReg = filtrarPorPeriodo(dadosRegistros);
+            const dadosTrans = filtrarPorPeriodo(dadosTransacoes);
+            const boletosPeriodo = filtrarPorPeriodo(dadosBoletos);
+
+            if (relatorioFinAtivo === 'boletos') {
+                renderizarRelFinBoletos(boletosPeriodo);
+            } else if (relatorioFinAtivo === 'categorias') {
+                renderizarRelFinCategorias(dadosTrans);
+            } else if (relatorioFinAtivo === 'motoristas') {
+                renderizarRelFinMotoristas(dadosReg);
             }
-            if (diffDias <= 3) {
-                const texto = diffDias === 0 ? 'Vence hoje' : `Vence em ${diffDias}d`;
-                return { codigo: 'Proximo', label: texto, classe: 'bg-amber-100 text-amber-900 border border-amber-300' };
+        }
+
+        function renderizarRelFinBoletos(boletos) {
+            document.getElementById('fin-rel-titulo').innerText = '📑 Relatório de Boletos e Vencimentos';
+            document.getElementById('fin-rel-subtitulo').innerText = 'Situação de boletos pagos, pendentes e vencidos no período.';
+
+            const hojeStr = new Date().toISOString().split('T')[0];
+            let totalPago = 0;
+            let totalPendente = 0;
+            let totalVencido = 0;
+            let qtdVencidos = 0;
+
+            boletos.forEach(b => {
+                const val = Number(b.valor) || 0;
+                const d = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
+                if (b.status === 'Pago') {
+                    totalPago += val;
+                } else {
+                    totalPendente += val;
+                    if (d && d < hojeStr) {
+                        totalVencido += val;
+                        qtdVencidos++;
+                    }
+                }
+            });
+
+            renderizarKPIsFinRel([
+                { titulo: 'Total Boletos no Período', valor: `R$ ${formatarMoeda(totalPago + totalPendente)}`, sub: `${boletos.length} boleto(s)`, cor: 'text-gb-navy', borda: 'border-l-blue-600' },
+                { titulo: 'Boletos Pagos', valor: `R$ ${formatarMoeda(totalPago)}`, sub: 'Computados no DRE', cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Boletos Pendentes', valor: `R$ ${formatarMoeda(totalPendente)}`, sub: 'A vencer ou em aberto', cor: 'text-amber-600', borda: 'border-l-amber-500' },
+                { titulo: 'Boletos Vencidos', valor: `R$ ${formatarMoeda(totalVencido)}`, sub: `${qtdVencidos} em atraso`, cor: 'text-rose-600', borda: 'border-l-rose-500' }
+            ]);
+
+            atualizarGraficoFinRel(
+                '📑 Comparativo de Boletos (Pago vs. Pendente)',
+                'doughnut',
+                ['Pago', 'Pendente'],
+                [{ data: [totalPago, totalPendente], backgroundColor: ['#10b981', '#f59e0b'] }]
+            );
+
+            document.getElementById('fin-rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Vencimento</th>
+                    <th class="p-3">Descrição / Fornecedor</th>
+                    <th class="p-3 text-center">Status</th>
+                    <th class="p-3 text-right">Valor (R$)</th>
+                </tr>
+            `;
+
+            document.getElementById('fin-rel-tbody').innerHTML = boletos.map(b => {
+                const dStr = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
+                const dFmt = dStr ? new Date(dStr + 'T00:00:00').toLocaleDateString('pt-BR') : '--';
+                const vencido = b.status !== 'Pago' && dStr && dStr < hojeStr;
+                const badge = b.status === 'Pago'
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : (vencido ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800');
+                const rotulo = b.status === 'Pago' ? 'Pago' : (vencido ? 'Vencido' : 'Pendente');
+                return `
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-semibold">${escapeHtml(dFmt)}</td>
+                        <td class="p-3 font-bold text-gray-800">${escapeHtml(b.descricao)}</td>
+                        <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-bold ${badge}">${escapeHtml(rotulo)}</span></td>
+                        <td class="p-3 text-right font-black text-rose-600">R$ ${formatarMoeda(b.valor)}</td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="4" class="p-4 text-center text-gray-400">Nenhum boleto no período selecionado.</td></tr>`;
+
+            document.getElementById('fin-rel-contador').innerText = `${boletos.length} boleto(s)`;
+            ultimoCSVFin = {
+                nome: 'relatorio_financeiro_boletos.csv',
+                linhas: [
+                    ['Vencimento', 'Descricao', 'Status', 'Valor'],
+                    ...boletos.map(b => [b.data_vencimento ? b.data_vencimento.substring(0, 10) : '', b.descricao, b.status, Number(b.valor || 0).toFixed(2)])
+                ]
+            };
+        }
+
+        function renderizarRelFinCategorias(transacoes) {
+            document.getElementById('fin-rel-titulo').innerText = '📂 Relatório de Lançamentos por Categoria';
+            document.getElementById('fin-rel-subtitulo').innerText = 'Agrupamento de entradas e saídas manuais por categoria.';
+
+            const mapa = new Map();
+            let totalEntradas = 0;
+            let totalSaidas = 0;
+
+            transacoes.forEach(t => {
+                const cat = t.categoria || 'Geral';
+                const val = Number(t.valor) || 0;
+                if (!mapa.has(cat)) mapa.set(cat, { cat, entradas: 0, saidas: 0, qtd: 0 });
+                const entry = mapa.get(cat);
+                entry.qtd++;
+                if (t.tipo === 'Entrada') {
+                    entry.entradas += val;
+                    totalEntradas += val;
+                } else {
+                    entry.saidas += val;
+                    totalSaidas += val;
+                }
+            });
+
+            const linhas = Array.from(mapa.values()).sort((a, b) => (b.saidas + b.entradas) - (a.saidas + a.entradas));
+
+            renderizarKPIsFinRel([
+                { titulo: 'Categorias Movimentadas', valor: `${linhas.length}`, sub: `${transacoes.length} lançamento(s)`, cor: 'text-gb-navy', borda: 'border-l-blue-600' },
+                { titulo: 'Total Entradas Manuais', valor: `R$ ${formatarMoeda(totalEntradas)}`, sub: 'Receitas / Fretes extras', cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Total Saídas Manuais', valor: `R$ ${formatarMoeda(totalSaidas)}`, sub: 'Custos / Reparos / Despesas', cor: 'text-rose-600', borda: 'border-l-rose-500' },
+                { titulo: 'Saldo Manual Líquido', valor: `R$ ${formatarMoeda(totalEntradas - totalSaidas)}`, sub: 'Entradas menos saídas', cor: 'text-purple-700', borda: 'border-l-purple-500' }
+            ]);
+
+            atualizarGraficoFinRel(
+                '📂 Saídas por Categoria (R$)',
+                'bar',
+                linhas.map(l => l.cat),
+                [{ label: 'Saídas (R$)', data: linhas.map(l => l.saidas), backgroundColor: '#e11d48', borderRadius: 6 }]
+            );
+
+            document.getElementById('fin-rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Categoria</th>
+                    <th class="p-3 text-center">Lançamentos</th>
+                    <th class="p-3 text-right">Entradas (R$)</th>
+                    <th class="p-3 text-right">Saídas (R$)</th>
+                </tr>
+            `;
+
+            document.getElementById('fin-rel-tbody').innerHTML = linhas.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-gray-800 capitalize">${escapeHtml(l.cat)}</td>
+                    <td class="p-3 text-center">${l.qtd}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">R$ ${formatarMoeda(l.entradas)}</td>
+                    <td class="p-3 text-right font-bold text-rose-600">R$ ${formatarMoeda(l.saidas)}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-gray-400">Nenhum lançamento manual no período.</td></tr>`;
+
+            document.getElementById('fin-rel-contador').innerText = `${linhas.length} categoria(s)`;
+            ultimoCSVFin = {
+                nome: 'relatorio_financeiro_categorias.csv',
+                linhas: [
+                    ['Categoria', 'Lancamentos', 'Entradas', 'Saidas'],
+                    ...linhas.map(l => [l.cat, l.qtd, l.entradas.toFixed(2), l.saidas.toFixed(2)])
+                ]
+            };
+        }
+
+        function renderizarRelFinMotoristas(dadosReg) {
+            document.getElementById('fin-rel-titulo').innerText = '🚚 Relatório de Custos por Motorista';
+            document.getElementById('fin-rel-subtitulo').innerText = 'Detalhamento de diárias, pacotes, combustível e custo total por motorista.';
+
+            let totMot = 0;
+            let totComb = 0;
+            const linhas = listaMotoristas.map(mot => {
+                const registrosMot = dadosReg.filter(i => i.motorista === mot.nome);
+                const diasUnicosMap = new Map();
+                let shopeeMot = 0;
+                let mlMot = 0;
+                let combustivelMot = 0;
+
+                registrosMot.forEach(i => {
+                    const dataReg = new Date(i.created_at);
+                    const chaveDia = `${dataReg.getFullYear()}-${dataReg.getMonth()}-${dataReg.getDate()}`;
+                    if (!diasUnicosMap.has(chaveDia)) {
+                        diasUnicosMap.set(chaveDia, dataReg.getDay() === 6);
+                    }
+                    if (i.tipo === 'Coleta') {
+                        if (i.plataforma === 'Shopee') shopeeMot += (i.pacotes || 0);
+                        if (i.plataforma === 'Mercado Livre') mlMot += (i.pacotes || 0);
+                    }
+                    if (i.tipo === 'Abastecimento') {
+                        combustivelMot += (i.valor_abastecimento || 0);
+                    }
+                });
+
+                const vDiaria = (mot.valor_diaria !== undefined && mot.valor_diaria !== null) ? parseFloat(mot.valor_diaria) : 150.00;
+                const vDiariaSabado = (mot.valor_diaria_sabado !== undefined && mot.valor_diaria_sabado !== null) ? parseFloat(mot.valor_diaria_sabado) : vDiaria;
+                const vShopee = (mot.valor_shopee !== undefined && mot.valor_shopee !== null) ? parseFloat(mot.valor_shopee) : 0.50;
+                const vMl = (mot.valor_ml !== undefined && mot.valor_ml !== null) ? parseFloat(mot.valor_ml) : 0.50;
+
+                let qtdDiasNormais = 0;
+                let qtdDiasSabado = 0;
+                diasUnicosMap.forEach(isSabado => {
+                    if (isSabado) qtdDiasSabado++;
+                    else qtdDiasNormais++;
+                });
+
+                const custoMotTotal = ((qtdDiasNormais * vDiaria) + (qtdDiasSabado * vDiariaSabado)) + (shopeeMot * vShopee) + (mlMot * vMl);
+                const totalGeralMot = custoMotTotal + combustivelMot;
+                totMot += custoMotTotal;
+                totComb += combustivelMot;
+
+                return {
+                    nome: mot.nome,
+                    veiculo: mot.veiculo,
+                    dias: diasUnicosMap.size,
+                    shopee: shopeeMot,
+                    ml: mlMot,
+                    custoMot: custoMotTotal,
+                    combustivel: combustivelMot,
+                    total: totalGeralMot
+                };
+            });
+
+            renderizarKPIsFinRel([
+                { titulo: 'Custo Motoristas', valor: `R$ ${formatarMoeda(totMot)}`, sub: 'Diárias + pacotes', cor: 'text-orange-600', borda: 'border-l-orange-500' },
+                { titulo: 'Custo Combustível', valor: `R$ ${formatarMoeda(totComb)}`, sub: 'Abastecimentos no período', cor: 'text-emerald-600', borda: 'border-l-emerald-500' },
+                { titulo: 'Total Motorista + Comb.', valor: `R$ ${formatarMoeda(totMot + totComb)}`, sub: 'Custo operacional direto', cor: 'text-gb-navy', borda: 'border-l-blue-600' },
+                { titulo: 'Motoristas Ativos', valor: `${linhas.length}`, sub: 'Na tabela de balanço', cor: 'text-purple-700', borda: 'border-l-purple-500' }
+            ]);
+
+            atualizarGraficoFinRel(
+                '🚚 Custo por Motorista (Motorista + Combustível)',
+                'bar',
+                linhas.map(l => l.nome),
+                [
+                    { label: 'Custo Motorista (R$)', data: linhas.map(l => l.custoMot), backgroundColor: '#f26522', borderRadius: 6 },
+                    { label: 'Combustível (R$)', data: linhas.map(l => l.combustivel), backgroundColor: '#10b981', borderRadius: 6 }
+                ]
+            );
+
+            document.getElementById('fin-rel-thead').innerHTML = `
+                <tr>
+                    <th class="p-3">Motorista</th>
+                    <th class="p-3">Veículo</th>
+                    <th class="p-3 text-center">Dias</th>
+                    <th class="p-3 text-right">Custo Motorista</th>
+                    <th class="p-3 text-right">Combustível</th>
+                    <th class="p-3 text-right">Total</th>
+                </tr>
+            `;
+
+            document.getElementById('fin-rel-tbody').innerHTML = linhas.map(l => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 font-bold text-gray-800">${escapeHtml(l.nome)}</td>
+                    <td class="p-3 text-gray-600">${escapeHtml(l.veiculo)}</td>
+                    <td class="p-3 text-center">${l.dias}</td>
+                    <td class="p-3 text-right font-bold text-orange-600">R$ ${formatarMoeda(l.custoMot)}</td>
+                    <td class="p-3 text-right font-bold text-emerald-600">R$ ${formatarMoeda(l.combustivel)}</td>
+                    <td class="p-3 text-right font-black text-gb-navy">R$ ${formatarMoeda(l.total)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('fin-rel-contador').innerText = `${linhas.length} motorista(s)`;
+            ultimoCSVFin = {
+                nome: 'relatorio_financeiro_motoristas.csv',
+                linhas: [
+                    ['Motorista', 'Veiculo', 'Dias', 'Custo_Motorista', 'Combustivel', 'Total'],
+                    ...linhas.map(l => [l.nome, l.veiculo, l.dias, l.custoMot.toFixed(2), l.combustivel.toFixed(2), l.total.toFixed(2)])
+                ]
+            };
+        }
+
+        function exportarRelatorioFinanceiroCSV() {
+            if (!ultimoCSVFin.linhas || ultimoCSVFin.linhas.length <= 1) {
+                alert('Não há dados no relatório ativo para exportar.');
+                return;
             }
-            return { codigo: 'Pendente', label: 'Pendente', classe: 'bg-slate-100 text-slate-700' };
+            const csv = ultimoCSVFin.linhas
+                .map(row => row.map(c => `"${String(c ?? '').replace(/"/g, '""')}"`).join(';'))
+                .join('\n');
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = ultimoCSVFin.nome;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
 
         async function verificarAutenticacao() {
@@ -654,7 +1000,6 @@
             document.getElementById('fin-data-fim').value = hojeIso;
             document.getElementById('boleto-vencimento').value = hojeIso;
             document.getElementById('filtro-vencimento-data').value = hojeIso;
-            carregarTarifasReceita();
         }
 
         async function carregarDadosFinanceiros() {
@@ -823,21 +1168,15 @@
 
         function verificarAlertasVencimentoHoje() {
             const hojeStr = new Date().toISOString().split('T')[0];
-            const pendentes = dadosBoletos.filter(b => b.status === 'Pendente');
-            const boletosHoje = pendentes.filter(b => (b.data_vencimento ? b.data_vencimento.substring(0, 10) : '') === hojeStr);
-            const boletosVencidos = pendentes.filter(b => {
-                const d = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
-                return d && d < hojeStr;
+            const boletosHoje = dadosBoletos.filter(b => {
+                const dataBoleto = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
+                return dataBoleto === hojeStr && b.status === 'Pendente';
             });
-
+            
             const secaoAlerta = document.getElementById('secao-alerta-vencimentos');
-            if (boletosHoje.length > 0 || boletosVencidos.length > 0) {
+            if (boletosHoje.length > 0) {
                 const totalHoje = boletosHoje.reduce((acc, b) => acc + Number(b.valor), 0);
-                const totalVencidos = boletosVencidos.reduce((acc, b) => acc + Number(b.valor), 0);
-                const partes = [];
-                if (boletosHoje.length > 0) partes.push(`${boletosHoje.length} vencendo hoje (R$ ${formatarMoeda(totalHoje)})`);
-                if (boletosVencidos.length > 0) partes.push(`${boletosVencidos.length} vencido(s) (R$ ${formatarMoeda(totalVencidos)})`);
-                document.getElementById('texto-alerta-vencimentos').innerText = `Existem ${partes.join(' e ')}.`;
+                document.getElementById('texto-alerta-vencimentos').innerText = `Existem ${boletosHoje.length} boleto(s) vencendo hoje, totalizando R$ ${formatarMoeda(totalHoje)}.`;
                 secaoAlerta.classList.remove('hidden');
             } else {
                 secaoAlerta.classList.add('hidden');
@@ -848,14 +1187,12 @@
             const hojeStr = new Date().toISOString().split('T')[0];
             document.getElementById('filtro-vencimento-data').value = hojeStr;
             document.getElementById('chk-mostrar-todos-boletos').checked = false;
-            document.getElementById('filtro-status-boleto').value = 'TODOS_STATUS';
             renderizarBoletos();
         }
 
         function renderizarBoletos() {
             const mostrarTodos = document.getElementById('chk-mostrar-todos-boletos').checked;
             const dataFiltro = document.getElementById('filtro-vencimento-data').value;
-            const statusFiltro = document.getElementById('filtro-status-boleto').value;
             const textoPesquisa = document.getElementById('input-pesquisa-boleto').value.toLowerCase().trim();
             const tbody = document.getElementById('tabela-boletos');
             tbody.innerHTML = '';
@@ -864,18 +1201,10 @@
             atualizarContadorSelecao();
 
             const boletosFiltrados = dadosBoletos.filter(b => {
-                const situacao = obterSituacaoVencimento(b);
-
                 if (textoPesquisa && !b.descricao.toLowerCase().includes(textoPesquisa)) {
                     return false;
                 }
-                if (statusFiltro === 'URGENTES') {
-                    if (situacao.codigo !== 'Vencido' && situacao.codigo !== 'Proximo') return false;
-                } else if (statusFiltro !== 'TODOS_STATUS') {
-                    if (b.status !== statusFiltro) return false;
-                }
-
-                if (mostrarTodos || statusFiltro === 'URGENTES') return true;
+                if (mostrarTodos) return true;
                 if (!dataFiltro) return true;
 
                 const dataBoleto = b.data_vencimento ? b.data_vencimento.substring(0, 10) : '';
@@ -885,20 +1214,19 @@
             boletosFiltrados.forEach(b => {
                 const dataFmt = b.data_vencimento ? new Date(b.data_vencimento.substring(0, 10) + 'T00:00:00').toLocaleDateString('pt-BR') : '';
                 const isPago = b.status === 'Pago';
-                const situacao = obterSituacaoVencimento(b);
 
                 const tr = document.createElement('tr');
-                tr.className = situacao.codigo === 'Vencido' ? 'bg-red-50/40 hover:bg-red-50 border-b' : 'hover:bg-gray-50 border-b';
+                tr.className = "hover:bg-gray-50 border-b";
                 tr.innerHTML = `
                     <td class="p-3 text-center">
                         <input type="checkbox" value="${b.id}" onchange="atualizarContadorSelecao()" class="chk-boleto-individual w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer">
                     </td>
                     <td class="p-3 font-semibold text-gray-800">${escapeHtml(b.descricao)}</td>
                     <td class="p-3 text-center text-xs font-bold text-gray-500">Parcela</td>
-                    <td class="p-3 text-center font-bold ${situacao.codigo === 'Vencido' ? 'text-red-700' : 'text-amber-700'}">${dataFmt}</td>
+                    <td class="p-3 text-center font-bold text-amber-700">${dataFmt}</td>
                     <td class="p-3 text-right font-black text-rose-600">R$ ${formatarMoeda(b.valor)}</td>
                     <td class="p-3 text-center">
-                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${situacao.classe}">${escapeHtml(situacao.label)}</span>
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isPago ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${b.status}</span>
                     </td>
                     <td class="p-3 text-center space-x-1">
                         <button onclick="alternarStatusBoleto(${b.id}, '${b.status}')" class="px-3 py-1 rounded-lg text-xs font-bold transition ${isPago ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}">${isPago ? 'Marcar Pendente' : '✅ Pagar'}</button>
@@ -1028,11 +1356,6 @@
             const dadosReg = filtrarPorPeriodo(dadosRegistros);
             const dadosTrans = filtrarPorPeriodo(dadosTransacoes);
             const boletosPagosPeriodo = filtrarPorPeriodo(dadosBoletos.filter(b => b.status === 'Pago'));
-
-            const totalBoletosPendentesGeral = dadosBoletos
-                .filter(b => b.status === 'Pendente')
-                .reduce((acc, b) => acc + Number(b.valor), 0);
-            document.getElementById('card-boletos-pendentes').innerText = `R$ ${formatarMoeda(totalBoletosPendentesGeral)}`;
 
             let totalPacotesShopee = 0;
             let totalPacotesML = 0;
@@ -1206,30 +1529,13 @@
             const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao + totalSaidasManuais + totalBoletosPagosValor;
 
             const receitaBrutaTotal = totalEntradasManuais + catOutrasReceitas;
-
-            const tarifaShopee = parseFloat(document.getElementById('tarifa-receita-shopee').value) || 0;
-            const tarifaML = parseFloat(document.getElementById('tarifa-receita-ml').value) || 0;
-            const receitaColetasEst = (totalPacotesShopee * tarifaShopee) + (totalPacotesML * tarifaML);
-            const totalPacotesPeriodo = totalPacotesShopee + totalPacotesML;
-
-            document.getElementById('valor-receita-coletas-est').innerText = `R$ ${formatarMoeda(receitaColetasEst)}`;
-            document.getElementById('texto-projecao-coletas').innerText =
-                `${totalPacotesShopee.toLocaleString('pt-BR')} pacotes Shopee + ${totalPacotesML.toLocaleString('pt-BR')} pacotes ML no período = R$ ${formatarMoeda(receitaColetasEst)} estimado em coletas.`;
-
-            const precoMedioPacote = totalPacotesPeriodo > 0 && receitaColetasEst > 0 ? (receitaColetasEst / totalPacotesPeriodo) : 0;
-            const pontoEquilibrioPacotes = precoMedioPacote > 0 ? Math.ceil(totalDespesas / precoMedioPacote) : 0;
-            document.getElementById('texto-ponto-equilibrio').innerText = pontoEquilibrioPacotes > 0
-                ? `Ponto de equilíbrio do período: R$ ${formatarMoeda(totalDespesas)} em receitas (≈ ${pontoEquilibrioPacotes.toLocaleString('pt-BR')} pacotes na tarifa média atual).`
-                : `Ponto de equilíbrio operacional do período: R$ ${formatarMoeda(totalDespesas)} em receitas necessárias para empatar as despesas.`;
             
             const resultadoLiquido = receitaBrutaTotal - totalDespesas;
             const margemNum = receitaBrutaTotal > 0 ? ((resultadoLiquido / receitaBrutaTotal) * 100) : 0;
             const margemPorcentagem = formatarNumero(margemNum, 1);
 
             document.getElementById('card-receita-bruta').innerText = `R$ ${formatarMoeda(receitaBrutaTotal)}`;
-            document.getElementById('sub-receita-pacotes').innerText = receitaColetasEst > 0
-                ? `Entradas: R$ ${formatarMoeda(receitaBrutaTotal)} | Est. Coletas: R$ ${formatarMoeda(receitaColetasEst)}`
-                : `Entradas: R$ ${formatarMoeda(receitaBrutaTotal)}`;
+            document.getElementById('sub-receita-pacotes').innerText = `Entradas: R$ ${formatarMoeda(receitaBrutaTotal)}`;
 
             document.getElementById('card-custo-motoristas').innerText = `R$ ${formatarMoeda(custoTotalMotoristas)}`;
             document.getElementById('card-custo-combustivel').innerText = `R$ ${formatarMoeda(totalCombustivel)}`;
@@ -1268,6 +1574,10 @@
             elResultado.className = resultadoLiquido >= 0 ? 'text-emerald-400 font-black' : 'text-red-400 font-black';
 
             atualizarGraficoCustos(custoTotalMotoristas, totalCombustivel, totalManutencao, catPecas + catManutencaoManual + catPneus + catFuncionario + catCestaBasica + catPremiacao + catImposto + catPedagios + catParcelas + catProlabore + catOutrasSaidas + totalBoletosPagosValor);
+
+            if (abaFinAtiva === 'relatorios') {
+                renderizarRelatorioFinanceiroAtivo();
+            }
         }
 
         function atualizarGraficoCustos(motoristas, combustivel, oficina, extras) {
