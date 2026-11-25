@@ -1029,14 +1029,13 @@
             const custoTotalMotoristas = custoTotalDiarias + custoTotalPacotes;
             const totalDespesas = custoTotalMotoristas + totalCombustivel + totalManutencao + totalSaidasManuais + totalBoletosPagosValor;
 
-            const estimativaReceitaOperacional = (totalPacotesShopee * 2.50) + (totalPacotesML * 2.80) + (custoTotalDiarias * 1.30);
-            const receitaBrutaTotal = estimativaReceitaOperacional + totalEntradasManuais + catOutrasReceitas;
+            const receitaBrutaTotal = totalEntradasManuais + catOutrasReceitas;
             
             const resultadoLiquido = receitaBrutaTotal - totalDespesas;
             const margemPorcentagem = receitaBrutaTotal > 0 ? ((resultadoLiquido / receitaBrutaTotal) * 100).toFixed(1) : '0.0';
 
             document.getElementById('card-receita-bruta').innerText = `R$ ${receitaBrutaTotal.toFixed(2)}`;
-            document.getElementById('sub-receita-pacotes').innerText = `Op: R$ ${estimativaReceitaOperacional.toFixed(2)} | Extras: R$ ${(totalEntradasManuais + catOutrasReceitas).toFixed(2)}`;
+            document.getElementById('sub-receita-pacotes').innerText = `Entradas: R$ ${receitaBrutaTotal.toFixed(2)}`;
 
             document.getElementById('card-custo-motoristas').innerText = `R$ ${custoTotalMotoristas.toFixed(2)}`;
             document.getElementById('card-custo-combustivel').innerText = `R$ ${totalCombustivel.toFixed(2)}`;
@@ -1229,3 +1228,4 @@
     </script>
 </body>
 </html>
+```[cite: 17]
